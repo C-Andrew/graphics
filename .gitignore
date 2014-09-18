@@ -1,0 +1,17 @@
+# Can ignore specific files
+.DS_Store
+
+# Use wildcards as well
+*~
+*.swp
+
+# Can also ignore all directories and files in a directory.
+tmp/**/* 
+
+*.o
+
+#A1 Ignore
+game488
+moc_AppWindow.cpp
+moc_Viewer.cpp
+
