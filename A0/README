@@ -1,0 +1,29 @@
+Student Number: 20378330
+User-id: a8chin
+Assignment: 0
+
+The final executable was compiled on this machine: gl01 
+
+How to invoke my program: ./paint488
+
+
+How to use my extra features: n/a
+
+
+I have created the following data files, which are in the data directory: n/a
+
+
+My program assumes the following: Running from within the graphics lab with correct libraries installed.
+
+
+To compile and run:
+qmake paint488.pro
+make
+./paint488
+
+Paint488 can e used to draw lines, ovals, and rectangles, in various colours (blakc, green, red and blue). These settings can be switched from the 'Tools' and 'Colours' in the menubar.
+After a shape has been selected, you can click to begin drag'n'dropping shapes on to the canvas.
+
+To clear the canvas, press 'C' or select 'Clear' from the Applications menu.
+
+
