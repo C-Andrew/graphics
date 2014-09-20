@@ -48,6 +48,7 @@ protected:
 private:
 
     QMatrix4x4 getCameraMatrix();
+    void paintWell();
     void translateWorld(float x, float y, float z);
     void rotateWorld(float x, float y, float z);
     void scaleWorld(float x, float y, float z);

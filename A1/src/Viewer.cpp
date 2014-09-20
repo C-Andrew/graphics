@@ -13,6 +13,7 @@
 #define GL_MULTISAMPLE 0x809D
 #endif
 
+
 Viewer::Viewer(const QGLFormat& format, QWidget *parent)
     : QGLWidget(format, parent)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
@@ -26,13 +27,14 @@ Viewer::Viewer(const QGLFormat& format, QWidget *parent)
     connect(mTimer, SIGNAL(timeout()), this, SLOT(update()));
     mTimer->start(1000/30);
 
-    mModelMatrices[0].translate(-5,-10,0);
-    mModelMatrices[1].translate(5,-10,0);
-    mModelMatrices[1].rotate(90, QVector3D(0,0,1));
-    mModelMatrices[2].translate(-5,10,0);
-    mModelMatrices[2].rotate(270, QVector3D(0,0,1));
-    mModelMatrices[3].translate(5,10,0);
-    mModelMatrices[3].rotate(180, QVector3D(0,0,1));
+    mModelMatrices[0].translate(0,0,0);
+    // mModelMatrices[0].rotate(90, QVector3D(0,0,1));
+    // mModelMatrices[1].translate(5,-10,0);
+    // mModelMatrices[1].rotate(90, QVector3D(0,0,1));
+    // mModelMatrices[2].translate(-5,10,0);
+    // mModelMatrices[2].rotate(270, QVector3D(0,0,1));
+    // mModelMatrices[3].translate(5,10,0);
+    // mModelMatrices[3].rotate(180, QVector3D(0,0,1));
 }
 
 Viewer::~Viewer() {
@@ -71,11 +73,48 @@ void Viewer::initializeGL() {
         return;
     }
 
+        static const GLfloat g_vertex_buffer_data[] = {
+   
+};
+
     float triangleData[] = {
         //  X     Y     Z
-         0.0f, 0.0f, 0.0f,
-         1.0f, 0.0f, 0.0f,
-         0.0f, 1.0f, 0.0f,
+        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+        -1.0f,-1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f, // triangle 1 : end
+        1.0f, 1.0f,-1.0f, // triangle 2 : begin
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f, // triangle 2 : end
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,    
+        1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f
     };
 
 
@@ -115,7 +154,7 @@ void Viewer::initializeGL() {
         return;
     }
 
-    mVertexBufferObject.allocate(triangleData, 3 * 3 * sizeof(float));
+    mVertexBufferObject.allocate(triangleData, 36 * 3 * sizeof(float));
 
     mProgram.bind();
 
@@ -124,6 +163,8 @@ void Viewer::initializeGL() {
 
     // mPerspMatrixLocation = mProgram.uniformLocation("cameraMatrix");
     mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 }
 
 void Viewer::paintGL() {
@@ -135,12 +176,34 @@ void Viewer::paintGL() {
     mVertexArrayObject.bind();
 #endif
 
+    paintWell();
+}
 
-    for (int i = 0; i < 4; i++) {
+void Viewer::paintWell(){
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
+        mVertexArrayObject.bind();
+    #endif
 
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix() * mModelMatrices[i]);
-
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+    // Draw Base Line of U   
+    for (int i = -5; i < 5; i++) {
+        QMatrix4x4 trs;
+        trs.translate(-2*i,-20, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        glDrawArrays(GL_TRIANGLES, 0, 3*12);
+    }
+    // Draw Left Column of U
+    for (int i = -9; i < 10 ; i++) {
+        QMatrix4x4 trs;
+        trs.translate(-8, i*2, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        glDrawArrays(GL_TRIANGLES, 0, 3*12);
+    }
+    // Draw Right Column of U
+    for (int i = -9; i < 10 ; i++) {
+        QMatrix4x4 trs;
+        trs.translate(10, i*2, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
 }
 
@@ -157,14 +220,55 @@ void Viewer::resizeGL(int width, int height) {
 
 void Viewer::mousePressEvent ( QMouseEvent * event ) {
     std::cerr << "Stub: button " << event->button() << " pressed\n";
+    switch(event->button()){
+        case 1:
+
+            break;
+        case 2:
+            break;
+        case 4:
+            break;
+        default:
+            break;
+    }
 }
 
 void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
     std::cerr << "Stub: button " << event->button() << " released\n";
+    switch(event->button()){
+        case 1:
+            break;
+        case 2:
+            break;
+        case 4:
+            break;
+        default:
+            break;
+    }
 }
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
-    std::cerr << "Stub: Motion at " << event->x() << ", " << event->y() << std::endl;
+    std::cerr << event->button() << "Stub: Motion at " << event->x() << ", " << event->y() << std::endl;
+
+
+if(event->buttons() & Qt::LeftButton)
+{
+std::cerr << "Rotate on X" << std::endl;
+}
+    // switch(event->button()){
+    //     case 1:
+    //         std::cerr << "Rotate on X" << std::endl;
+    //         rotateWorld(event->x(), event->y(), -20);
+    //         break;
+    //     case 2:
+    //          std::cerr << "Rotate on Z" << std::endl;
+    //         break;
+    //     case 4:
+    //          std::cerr << "Rotate on Y" << std::endl;
+    //         break;
+    //     default:
+    //         break;
+    // }
 }
 
 QMatrix4x4 Viewer::getCameraMatrix() {
