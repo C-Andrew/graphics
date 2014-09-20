@@ -50,7 +50,7 @@ private:
     QMatrix4x4 getCameraMatrix();
     void paintWell();
     void translateWorld(float x, float y, float z);
-    void rotateWorld(float x, float y, float z);
+    void rotateWorld(float angle, float x, float y, float z);
     void scaleWorld(float x, float y, float z);
 
 
@@ -64,10 +64,14 @@ private:
     int mVertexLocation;
     int mMvpMatrixLocation;
 
+    double mOrigin_x;
+    double mOrigin_y;
+    double mOrigin_z;
     QMatrix4x4 mPerspMatrix;
     QMatrix4x4 mModelMatrices[4];
     QMatrix4x4 mTransformMatrix;
-    
+    QMatrix4x4 trs;
+
     QTimer* mTimer;
     QGLShaderProgram mProgram;
 };

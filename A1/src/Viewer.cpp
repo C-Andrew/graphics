@@ -27,6 +27,9 @@ Viewer::Viewer(const QGLFormat& format, QWidget *parent)
     connect(mTimer, SIGNAL(timeout()), this, SLOT(update()));
     mTimer->start(1000/30);
 
+
+     mOrigin_x = mOrigin_y = mOrigin_z = 0;
+
     mModelMatrices[0].translate(0,0,0);
     // mModelMatrices[0].rotate(90, QVector3D(0,0,1));
     // mModelMatrices[1].translate(5,-10,0);
@@ -186,23 +189,23 @@ void Viewer::paintWell(){
 
     // Draw Base Line of U   
     for (int i = -5; i < 5; i++) {
-        QMatrix4x4 trs;
-        trs.translate(-2*i,-20, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        QMatrix4x4 bottomU;
+        bottomU.translate(-2*i,-20, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*bottomU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
     // Draw Left Column of U
     for (int i = -9; i < 10 ; i++) {
-        QMatrix4x4 trs;
-        trs.translate(-8, i*2, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        QMatrix4x4 leftU;
+        leftU.translate(-8, i*2, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*leftU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
     // Draw Right Column of U
     for (int i = -9; i < 10 ; i++) {
-        QMatrix4x4 trs;
-        trs.translate(10, i*2, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*trs);
+        QMatrix4x4 rightU;
+        rightU.translate(10, i*2, -20);
+        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*rightU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
 }
@@ -220,55 +223,63 @@ void Viewer::resizeGL(int width, int height) {
 
 void Viewer::mousePressEvent ( QMouseEvent * event ) {
     std::cerr << "Stub: button " << event->button() << " pressed\n";
-    switch(event->button()){
-        case 1:
 
-            break;
-        case 2:
-            break;
-        case 4:
-            break;
-        default:
-            break;
-    }
+    mOrigin_x = event->x();
+    mOrigin_y = event->y();
 }
 
 void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
     std::cerr << "Stub: button " << event->button() << " released\n";
-    switch(event->button()){
-        case 1:
-            break;
-        case 2:
-            break;
-        case 4:
-            break;
-        default:
-            break;
-    }
+
+    mOrigin_x = 0;
+    mOrigin_y = 0;
 }
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
-    std::cerr << event->button() << "Stub: Motion at " << event->x() << ", " << event->y() << std::endl;
+
+    double dx = event->x() - mOrigin_x;
+    mOrigin_x = event->x();
 
 
-if(event->buttons() & Qt::LeftButton)
-{
-std::cerr << "Rotate on X" << std::endl;
-}
-    // switch(event->button()){
-    //     case 1:
-    //         std::cerr << "Rotate on X" << std::endl;
-    //         rotateWorld(event->x(), event->y(), -20);
-    //         break;
-    //     case 2:
-    //          std::cerr << "Rotate on Z" << std::endl;
-    //         break;
-    //     case 4:
-    //          std::cerr << "Rotate on Y" << std::endl;
-    //         break;
-    //     default:
-    //         break;
-    // }
+
+    if(event->buttons() & Qt::LeftButton)
+    {
+        if(dx > 0){
+            translateWorld(0,0,-20);
+            rotateWorld(1,1,0,0);
+            translateWorld(0,0,20);
+        }
+        else{
+            translateWorld(0,0,-20);
+            rotateWorld(-1,1,0,0);
+            translateWorld(0,0,20);
+        }
+    }
+    else if(event->buttons() & Qt::RightButton){
+        if(dx > 0){
+            translateWorld(0,0,-20);
+            rotateWorld(1,0,1,0);
+            translateWorld(0,0,20);
+        }
+        else{
+            translateWorld(0,0,-20);
+            rotateWorld(-1,0,1,0);
+            translateWorld(0,0,20);
+        }
+    }
+    else {
+        if(dx > 0){
+            translateWorld(0,0,-20);
+            rotateWorld(1,0,0,1);
+            translateWorld(0,0,20);
+        }
+        else{
+            translateWorld(0,0,-20);
+            rotateWorld(-1,0,0,1);
+            translateWorld(0,0,20);
+        }
+    }
+
 }
 
 QMatrix4x4 Viewer::getCameraMatrix() {
@@ -287,8 +298,8 @@ void Viewer::translateWorld(float x, float y, float z) {
     mTransformMatrix.translate(x, y, z);
 }
 
-void Viewer::rotateWorld(float x, float y, float z) {
-    mTransformMatrix.rotate(x, y, z);
+void Viewer::rotateWorld(float angle, float x, float y, float z) {
+    mTransformMatrix.rotate(angle, x, y, z);
 }
 
 void Viewer::scaleWorld(float x, float y, float z) {
