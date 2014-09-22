@@ -13,7 +13,7 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-
+#include <iostream>
 #include "game.hpp"
 
 static const Piece PIECES[] = {
@@ -292,6 +292,7 @@ void Game::generateNewPiece()
 
 int Game::tick()
 {
+  // std::cerr << "Tick" << std::endl;
   if(stopped_) {
     return -1;
   }

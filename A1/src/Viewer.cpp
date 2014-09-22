@@ -146,7 +146,7 @@ void Viewer::initializeGL() {
     glGenVertexArrays = (_glGenVertexArrays) QGLWidget::context()->getProcAddress("glGenVertexArrays");
     glBindVertexArray = (_glBindVertexArray) QGLWidget::context()->getProcAddress("glBindVertexArray");
 
-    glGenVertexArrays(1, &vao);
+    glGenVertexArrays(1, &vao);glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glBindVertexArray(vao);
 
     mVertexBufferObject.create();
@@ -185,9 +185,8 @@ void Viewer::paintGL() {
     for(int h = 0; h < mGame->getHeight()+4; h++){
         for(int w = 0; w < mGame->getWidth(); w++){
            if(mGame->get(h, w) != -1){
-                std::cerr << "Block at w:" << w << " h:" << h << std::endl; 
                 QMatrix4x4 drawBlock;
-                drawBlock.translate(w*2, (2*h)-18, -20);
+                drawBlock.translate((w*2)-8, (2*h)-18, -20);
                 mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*drawBlock);
                 glDrawArrays(GL_TRIANGLES, 0, 3*12);
             }
@@ -201,9 +200,9 @@ void Viewer::paintWell(){
     #endif
 
     // Draw Base Line of U   
-    for (int i = -5; i < 5; i++) {
+    for (int i = 0; i < 11; i++) {
         QMatrix4x4 bottomU;
-        bottomU.translate(-2*i,-20, -20);
+        bottomU.translate( (i*2)-10,-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*bottomU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
@@ -226,7 +225,7 @@ void Viewer::paintWell(){
 void Viewer::resizeGL(int width, int height) {
     if (height == 0) {
         height = 1;
-    }
+    }glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
     mPerspMatrix.setToIdentity();
     mPerspMatrix.perspective(60.0, (float) width / (float) height, 0.001, 1000);
@@ -343,6 +342,10 @@ QMatrix4x4 Viewer::getCameraMatrix() {
     return mPerspMatrix * vMatrix * mTransformMatrix;
 }
 
+void Viewer::resetWorld(){
+    mTransformMatrix.setToIdentity();
+}
+
 void Viewer::translateWorld(float x, float y, float z) {
     mTransformMatrix.translate(x, y, z);
 }
@@ -355,3 +358,14 @@ void Viewer::scaleWorld(float x, float y, float z) {
     mTransformMatrix.scale(x, y, z);
 }
 
+void Viewer::setWireframeMode(){
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+}
+
+void Viewer::setFillMode(){
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+}
+
+void Viewer::setMulticolourMode(){
+    // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+}

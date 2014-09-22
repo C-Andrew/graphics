@@ -24,6 +24,10 @@ public:
     
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+    void resetWorld();
+    void setWireframeMode();
+    void setFillMode();
+    void setMulticolourMode();
 
     // If you want to render a new frame, call do not call paintGL(),
     // instead, call update() to ensure that the view gets a paint 
