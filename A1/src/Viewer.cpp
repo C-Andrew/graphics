@@ -240,43 +240,79 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
     double dx = event->x() - mOrigin_x;
     mOrigin_x = event->x();
 
-
-
-    if(event->buttons() & Qt::LeftButton)
-    {
-        if(dx > 0){
+     if(event->modifiers() & Qt::ShiftModifier &&
+        (event->buttons() & Qt::LeftButton ||
+         event->buttons() & Qt::RightButton || 
+         event->buttons() & Qt::MidButton)
+        ){
+       if(dx > 0){
             translateWorld(0,0,-20);
-            rotateWorld(1,1,0,0);
+            scaleWorld(1.01, 1.01, 1.01);
             translateWorld(0,0,20);
         }
         else{
             translateWorld(0,0,-20);
-            rotateWorld(-1,1,0,0);
+            scaleWorld(0.99,0.99,0.99);
             translateWorld(0,0,20);
         }
     }
-    else if(event->buttons() & Qt::RightButton){
-        if(dx > 0){
-            translateWorld(0,0,-20);
-            rotateWorld(1,0,1,0);
-            translateWorld(0,0,20);
+
+    // Modify on X-Axis
+    else{
+        if(event->buttons() & Qt::LeftButton)
+        {   
+            //Scale
+            if(event->modifiers() & Qt::ShiftModifier){
+               if(dx > 0){
+                    translateWorld(0,0,-20);
+                    scaleWorld(1.01, 1.01, 1.01);
+                    translateWorld(0,0,20);
+                }
+                else{
+                    translateWorld(0,0,-20);
+                    scaleWorld(0.99,0.99,0.99);
+                    translateWorld(0,0,20);
+                }
+            }
+            // Rotate
+            else{
+               if(dx > 0){
+                    translateWorld(0,0,-20);
+                    rotateWorld(1,1,0,0);
+                    translateWorld(0,0,20);
+                }
+                else{
+                    translateWorld(0,0,-20);
+                    rotateWorld(-1,1,0,0);
+                    translateWorld(0,0,20);
+                }
+            }
         }
-        else{
-            translateWorld(0,0,-20);
-            rotateWorld(-1,0,1,0);
-            translateWorld(0,0,20);
+        // Modify on Z-Axis
+        else if(event->buttons() & Qt::RightButton){
+            if(dx > 0){
+                translateWorld(0,0,-20);
+                rotateWorld(1,0,0,1);
+                translateWorld(0,0,20);
+            }
+            else{
+                translateWorld(0,0,-20);
+                rotateWorld(-1,0,0,1);
+                translateWorld(0,0,20);
+            }
         }
-    }
-    else {
-        if(dx > 0){
-            translateWorld(0,0,-20);
-            rotateWorld(1,0,0,1);
-            translateWorld(0,0,20);
-        }
-        else{
-            translateWorld(0,0,-20);
-            rotateWorld(-1,0,0,1);
-            translateWorld(0,0,20);
+        // Modify on Y-Axis
+        else {
+            if(dx > 0){
+                translateWorld(0,0,-20);
+                rotateWorld(1,0,1,0);
+                translateWorld(0,0,20);
+            }
+            else{
+                translateWorld(0,0,-20);
+                rotateWorld(-1,0,1,0);
+                translateWorld(0,0,20);
+            }
         }
     }
 
