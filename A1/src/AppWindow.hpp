@@ -5,8 +5,10 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QTimer>
 #include <vector>
 #include "Viewer.hpp"
+#include "game.hpp"
 
 class AppWindow : public QMainWindow
 {
@@ -27,6 +29,11 @@ private:
 
     std::vector<QAction*> m_menu_actions;
     Viewer* m_viewer;
+    Game* m_game;
+    QTimer* m_gameTimer;
+
+private slots:
+    void gameTick();
 };
 
 #endif

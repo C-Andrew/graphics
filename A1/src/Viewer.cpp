@@ -14,8 +14,9 @@
 #endif
 
 
-Viewer::Viewer(const QGLFormat& format, QWidget *parent)
+Viewer::Viewer(const QGLFormat& format, Game* game, QWidget *parent)
     : QGLWidget(format, parent)
+    , mGame(game)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     , mVertexBufferObject(QOpenGLBuffer::VertexBuffer)
     , mVertexArrayObject(this)
@@ -82,12 +83,12 @@ void Viewer::initializeGL() {
 
     float triangleData[] = {
         //  X     Y     Z
-        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-        -1.0f,-1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f, // triangle 1 : end
-        1.0f, 1.0f,-1.0f, // triangle 2 : begin
         -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f, // triangle 2 : end
+        -1.0f,-1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f,
         1.0f,-1.0f, 1.0f,
         -1.0f,-1.0f,-1.0f,
         1.0f,-1.0f,-1.0f,
@@ -180,6 +181,18 @@ void Viewer::paintGL() {
 #endif
 
     paintWell();
+
+    for(int h = 0; h < mGame->getHeight()+4; h++){
+        for(int w = 0; w < mGame->getWidth(); w++){
+           if(mGame->get(h, w) != -1){
+                std::cerr << "Block at w:" << w << " h:" << h << std::endl; 
+                QMatrix4x4 drawBlock;
+                drawBlock.translate(w*2, (2*h)-18, -20);
+                mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*drawBlock);
+                glDrawArrays(GL_TRIANGLES, 0, 3*12);
+            }
+        }
+    }
 }
 
 void Viewer::paintWell(){
@@ -195,16 +208,16 @@ void Viewer::paintWell(){
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
     // Draw Left Column of U
-    for (int i = -9; i < 10 ; i++) {
+    for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 leftU;
-        leftU.translate(-8, i*2, -20);
+        leftU.translate(-10, (i*2)-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*leftU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }
     // Draw Right Column of U
-    for (int i = -9; i < 10 ; i++) {
+    for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 rightU;
-        rightU.translate(10, i*2, -20);
+        rightU.translate(12, (i*2)-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*rightU*trs);
         glDrawArrays(GL_TRIANGLES, 0, 3*12);
     }

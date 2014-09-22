@@ -5,6 +5,7 @@
 #include <QGLShaderProgram>
 #include <QMatrix4x4>
 #include <QtGlobal>
+#include "game.hpp"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
 #include <QOpenGLBuffer>
@@ -18,7 +19,7 @@ class Viewer : public QGLWidget {
     Q_OBJECT
 
 public:
-    Viewer(const QGLFormat& format, QWidget *parent = 0);
+    Viewer(const QGLFormat& format, Game* game, QWidget *parent = 0);
     virtual ~Viewer();
     
     QSize minimumSizeHint() const;
@@ -49,6 +50,7 @@ private:
 
     QMatrix4x4 getCameraMatrix();
     void paintWell();
+    void paintCube();
     void translateWorld(float x, float y, float z);
     void rotateWorld(float angle, float x, float y, float z);
     void scaleWorld(float x, float y, float z);
@@ -71,6 +73,8 @@ private:
     QMatrix4x4 mModelMatrices[4];
     QMatrix4x4 mTransformMatrix;
     QMatrix4x4 trs;
+
+    Game* mGame;
 
     QTimer* mTimer;
     QGLShaderProgram mProgram;

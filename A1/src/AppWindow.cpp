@@ -12,8 +12,13 @@ AppWindow::AppWindow() {
     glFormat.setSampleBuffers(true);
 
     QVBoxLayout *layout = new QVBoxLayout;
+    m_game = new Game(10, 20);
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
+    m_gameTimer->start(10000/30);
+    
     // m_menubar = new QMenuBar;
-    m_viewer = new Viewer(glFormat, this);
+    m_viewer = new Viewer(glFormat, m_game, this);
     layout->addWidget(m_viewer);
     setCentralWidget(new QWidget);
     centralWidget()->setLayout(layout);
@@ -57,3 +62,6 @@ void AppWindow::createMenu() {
     }
 }
 
+void AppWindow::gameTick() {
+    m_game->tick();
+}
