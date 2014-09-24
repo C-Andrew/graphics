@@ -126,6 +126,16 @@ void AppWindow::createActions() {
     multiColored->setStatusTip(tr("Sets draw mode to multicolored mode"));
     connect(multiColored, SIGNAL(triggered()), this, SLOT(multiColored()));
     m_draw_actions.push_back(multiColored);
+
+    wireFrame->setCheckable(true);
+    fillFace->setCheckable(true);
+    multiColored->setCheckable(true);  
+
+    QActionGroup* group = new QActionGroup(this);
+    wireFrame->setActionGroup(group);
+    fillFace->setActionGroup(group);
+    multiColored->setActionGroup(group);
+    fillFace->toggle();
 }
 
 void AppWindow::createMenu() {
