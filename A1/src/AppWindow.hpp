@@ -27,6 +27,9 @@ private slots:
     void wireFrame();
     void fillFace();
     void multiColored();
+    void speedSlow();
+    void speedMedium();
+    void speedFast();
 
 private:
     void createActions();
@@ -35,10 +38,12 @@ private:
     // Each menu itself
     QMenu* m_menu_app;
     QMenu* m_draw_app;
+    QMenu* m_speed_app;
 
 
     std::vector<QAction*> m_menu_actions;
     std::vector<QAction*> m_draw_actions;
+    std::vector<QAction*> m_speed_actions;
     Viewer* m_viewer;
     Game* m_game;
     QTimer* m_gameTimer;

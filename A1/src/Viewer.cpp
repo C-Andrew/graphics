@@ -28,17 +28,16 @@ Viewer::Viewer(const QGLFormat& format, Game* game, QWidget *parent)
     connect(mTimer, SIGNAL(timeout()), this, SLOT(update()));
     mTimer->start(1000/30);
 
+    mApplyGravity = false;
+    mGravityTimer = new QTimer(this);    
+    connect(mGravityTimer, SIGNAL(timeout()), this, SLOT(gravity()));
+    mGravityTimer->start(50);
 
-     mOrigin_x = mOrigin_y = mOrigin_z = 0;
+    mWireframeMode = false;
+
+    mOrigin_x = mOrigin_y = 0;
 
     mModelMatrices[0].translate(0,0,0);
-    // mModelMatrices[0].rotate(90, QVector3D(0,0,1));
-    // mModelMatrices[1].translate(5,-10,0);
-    // mModelMatrices[1].rotate(90, QVector3D(0,0,1));
-    // mModelMatrices[2].translate(-5,10,0);
-    // mModelMatrices[2].rotate(270, QVector3D(0,0,1));
-    // mModelMatrices[3].translate(5,10,0);
-    // mModelMatrices[3].rotate(180, QVector3D(0,0,1));
 }
 
 Viewer::~Viewer() {
@@ -62,6 +61,13 @@ void Viewer::initializeGL() {
 
     glClearColor(0.7, 0.7, 1.0, 0.0);
 
+    static const float vertexColors[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+ 
+
     if (!mProgram.addShaderFromSourceFile(QGLShader::Vertex, "shader.vert")) {
         std::cerr << "Cannot load vertex shader." << std::endl;
         return;
@@ -77,12 +83,103 @@ void Viewer::initializeGL() {
         return;
     }
 
-        static const GLfloat g_vertex_buffer_data[] = {
-   
-};
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
+    mVertexArrayObject.create();
+    mVertexArrayObject.bind();
 
-    float triangleData[] = {
+    mVertexBufferObject.create();
+    mVertexBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
+#else
+
+    /*
+     * if qt version is less than 5.1, use the following commented code
+     * instead of QOpenGLVertexVufferObject. Also use QGLBuffer instead of
+     * QOpenGLBuffer.
+     */
+    uint vao;
+
+    typedef void (APIENTRY *_glGenVertexArrays) (GLsizei, GLuint*);
+    typedef void (APIENTRY *_glBindVertexArray) (GLuint);
+
+    _glGenVertexArrays glGenVertexArrays;
+    _glBindVertexArray glBindVertexArray;
+
+    glGenVertexArrays = (_glGenVertexArrays) QGLWidget::context()->getProcAddress("glGenVertexArrays");
+    glBindVertexArray = (_glBindVertexArray) QGLWidget::context()->getProcAddress("glBindVertexArray");
+
+    glGenVertexArrays(1, &vao);
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    glBindVertexArray(vao);
+
+    QOpenGLBuffer vertexColorBuffer(QOpenGLBuffer::VertexBuffer);
+    vertexColorBuffer.create();
+    vertexColorBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vertexColorBuffer.bind();
+    vertexColorBuffer.allocate(vertexColors, 9 * sizeof(float));
+
+    prepareVertexBuffer();
+    prepareColorsBuffer();
+
+#endif
+
+    if (!mVertexBufferObject.bind()) {
+        std::cerr << "could not bind vertex buffer to the context." << std::endl;
+        return;
+    }
+
+    mProgram.link();
+    mProgram.bind();
+    mProgram.enableAttributeArray("vert");
+    mProgram.setAttributeBuffer("vert", GL_FLOAT, 0, 3);
+
+    vertexColorBuffer.bind();
+    mProgram.enableAttributeArray("color");
+    mProgram.setAttributeBuffer("color", GL_FLOAT, 0, 3);
+    
+    // mPerspMatrixLocation = mProgram.uniformLocation("cameraMatrix");
+    mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+}
+
+
+bool Viewer::prepareVertexBuffer()
+{
+    float cubeData[] = {
         //  X     Y     Z
+        -1, -1, -1, //Front
+        -1,  1, -1,
+        -1,  1, -1,
+        1,  1, -1,
+
+        1,  1, -1,
+        1, -1, -1,
+        1, -1, -1,
+        -1, -1, -1,
+
+        -1, -1, 1, //Back
+        -1,  1, 1,
+        -1,  1, 1,
+        1,  1, 1,
+
+        1,  1, 1,
+        1, -1, 1,
+        1, -1, 1,
+        -1, -1, 1,
+
+        -1, -1, -1,
+         -1, -1, 1,
+
+         -1,  1, -1,
+         -1,  1, 1,
+
+        1,  1, -1,
+        1,  1, 1,
+
+        1, -1, -1,
+        1,  -1, 1,
+    };
+
+    float cubeFaceData[] = {
         -1.0f,-1.0f,-1.0f,
         -1.0f,-1.0f, 1.0f,
         -1.0f, 1.0f, 1.0f,
@@ -120,55 +217,69 @@ void Viewer::initializeGL() {
         -1.0f, 1.0f, 1.0f,
         1.0f,-1.0f, 1.0f
     };
-
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
-    mVertexArrayObject.create();
-    mVertexArrayObject.bind();
-
     mVertexBufferObject.create();
-    mVertexBufferObject.setUsagePattern(QOpenGLBuffer::StaticDraw);
-#else
-
-    /*
-     * if qt version is less than 5.1, use the following commented code
-     * instead of QOpenGLVertexVufferObject. Also use QGLBuffer instead of
-     * QOpenGLBuffer.
-     */
-    uint vao;
-
-    typedef void (APIENTRY *_glGenVertexArrays) (GLsizei, GLuint*);
-    typedef void (APIENTRY *_glBindVertexArray) (GLuint);
-
-    _glGenVertexArrays glGenVertexArrays;
-    _glBindVertexArray glBindVertexArray;
-
-    glGenVertexArrays = (_glGenVertexArrays) QGLWidget::context()->getProcAddress("glGenVertexArrays");
-    glBindVertexArray = (_glBindVertexArray) QGLWidget::context()->getProcAddress("glBindVertexArray");
-
-    glGenVertexArrays(1, &vao);glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    glBindVertexArray(vao);
-
-    mVertexBufferObject.create();
-    mVertexBufferObject.setUsagePattern(QGLBuffer::StaticDraw);
-#endif
-
-    if (!mVertexBufferObject.bind()) {
-        std::cerr << "could not bind vertex buffer to the context." << std::endl;
-        return;
+    mVertexBufferObject.setUsagePattern( QGLBuffer::StaticDraw );
+    if ( !mVertexBufferObject.bind() )
+    {
+        qDebug() << "Could not bind vertex buffer to the context";
+        return false;
     }
+    if(mWireframeMode){
+        mVertexBufferObject.allocate(cubeData, 24 * 3 * sizeof(float));
+    }
+    else{
+        mVertexBufferObject.allocate(cubeFaceData, 36 * 3 * sizeof(float));
+    }
+    return true;
+}
 
-    mVertexBufferObject.allocate(triangleData, 36 * 3 * sizeof(float));
-
-    mProgram.bind();
-
-    mProgram.enableAttributeArray("vert");
-    mProgram.setAttributeBuffer("vert", GL_FLOAT, 0, 3);
-
-    // mPerspMatrixLocation = mProgram.uniformLocation("cameraMatrix");
-    mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
-
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+bool Viewer::prepareColorsBuffer(){
+    float colors[] = {
+    0.0f, 0.0f, 1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f, 1.0f };
+    m_colorBuffer.create();
+    m_colorBuffer.setUsagePattern( QGLBuffer::StaticDraw );
+    if ( !m_colorBuffer.bind() )
+    {
+        qDebug() << "Could not bind colors buffer to the context";
+        return false;
+    }
+    m_colorBuffer.allocate( colors, 36 * 4 * sizeof( float ) );
+    return true;
 }
 
 void Viewer::paintGL() {
@@ -179,7 +290,13 @@ void Viewer::paintGL() {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     mVertexArrayObject.bind();
 #endif
-
+    int DRAW_TYPE;
+    if(mWireframeMode){
+        DRAW_TYPE = GL_LINES;
+    }
+    else{
+        DRAW_TYPE = GL_TRIANGLES;
+    }
     paintWell();
 
     for(int h = 0; h < mGame->getHeight()+4; h++){
@@ -188,7 +305,7 @@ void Viewer::paintGL() {
                 QMatrix4x4 drawBlock;
                 drawBlock.translate((w*2)-8, (2*h)-18, -20);
                 mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*drawBlock);
-                glDrawArrays(GL_TRIANGLES, 0, 3*12);
+                glDrawArrays(DRAW_TYPE, 0, 3*12);
             }
         }
     }
@@ -199,26 +316,33 @@ void Viewer::paintWell(){
         mVertexArrayObject.bind();
     #endif
 
+    int DRAW_TYPE;
+    if(mWireframeMode){
+        DRAW_TYPE = GL_LINES;
+    }
+    else{
+        DRAW_TYPE = GL_TRIANGLES;
+    }
     // Draw Base Line of U   
     for (int i = 0; i < 11; i++) {
         QMatrix4x4 bottomU;
         bottomU.translate( (i*2)-10,-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*bottomU*trs);
-        glDrawArrays(GL_TRIANGLES, 0, 3*12);
+        glDrawArrays(DRAW_TYPE, 0, 3*12);
     }
     // Draw Left Column of U
     for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 leftU;
         leftU.translate(-10, (i*2)-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*leftU*trs);
-        glDrawArrays(GL_TRIANGLES, 0, 3*12);
+        glDrawArrays(DRAW_TYPE, 0, 3*12);
     }
     // Draw Right Column of U
     for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 rightU;
         rightU.translate(12, (i*2)-20, -20);
         mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*rightU*trs);
-        glDrawArrays(GL_TRIANGLES, 0, 3*12);
+        glDrawArrays(DRAW_TYPE, 0, 3*12);
     }
 }
 
@@ -238,16 +362,28 @@ void Viewer::mousePressEvent ( QMouseEvent * event ) {
 
     mOrigin_x = event->x();
     mOrigin_y = event->y();
+
+    mApplyGravity = false;
 }
 
 void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
-    std::cerr << "Stub: button " << event->button() << " released\n";
 
+    std::cerr << mPrevX << "  " << event->x() << std::endl;
+    if(abs(mXDiff) > 3){
+        mApplyGravity = true;
+    }
     mOrigin_x = 0;
     mOrigin_y = 0;
+    mXDiff = 0;
+    mPrevX = 0;
+
 }
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
+    std::cerr << "Stub: button " << event->x() << std::endl;;
+    mXDiff = mPrevX - event->x();
+    mPrevX = event->x();
+
 
     double dx = event->x() - mOrigin_x;
     mOrigin_x = event->x();
@@ -289,11 +425,13 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
             // Rotate
             else{
                if(dx > 0){
+                    mGravity = 1;
                     translateWorld(0,0,-20);
                     rotateWorld(1,1,0,0);
                     translateWorld(0,0,20);
                 }
                 else{
+                    mGravity = -1;
                     translateWorld(0,0,-20);
                     rotateWorld(-1,1,0,0);
                     translateWorld(0,0,20);
@@ -303,11 +441,13 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
         // Modify on Z-Axis
         else if(event->buttons() & Qt::RightButton){
             if(dx > 0){
+                mGravity = 2;
                 translateWorld(0,0,-20);
                 rotateWorld(1,0,0,1);
                 translateWorld(0,0,20);
             }
             else{
+                mGravity = -2;
                 translateWorld(0,0,-20);
                 rotateWorld(-1,0,0,1);
                 translateWorld(0,0,20);
@@ -316,11 +456,13 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
         // Modify on Y-Axis
         else {
             if(dx > 0){
+                mGravity = 3;
                 translateWorld(0,0,-20);
                 rotateWorld(1,0,1,0);
                 translateWorld(0,0,20);
             }
             else{
+                mGravity = -3;
                 translateWorld(0,0,-20);
                 rotateWorld(-1,0,1,0);
                 translateWorld(0,0,20);
@@ -328,6 +470,46 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
         }
     }
 
+}
+
+void Viewer::gravity(){
+    if(mApplyGravity){
+        switch(mGravity){
+            case -3:
+                translateWorld(0,0,-20);
+                rotateWorld(-1,0,1,0);
+                translateWorld(0,0,20);
+                break;
+            case -2:
+                translateWorld(0,0,-20);
+                rotateWorld(-1,0,0,1);
+                translateWorld(0,0,20);
+                break;
+            case -1:
+                translateWorld(0,0,-20);
+                rotateWorld(-1,1,0,0);
+                translateWorld(0,0,20);
+                break;
+            case 1:
+                translateWorld(0,0,-20);
+                rotateWorld(1,1,0,0);
+                translateWorld(0,0,20);
+                break;
+            case 2:
+                translateWorld(0,0,-20);
+                rotateWorld(1,0,0,1);
+                translateWorld(0,0,20);
+                break;
+            case 3:
+                translateWorld(0,0,-20);
+                rotateWorld(1,0,1,0);
+                translateWorld(0,0,20);
+                break;
+            default:
+                break;
+        }
+
+    }
 }
 
 QMatrix4x4 Viewer::getCameraMatrix() {
@@ -359,10 +541,15 @@ void Viewer::scaleWorld(float x, float y, float z) {
 }
 
 void Viewer::setWireframeMode(){
+    mWireframeMode = true;
+    prepareVertexBuffer();
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
 }
 
 void Viewer::setFillMode(){
+    mWireframeMode = false;
+    prepareVertexBuffer();
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 

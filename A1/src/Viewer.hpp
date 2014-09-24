@@ -5,6 +5,7 @@
 #include <QGLShaderProgram>
 #include <QMatrix4x4>
 #include <QtGlobal>
+#include <QTimer>
 #include "game.hpp"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
@@ -50,11 +51,16 @@ protected:
     // Called when the mouse moves
     virtual void mouseMoveEvent ( QMouseEvent * event );
 
+private slots:
+    void gravity();
+
 private:
 
     QMatrix4x4 getCameraMatrix();
     void paintWell();
     void paintCube();
+    bool prepareColorsBuffer();
+    bool prepareVertexBuffer();
     void translateWorld(float x, float y, float z);
     void rotateWorld(float angle, float x, float y, float z);
     void scaleWorld(float x, float y, float z);
@@ -65,22 +71,31 @@ private:
     QOpenGLVertexArrayObject mVertexArrayObject;
 #else 
     QGLBuffer mVertexBufferObject;
+    QGLBuffer m_colorBuffer;
 #endif
 
     int mVertexLocation;
     int mMvpMatrixLocation;
+    int mGravity;
+
+    bool mApplyGravity;
+    bool mWireframeMode;
 
     double mOrigin_x;
     double mOrigin_y;
-    double mOrigin_z;
+    double mPrevX;
+    double mXDiff;
+
     QMatrix4x4 mPerspMatrix;
     QMatrix4x4 mModelMatrices[4];
     QMatrix4x4 mTransformMatrix;
     QMatrix4x4 trs;
+    QMatrix4x4 mGravityMatrix;
 
     Game* mGame;
 
     QTimer* mTimer;
+    QTimer* mGravityTimer;
     QGLShaderProgram mProgram;
 };
 

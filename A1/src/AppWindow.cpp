@@ -84,6 +84,7 @@ void AppWindow::createActions() {
     connect(resetView, SIGNAL(triggered()), this, SLOT(resetView()));
     m_menu_actions.push_back(resetView);
 
+    // Draw Menu //
     QAction* wireFrame = new QAction(tr("&Wire-frame mode"), this);
     shortcuts.append(tr("W"));
     wireFrame->setShortcuts(shortcuts);
@@ -117,11 +118,48 @@ void AppWindow::createActions() {
     fillFace->setActionGroup(group);
     multiColored->setActionGroup(group);
     fillFace->toggle();
+
+    // Speed Menu //
+    QAction* speedSlow = new QAction(tr("&Slow Speed Mode"), this);
+    shortcuts.append(tr("1"));
+    speedSlow->setShortcuts(shortcuts);
+    shortcuts.clear();
+    speedSlow->setStatusTip(tr("Sets difficulty to slow"));
+    connect(speedSlow, SIGNAL(triggered()), this, SLOT(speedSlow()));
+    m_speed_actions.push_back(speedSlow);
+
+    QAction* speedMedium = new QAction(tr("&Medium Speed Mode"), this);
+    shortcuts.append(tr("2"));
+    speedMedium->setShortcuts(shortcuts);
+    shortcuts.clear();
+    speedMedium->setStatusTip(tr("Sets difficulty to medium"));
+    connect(speedMedium, SIGNAL(triggered()), this, SLOT(speedMedium()));
+    m_speed_actions.push_back(speedMedium);
+
+    QAction* speedFast = new QAction(tr("&Fast Speed Mode"), this);
+    shortcuts.append(tr("3"));
+    speedFast->setShortcuts(shortcuts);
+    shortcuts.clear();
+    speedFast->setStatusTip(tr("Sets difficulty to fast"));
+    connect(speedFast, SIGNAL(triggered()), this, SLOT(speedFast()));
+    m_speed_actions.push_back(speedFast);
+
+    speedSlow->setCheckable(true);
+    speedMedium->setCheckable(true);
+    speedFast->setCheckable(true);  
+
+    QActionGroup* speedGroup = new QActionGroup(this);
+    speedSlow->setActionGroup(speedGroup);
+    speedMedium->setActionGroup(speedGroup);
+    speedFast->setActionGroup(speedGroup);
+    speedMedium->toggle();
+
 }
 
 void AppWindow::createMenu() {
     m_menu_app = menuBar()->addMenu(tr("&Application"));
     m_draw_app = menuBar()->addMenu(tr("&Draw Mode"));
+    m_speed_app = menuBar()->addMenu(tr("&Speed Mode"));
 
     for (auto& action : m_menu_actions) {
         m_menu_app->addAction(action);
@@ -129,6 +167,10 @@ void AppWindow::createMenu() {
 
     for (auto& action : m_draw_actions) {
         m_draw_app->addAction(action);
+    }
+
+    for (auto& action : m_speed_actions) {
+        m_speed_app->addAction(action);
     }
 }
 
@@ -156,3 +198,23 @@ void AppWindow::multiColored() {
     m_viewer->setMulticolourMode();
 }
 
+void AppWindow::speedSlow(){
+    m_gameTimer->stop();
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
+    m_gameTimer->start(3000/3);
+}
+
+void AppWindow::speedMedium(){
+    m_gameTimer->stop();
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
+    m_gameTimer->start(1000/3);
+}
+
+void AppWindow::speedFast(){
+    m_gameTimer->stop();
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
+    m_gameTimer->start(500/3);
+}
