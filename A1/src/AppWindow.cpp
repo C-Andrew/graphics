@@ -32,28 +32,9 @@ void AppWindow::keyPressEvent(QKeyEvent *event) {
     // Application Menu Controls
     if (event->key() == Qt::Key_Escape) {
         QCoreApplication::instance()->quit();
-    }
-    // else if (event->key() == Qt::Key_N) {
-    //     m_game->reset();
-    // }
-    // else if (event->key() == Qt::Key_R) {
-    //    m_viewer->resetWorld();
-    // }
-    else if (event->key() == Qt::Key_Q) {
+    } else if (event->key() == Qt::Key_Q) {
         QCoreApplication::instance()->quit();
     }
-
-    // Draw Mode Controls
-    // else if (event->key() == Qt::Key_W) {
-    //     m_viewer->setWireframeMode();
-    // }
-    // else if (event->key() == Qt::Key_F) {
-    //    m_viewer->setFillMode();
-    // }
-    // else if (event->key() == Qt::Key_M) {
-    //   m_viewer->setMulticolourMode();
-    // }
-
 
     // Game Controls
     else if (event->key() == Qt::Key_Left) {
