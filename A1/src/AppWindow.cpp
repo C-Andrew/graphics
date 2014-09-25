@@ -15,7 +15,7 @@ AppWindow::AppWindow() {
     m_game = new Game(10, 20);
     m_gameTimer = new QTimer(this);
     connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
-    m_gameTimer->start(10000/30);
+    m_gameTimer->start(400);
     
     // m_menubar = new QMenuBar;
     m_viewer = new Viewer(glFormat, m_game, this);
@@ -202,19 +202,19 @@ void AppWindow::speedSlow(){
     m_gameTimer->stop();
     m_gameTimer = new QTimer(this);
     connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
-    m_gameTimer->start(3000/3);
+    m_gameTimer->start(700);
 }
 
 void AppWindow::speedMedium(){
     m_gameTimer->stop();
     m_gameTimer = new QTimer(this);
     connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
-    m_gameTimer->start(1000/3);
+    m_gameTimer->start(400);
 }
 
 void AppWindow::speedFast(){
     m_gameTimer->stop();
     m_gameTimer = new QTimer(this);
     connect(m_gameTimer, SIGNAL(timeout()), this, SLOT(gameTick()));
-    m_gameTimer->start(500/3);
+    m_gameTimer->start(100);
 }
