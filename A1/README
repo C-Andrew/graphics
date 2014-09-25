@@ -1,0 +1,19 @@
+Name: Andrew Chin
+Student Number: 20378330
+User-id: a8chin
+Assignment: 1
+
+The final executable was compiled on this machine: gl06
+
+How to invoke my program: ./game488
+
+
+How to use my extra features: n/a
+
+
+I have created the following data files, which are in the data directory:
+
+
+My program assumes the following: Assumes you are running on machine gl06, or at least a machine with identical environment as gl06. That is using Qt 5.0 with OpenGL3.3
+
+
