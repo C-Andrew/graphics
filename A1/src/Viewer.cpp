@@ -60,13 +60,18 @@ void Viewer::initializeGL() {
     }
 
     glClearColor(0.7, 0.7, 1.0, 0.0);
-
-    static const float vertexColors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
- 
+    // colors << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)    // Front
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
+    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0);
 
     if (!mProgram.addShaderFromSourceFile(QGLShader::Vertex, "shader.vert")) {
         std::cerr << "Cannot load vertex shader." << std::endl;
@@ -111,15 +116,7 @@ void Viewer::initializeGL() {
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glBindVertexArray(vao);
 
-    QOpenGLBuffer vertexColorBuffer(QOpenGLBuffer::VertexBuffer);
-    vertexColorBuffer.create();
-    vertexColorBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vertexColorBuffer.bind();
-    vertexColorBuffer.allocate(vertexColors, 9 * sizeof(float));
-
     prepareVertexBuffer();
-    prepareColorsBuffer();
-
 #endif
 
     if (!mVertexBufferObject.bind()) {
@@ -127,18 +124,18 @@ void Viewer::initializeGL() {
         return;
     }
 
-    mProgram.link();
     mProgram.bind();
     mProgram.enableAttributeArray("vert");
     mProgram.setAttributeBuffer("vert", GL_FLOAT, 0, 3);
-
-    vertexColorBuffer.bind();
+    prepareColorsBuffer();
     mProgram.enableAttributeArray("color");
-    mProgram.setAttributeBuffer("color", GL_FLOAT, 0, 3);
-    
+    mProgram.setAttributeBuffer("color", GL_FLOAT, 0, 4);
+
     // mPerspMatrixLocation = mProgram.uniformLocation("cameraMatrix");
     mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -150,7 +147,6 @@ bool Viewer::prepareVertexBuffer()
         -1,  1, -1,
         -1,  1, -1,
         1,  1, -1,
-
         1,  1, -1,
         1, -1, -1,
         1, -1, -1,
@@ -160,7 +156,6 @@ bool Viewer::prepareVertexBuffer()
         -1,  1, 1,
         -1,  1, 1,
         1,  1, 1,
-
         1,  1, 1,
         1, -1, 1,
         1, -1, 1,
@@ -230,55 +225,107 @@ bool Viewer::prepareVertexBuffer()
     else{
         mVertexBufferObject.allocate(cubeFaceData, 36 * 3 * sizeof(float));
     }
+
     return true;
 }
 
 bool Viewer::prepareColorsBuffer(){
     float colors[] = {
-    0.0f, 0.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 1.0f, 1.0f };
-    m_colorBuffer.create();
-    m_colorBuffer.setUsagePattern( QGLBuffer::StaticDraw );
-    if ( !m_colorBuffer.bind() )
+        0.5f, 0.0f, 0.5f, 1.0f, // DPURP
+        0.5f, 0.0f, 0.5f, 1.0f,
+        0.5f, 0.0f, 0.5f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f, // PURPLE
+        1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, // WHITE
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f, // PURPLE
+        1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, 0.0f, 0.5f, 1.0f, // DPURP
+        0.5f, 0.0f, 0.5f, 1.0f,
+        0.5f, 0.0f, 0.5f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, // WHITE
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, // RED
+        1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f, // GREEN
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f, // GREEN
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.230f, 0.255f, 0.89f, 1.0f, // BLUE
+        0.230f, 0.255f, 0.89f, 1.0f,
+        0.230f, 0.255f, 0.89f, 1.0f,
+        0.230f, 0.255f, 0.89f, 1.0f, // BLUE
+        0.230f, 0.255f, 0.89f, 1.0f,
+        0.230f, 0.255f, 0.89f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, // RED
+        1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f
+    };
+    mColorBufferObject.create();
+    mColorBufferObject.setUsagePattern( QGLBuffer::StaticDraw );
+    if ( !mColorBufferObject.bind() )
     {
         qDebug() << "Could not bind colors buffer to the context";
         return false;
     }
-    m_colorBuffer.allocate( colors, 36 * 4 * sizeof( float ) );
+    mColorBufferObject.allocate( colors, 36 * 4 * sizeof( float ) );
+    return true;
+}
+
+bool Viewer::prepareWellColorsBuffer(){
+    float colors[] = {
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
+        0.194f, 0.029f, 0.04f, 1.0f,
+        0.194f, 0.029f, 0.04f, 1.0f
+    };
+    mColorBufferObject.create();
+    mColorBufferObject.setUsagePattern( QGLBuffer::StaticDraw );
+    if ( !mColorBufferObject.bind() )
+    {
+        qDebug() << "Could not bind colors buffer to the context";
+        return false;
+    }
+    mColorBufferObject.allocate( colors, 36 * 4 * sizeof( float ) );
     return true;
 }
 
@@ -297,8 +344,10 @@ void Viewer::paintGL() {
     else{
         DRAW_TYPE = GL_TRIANGLES;
     }
+    prepareWellColorsBuffer();
     paintWell();
 
+    prepareColorsBuffer();
     for(int h = 0; h < mGame->getHeight()+4; h++){
         for(int w = 0; w < mGame->getWidth(); w++){
            if(mGame->get(h, w) != -1){
@@ -358,7 +407,10 @@ void Viewer::resizeGL(int width, int height) {
 }
 
 void Viewer::mousePressEvent ( QMouseEvent * event ) {
-    std::cerr << "Stub: button " << event->button() << " pressed\n";
+
+    QVector3D temp = QVector3D(1,99,0);
+
+    std::cerr << "Stub: button " << temp.y() << " pressed\n";
 
     mOrigin_x = event->x();
     mOrigin_y = event->y();
@@ -368,7 +420,6 @@ void Viewer::mousePressEvent ( QMouseEvent * event ) {
 
 void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
 
-    std::cerr << mPrevX << "  " << event->x() << std::endl;
     if(abs(mXDiff) > 3){
         mApplyGravity = true;
     }

@@ -60,6 +60,7 @@ private:
     void paintWell();
     void paintCube();
     bool prepareColorsBuffer();
+    bool prepareWellColorsBuffer();
     bool prepareVertexBuffer();
     void translateWorld(float x, float y, float z);
     void rotateWorld(float angle, float x, float y, float z);
@@ -71,7 +72,7 @@ private:
     QOpenGLVertexArrayObject mVertexArrayObject;
 #else 
     QGLBuffer mVertexBufferObject;
-    QGLBuffer m_colorBuffer;
+    QGLBuffer mColorBufferObject;
 #endif
 
     int mVertexLocation;
@@ -97,6 +98,7 @@ private:
     QTimer* mTimer;
     QTimer* mGravityTimer;
     QGLShaderProgram mProgram;
+    QVector<QVector3D> colors;
 };
 
 #endif

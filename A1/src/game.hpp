@@ -91,7 +91,7 @@ public:
   }
 
   // Get the contents of the cell at row r and column c.  Returns
-  // the following values:
+  // theQGLFormat following values:
   // 				 -1: Cell is empty.
   // 	{0,1,2,3,4,5,6}: Cell contains a piece with the given ID.  Use
   //				     this ID to choose a colour when drawing this cell.
