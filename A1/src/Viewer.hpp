@@ -65,6 +65,7 @@ private:
     void translateWorld(float x, float y, float z);
     void rotateWorld(float angle, float x, float y, float z);
     void scaleWorld(float x, float y, float z);
+    void drawCube(QMatrix4x4 mat, int color);
 
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
@@ -78,12 +79,16 @@ private:
     int mVertexLocation;
     int mMvpMatrixLocation;
     int mGravity;
+    double mGravityAmount;
+    int mColorLocation;
+    int mViewModeLocation;
+    int mCurrentlyScaled;
 
     bool mApplyGravity;
-    bool mWireframeMode;
+    int mViewMode;
 
     double mOrigin_x;
-    double mOrigin_y;
+    double mAbsOrigin_x;
     double mPrevX;
     double mXDiff;
 

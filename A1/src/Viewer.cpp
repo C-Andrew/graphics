@@ -33,9 +33,9 @@ Viewer::Viewer(const QGLFormat& format, Game* game, QWidget *parent)
     connect(mGravityTimer, SIGNAL(timeout()), this, SLOT(gravity()));
     mGravityTimer->start(50);
 
-    mWireframeMode = false;
-
-    mOrigin_x = mOrigin_y = 0;
+    mViewMode = 2;
+    mCurrentlyScaled = 0;
+    mOrigin_x = mAbsOrigin_x = 0;
 
     mModelMatrices[0].translate(0,0,0);
 }
@@ -60,18 +60,6 @@ void Viewer::initializeGL() {
     }
 
     glClearColor(0.7, 0.7, 1.0, 0.0);
-    // colors << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)    // Front
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0)
-    //         << QVector3D(1,0,0) <<QVector3D(1,0,0) <<QVector3D(1,0,0);
 
     if (!mProgram.addShaderFromSourceFile(QGLShader::Vertex, "shader.vert")) {
         std::cerr << "Cannot load vertex shader." << std::endl;
@@ -133,8 +121,9 @@ void Viewer::initializeGL() {
 
     // mPerspMatrixLocation = mProgram.uniformLocation("cameraMatrix");
     mMvpMatrixLocation = mProgram.uniformLocation("mvpMatrix");
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-
+    mColorLocation = mProgram.uniformLocation("frag_color");
+    mViewModeLocation = mProgram.uniformLocation("mode");
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -219,7 +208,7 @@ bool Viewer::prepareVertexBuffer()
         qDebug() << "Could not bind vertex buffer to the context";
         return false;
     }
-    if(mWireframeMode){
+    if(mViewMode == 1){
         mVertexBufferObject.allocate(cubeData, 24 * 3 * sizeof(float));
     }
     else{
@@ -279,56 +268,6 @@ bool Viewer::prepareColorsBuffer(){
     return true;
 }
 
-bool Viewer::prepareWellColorsBuffer(){
-    float colors[] = {
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f, // BLUE
-        0.194f, 0.029f, 0.04f, 1.0f,
-        0.194f, 0.029f, 0.04f, 1.0f
-    };
-    mColorBufferObject.create();
-    mColorBufferObject.setUsagePattern( QGLBuffer::StaticDraw );
-    if ( !mColorBufferObject.bind() )
-    {
-        qDebug() << "Could not bind colors buffer to the context";
-        return false;
-    }
-    mColorBufferObject.allocate( colors, 36 * 4 * sizeof( float ) );
-    return true;
-}
-
 void Viewer::paintGL() {
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -337,14 +276,6 @@ void Viewer::paintGL() {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     mVertexArrayObject.bind();
 #endif
-    int DRAW_TYPE;
-    if(mWireframeMode){
-        DRAW_TYPE = GL_LINES;
-    }
-    else{
-        DRAW_TYPE = GL_TRIANGLES;
-    }
-    prepareWellColorsBuffer();
     paintWell();
 
     prepareColorsBuffer();
@@ -353,8 +284,7 @@ void Viewer::paintGL() {
            if(mGame->get(h, w) != -1){
                 QMatrix4x4 drawBlock;
                 drawBlock.translate((w*2)-8, (2*h)-18, -20);
-                mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*drawBlock);
-                glDrawArrays(DRAW_TYPE, 0, 3*12);
+                drawCube(drawBlock,mGame->get(h, w));
             }
         }
     }
@@ -365,34 +295,73 @@ void Viewer::paintWell(){
         mVertexArrayObject.bind();
     #endif
 
-    int DRAW_TYPE;
-    if(mWireframeMode){
-        DRAW_TYPE = GL_LINES;
-    }
-    else{
-        DRAW_TYPE = GL_TRIANGLES;
-    }
     // Draw Base Line of U   
     for (int i = 0; i < 11; i++) {
         QMatrix4x4 bottomU;
         bottomU.translate( (i*2)-10,-20, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*bottomU*trs);
-        glDrawArrays(DRAW_TYPE, 0, 3*12);
+        drawCube(bottomU,-1);
     }
     // Draw Left Column of U
     for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 leftU;
         leftU.translate(-10, (i*2)-20, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*leftU*trs);
-        glDrawArrays(DRAW_TYPE, 0, 3*12);
+        drawCube(leftU,-1);
     }
     // Draw Right Column of U
     for (int i = 0; i < 21 ; i++) {
         QMatrix4x4 rightU;
         rightU.translate(12, (i*2)-20, -20);
-        mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*rightU*trs);
-        glDrawArrays(DRAW_TYPE, 0, 3*12);
+        drawCube(rightU,-1);
     }
+}
+
+void Viewer::drawCube(QMatrix4x4 mat, int color=0){
+    int DRAW_TYPE;
+    if(mViewMode == 1){
+        DRAW_TYPE = GL_LINES;
+    }
+    else{
+        prepareColorsBuffer();
+        DRAW_TYPE = GL_TRIANGLES;
+    }
+    QVector4D colorVector;
+    switch(color){
+        case -1:
+            colorVector = QVector4D(0,0,0,1);
+            break;
+        case 0:
+            colorVector = QVector4D(1,0,0,1);
+            break;
+        case 1:
+            colorVector = QVector4D(0,0,1,1);
+            break;
+        case 2:
+            colorVector = QVector4D(0,1,0,1);
+            break;
+        case 3:
+            colorVector = QVector4D(1,0,1,1);
+            break;
+        case 4:
+            colorVector = QVector4D(0,1,1,1);
+            break;
+        case 5:
+            colorVector = QVector4D(1,1,0,1);
+            break;
+        case 6:
+            colorVector = QVector4D(0.5,0.5,0.5,1);
+            break;
+        case 7:
+            colorVector = QVector4D(1,1,1,1);
+            break;
+        default:
+            colorVector = QVector4D(1,1,1,1);
+            break;
+    }
+    mProgram.setUniformValue(mColorLocation, colorVector);
+    mProgram.setUniformValue(mMvpMatrixLocation, getCameraMatrix()*mat);
+    mProgram.setUniformValue(mViewModeLocation, mViewMode);
+    glDrawArrays(DRAW_TYPE, 0, 3*12);
+
 }
 
 void Viewer::resizeGL(int width, int height) {
@@ -412,8 +381,7 @@ void Viewer::mousePressEvent ( QMouseEvent * event ) {
 
     std::cerr << "Stub: button " << temp.y() << " pressed\n";
 
-    mOrigin_x = event->x();
-    mOrigin_y = event->y();
+    mOrigin_x = mAbsOrigin_x = event->x();
 
     mApplyGravity = false;
 }
@@ -421,17 +389,18 @@ void Viewer::mousePressEvent ( QMouseEvent * event ) {
 void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
 
     if(abs(mXDiff) > 3){
+        mGravityAmount = mXDiff/-10;
         mApplyGravity = true;
     }
     mOrigin_x = 0;
-    mOrigin_y = 0;
+    mAbsOrigin_x = 0;
     mXDiff = 0;
     mPrevX = 0;
 
 }
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
-    std::cerr << "Stub: button " << event->x() << std::endl;;
+    std::cerr << abs(mCurrentlyScaled) << std::endl;
     mXDiff = mPrevX - event->x();
     mPrevX = event->x();
 
@@ -442,17 +411,20 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
      if(event->modifiers() & Qt::ShiftModifier &&
         (event->buttons() & Qt::LeftButton ||
          event->buttons() & Qt::RightButton || 
-         event->buttons() & Qt::MidButton)
+         event->buttons() & Qt::MidButton) && 
+        abs(mCurrentlyScaled) <= 50
         ){
        if(dx > 0){
             translateWorld(0,0,-20);
             scaleWorld(1.01, 1.01, 1.01);
             translateWorld(0,0,20);
+            mCurrentlyScaled += 1;
         }
         else{
             translateWorld(0,0,-20);
             scaleWorld(0.99,0.99,0.99);
             translateWorld(0,0,20);
+            mCurrentlyScaled -= 1;
         }
     }
 
@@ -525,35 +497,36 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
 
 void Viewer::gravity(){
     if(mApplyGravity){
+        std::cerr << "SPIN" << mGravityAmount <<  std::endl;
         switch(mGravity){
             case -3:
                 translateWorld(0,0,-20);
-                rotateWorld(-1,0,1,0);
+                rotateWorld(mGravityAmount,0,1,0);
                 translateWorld(0,0,20);
                 break;
             case -2:
                 translateWorld(0,0,-20);
-                rotateWorld(-1,0,0,1);
+                rotateWorld(mGravityAmount,0,0,1);
                 translateWorld(0,0,20);
                 break;
             case -1:
                 translateWorld(0,0,-20);
-                rotateWorld(-1,1,0,0);
+                rotateWorld(mGravityAmount,1,0,0);
                 translateWorld(0,0,20);
                 break;
             case 1:
                 translateWorld(0,0,-20);
-                rotateWorld(1,1,0,0);
+                rotateWorld(mGravityAmount,1,0,0);
                 translateWorld(0,0,20);
                 break;
             case 2:
                 translateWorld(0,0,-20);
-                rotateWorld(1,0,0,1);
+                rotateWorld(mGravityAmount,0,0,1);
                 translateWorld(0,0,20);
                 break;
             case 3:
                 translateWorld(0,0,-20);
-                rotateWorld(1,0,1,0);
+                rotateWorld(mGravityAmount,0,1,0);
                 translateWorld(0,0,20);
                 break;
             default:
@@ -576,6 +549,8 @@ QMatrix4x4 Viewer::getCameraMatrix() {
 }
 
 void Viewer::resetWorld(){
+    mCurrentlyScaled = 0;
+    mGravityAmount = 0;
     mTransformMatrix.setToIdentity();
 }
 
@@ -592,18 +567,19 @@ void Viewer::scaleWorld(float x, float y, float z) {
 }
 
 void Viewer::setWireframeMode(){
-    mWireframeMode = true;
+    mViewMode = 1;
     prepareVertexBuffer();
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
 }
 
 void Viewer::setFillMode(){
-    mWireframeMode = false;
+    mViewMode = 2;
     prepareVertexBuffer();
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
 void Viewer::setMulticolourMode(){
-    // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    setFillMode();
+    mViewMode = 3;
 }

@@ -3,7 +3,6 @@
 in vec3 vert;
 in vec4 color;
 uniform mat4 mvpMatrix;
-
 out vec4 varyingColor;
 
 void main()
