@@ -55,7 +55,6 @@ QSize Viewer::sizeHint() const {
 void Viewer::initializeGL() {
     QGLFormat glFormat = QGLWidget::format();
     if (!glFormat.sampleBuffers()) {
-        std::cerr << "Could not enable sample buffers." << std::endl;
         return;
     }
 
@@ -223,39 +222,39 @@ bool Viewer::prepareColorsBuffer(){
         0.5f, 0.0f, 0.5f, 1.0f, // DPURP
         0.5f, 0.0f, 0.5f, 1.0f,
         0.5f, 0.0f, 0.5f, 1.0f,
-        1.0f, 0.0f, 1.0f, 1.0f, // PURPLE
-        1.0f, 0.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, // PURPLE
+        1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f, // WHITE
         1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 1.0f, // PURPLE
-        1.0f, 0.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, // PURPLE
+        1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f,
         0.5f, 0.0f, 0.5f, 1.0f, // DPURP
         0.5f, 0.0f, 0.5f, 1.0f,
         0.5f, 0.0f, 0.5f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f, // WHITE
         1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f, // RED
-        1.0f, 0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f, // GREEN
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f, // GREEN
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
+        0.80f, 0.0f, 0.0f, 1.0f, // RED
+        0.80f, 0.0f, 0.0f, 1.0f,
+        0.80f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.60f, 0.0f, 1.0f, // GREEN
+        0.0f, 0.60f, 0.0f, 1.0f,
+        0.0f, 0.60f, 0.0f, 1.0f,
+        0.0f, 0.60f, 0.0f, 1.0f, // GREEN
+        0.0f, 0.60f, 0.0f, 1.0f,
+        0.0f, 0.60f, 0.0f, 1.0f,
         0.230f, 0.255f, 0.89f, 1.0f, // BLUE
         0.230f, 0.255f, 0.89f, 1.0f,
         0.230f, 0.255f, 0.89f, 1.0f,
         0.230f, 0.255f, 0.89f, 1.0f, // BLUE
         0.230f, 0.255f, 0.89f, 1.0f,
         0.230f, 0.255f, 0.89f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f, // RED
-        1.0f, 0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f
+        0.80f, 0.0f, 0.0f, 1.0f, // RED
+        0.80f, 0.0f, 0.0f, 1.0f,
+        0.80f, 0.0f, 0.0f, 1.0f
     };
     mColorBufferObject.create();
     mColorBufferObject.setUsagePattern( QGLBuffer::StaticDraw );
@@ -379,8 +378,6 @@ void Viewer::mousePressEvent ( QMouseEvent * event ) {
 
     QVector3D temp = QVector3D(1,99,0);
 
-    std::cerr << "Stub: button " << temp.y() << " pressed\n";
-
     mOrigin_x = mAbsOrigin_x = event->x();
 
     mApplyGravity = false;
@@ -400,10 +397,8 @@ void Viewer::mouseReleaseEvent ( QMouseEvent * event ) {
 }
 
 void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
-    std::cerr << abs(mCurrentlyScaled) << std::endl;
     mXDiff = mPrevX - event->x();
     mPrevX = event->x();
-
 
     double dx = event->x() - mOrigin_x;
     mOrigin_x = event->x();
@@ -411,16 +406,15 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
      if(event->modifiers() & Qt::ShiftModifier &&
         (event->buttons() & Qt::LeftButton ||
          event->buttons() & Qt::RightButton || 
-         event->buttons() & Qt::MidButton) && 
-        abs(mCurrentlyScaled) <= 50
+         event->buttons() & Qt::MidButton) 
         ){
-       if(dx > 0){
+       if(dx > 0 && mCurrentlyScaled <= 8){
             translateWorld(0,0,-20);
             scaleWorld(1.01, 1.01, 1.01);
             translateWorld(0,0,20);
             mCurrentlyScaled += 1;
         }
-        else{
+        else if(dx < 0 && mCurrentlyScaled >= -50){
             translateWorld(0,0,-20);
             scaleWorld(0.99,0.99,0.99);
             translateWorld(0,0,20);
@@ -497,7 +491,6 @@ void Viewer::mouseMoveEvent ( QMouseEvent * event ) {
 
 void Viewer::gravity(){
     if(mApplyGravity){
-        std::cerr << "SPIN" << mGravityAmount <<  std::endl;
         switch(mGravity){
             case -3:
                 translateWorld(0,0,-20);
