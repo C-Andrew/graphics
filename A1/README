@@ -14,6 +14,8 @@ How to use my extra features: n/a
 I have created the following data files, which are in the data directory:
 
 
-My program assumes the following: Assumes you are running on machine gl06, or at least a machine with identical environment as gl06. That is using Qt 5.0 with OpenGL3.3
+My program assumes the following: Assumes you are running on machine gl06, or at least a machine with identical environment as gl06. That is using Qt 5.0 with OpenGL3.3.
+
+Also the directory in which game488 is executed contains the shader files 'shader.vert' and 'shader.frag'
 
 
