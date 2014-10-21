@@ -2,11 +2,12 @@
 #define CS488_MATERIAL_HPP
 
 #include "algebra.hpp"
+#include <QMatrix4x4>
 
 class Material {
 public:
   virtual ~Material();
-  virtual void apply_gl() const = 0;
+  virtual void apply_gl(QMatrix4x4 trans) const = 0;
 
 protected:
   Material()
@@ -19,7 +20,7 @@ public:
   PhongMaterial(const Colour& kd, const Colour& ks, double shininess);
   virtual ~PhongMaterial();
 
-  virtual void apply_gl() const;
+  virtual void apply_gl(QMatrix4x4 trans) const;
 
 private:
   Colour m_kd;

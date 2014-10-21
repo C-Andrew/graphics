@@ -1,4 +1,7 @@
 #include "material.hpp"
+#include "AppWindow.hpp"
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 Material::~Material()
 {
@@ -13,7 +16,8 @@ PhongMaterial::~PhongMaterial()
 {
 }
 
-void PhongMaterial::apply_gl() const
+void PhongMaterial::apply_gl(QMatrix4x4 trans) const
 {
   // Perform OpenGL calls necessary to set up this material.
+	AppWindow::m_viewer->setupMaterial(m_kd, m_ks, m_shininess, trans);
 }

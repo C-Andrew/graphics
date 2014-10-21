@@ -364,8 +364,7 @@ public:
   {
     return begin() + 16;
   }
-		
-private:
+  
   double v_[16];
 };
 
