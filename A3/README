@@ -1,0 +1,20 @@
+Name: Andrew Chin
+Student Number: 20378330
+User-id: a8chin
+Assignment: 03
+
+The final executable was compiled on this machine: gl03
+
+How to invoke my program: ./puppeteer
+
+How to use my extra features: 
+n/a
+
+I have created the following data file        glDepthMask(true)s, which are in the data directory:
+n/a
+
+My program assumes the following: 
+I assume my program is compiled and run on a GL machine that has the same setup to gl03.
+
+I also assume the executable 'puppeteer' is in the same directory as the shader files, 'puppeteer.lua', 'shader.vert' and 'shader.frag' as they are required for the executable to work.
+
