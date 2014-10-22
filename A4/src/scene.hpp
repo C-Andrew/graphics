@@ -45,6 +45,10 @@ public:
   // Returns true if and only if this node is a JointNode
   virtual bool is_joint() const;
   
+  // Hierarchy
+  typedef std::list<SceneNode*> ChildList;
+  ChildList m_children;
+
 protected:
   
   // Useful for picking
@@ -54,10 +58,6 @@ protected:
   // Transformations
   Matrix4x4 m_trans;
   Matrix4x4 m_invtrans;
-
-  // Hierarchy
-  typedef std::list<SceneNode*> ChildList;
-  ChildList m_children;
 };
 
 class JointNode : public SceneNode {
@@ -93,10 +93,11 @@ public:
   {
     m_material = material;
   }
+  Material* m_material;
+  Primitive* m_primitive;  
 
 protected:
-  Material* m_material;
-  Primitive* m_primitive;
+
 };
 
 #endif

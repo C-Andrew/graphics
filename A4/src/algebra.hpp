@@ -120,6 +120,11 @@ public:
     v_[1] = y;
     v_[2] = z;
   }
+  Vector3D(const Point3D &other) {
+    v_[0] = other[0];
+    v_[1] = other[1];
+    v_[2] = other[2];
+  }
   Vector3D(const Vector3D& other)
   {
     v_[0] = other.v_[0];
@@ -486,5 +491,21 @@ inline std::ostream& operator <<(std::ostream& os, const Colour& c)
 {
   return os << "c<" << c.R() << "," << c.G() << "," << c.B() << ">";
 }
+
+class Ray{
+public:
+  Ray(Vector3D orig, Vector3D dir)
+    : origin(orig), 
+      direction(dir)
+  {}
+  Point3D eyePosition;
+  Vector3D origin;
+  Vector3D direction;
+};
+
+class Intersection{
+public:
+  double t;
+};
 
 #endif // CS488_ALGEBRA_HPP

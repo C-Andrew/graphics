@@ -25,6 +25,7 @@ public:
   {
   }
   virtual ~NonhierSphere();
+  float intersect(Ray r);
 
 private:
   Point3D m_pos;
