@@ -29,3 +29,7 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
   std::cerr << "});" << std::endl;
   return out;
 }
+
+float Mesh::intersect(Ray r){
+  return 0.0f;
+}

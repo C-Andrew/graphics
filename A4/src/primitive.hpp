@@ -6,16 +6,21 @@
 class Primitive {
 public:
   virtual ~Primitive();
+  virtual float intersect(Ray r) = 0;
 };
 
 class Sphere : public Primitive {
 public:
   virtual ~Sphere();
+  virtual float intersect(Ray r);
+  NonhierSphere* m_sphere;
 };
 
 class Cube : public Primitive {
 public:
   virtual ~Cube();
+  virtual float intersect(Ray r);
+  NonhierBox* m_cube;
 };
 
 class NonhierSphere : public Primitive {
@@ -25,7 +30,7 @@ public:
   {
   }
   virtual ~NonhierSphere();
-  float intersect(Ray r);
+  virtual float intersect(Ray r);
 
 private:
   Point3D m_pos;
@@ -40,6 +45,7 @@ public:
   }
   
   virtual ~NonhierBox();
+  virtual float intersect(Ray r);
 
 private:
   Point3D m_pos;

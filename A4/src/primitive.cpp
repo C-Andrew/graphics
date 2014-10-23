@@ -8,8 +8,16 @@ Sphere::~Sphere()
 {
 }
 
+float Sphere::intersect(Ray r){
+	return 0.0f;
+}
+
 Cube::~Cube()
 {
+}
+
+float Cube::intersect(Ray r){
+	return 0.0f;
 }
 
 NonhierSphere::~NonhierSphere()
@@ -18,8 +26,8 @@ NonhierSphere::~NonhierSphere()
 
 float NonhierSphere::intersect(Ray r){
 	
-	Vector3D origin r.origin;
-	Vector3D dir r.direction;
+	Vector3D origin = r.origin;
+	Vector3D dir = r.direction;
 
 	Vector3D vPos = Vector3D(m_pos);
 	Vector3D dist = vPos - origin; 
@@ -47,4 +55,8 @@ float NonhierSphere::intersect(Ray r){
 
 NonhierBox::~NonhierBox()
 {
+}
+
+float NonhierBox::intersect(Ray r){
+	return 0.0f;
 }

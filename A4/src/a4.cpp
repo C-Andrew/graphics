@@ -78,17 +78,12 @@ void a4_render(// What to render
       for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++) {
         GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
         assert(geoNode);
-
-        NonhierSphere * sphere = dynamic_cast<NonhierSphere*>(geoNode->m_primitive);
-        assert(sphere);
-
-        double t = sphere->intersect(rayOrigin, rayDirection);
+        double t = geoNode->m_primitive->intersect(rayFromPixel);
 
         if (t > 0) {
           if (bestIntersection < 0) bestIntersection = t;
           else if (t < bestIntersection) bestIntersection = t;
         }
-
       }
       // given an intersection, compute if a light is visible
       // compute the color based on the light
