@@ -30,6 +30,12 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
   return out;
 }
 
-float Mesh::intersect(Ray r){
-  return 0.0f;
+Intersection Mesh::intersect(Ray r){
+  Intersection intersection;
+  return intersection;
+}
+
+Point3D Mesh::get_pos(){
+  Point3D p(0.0f, 0.0f, 0.0f);
+  return p;
 }

@@ -19,9 +19,12 @@
 #include <algorithm>
 #include <cmath>
 
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+class GeometryNode;
 
 class Point2D
 {
@@ -179,6 +182,10 @@ private:
 
 inline Vector3D operator *(double s, const Vector3D& v)
 {
+  return Vector3D(s*v[0], s*v[1], s*v[2]);
+}
+
+inline Vector3D operator *(const Vector3D& v, double s){
   return Vector3D(s*v[0], s*v[1], s*v[2]);
 }
 
@@ -498,14 +505,19 @@ public:
     : origin(orig), 
       direction(dir)
   {}
-  Point3D eyePosition;
-  Vector3D origin;
+  // Point3D eyePosition;
+  Vector3D origin; // Eye location
   Vector3D direction;
 };
 
 class Intersection{
 public:
+  Intersection(): t(-1.0f), hit(false) {};
   double t;
+  Point3D point;
+  Vector3D normal;
+  bool hit;
+  GeometryNode* node;
 };
 
 #endif // CS488_ALGEBRA_HPP

@@ -7,5 +7,7 @@ rm ../data/rt
 echo "cp rt to new location"
 cp ./rt ../data
 
-
+cd ../data
+./rt
+display nonhiersphere.png
 

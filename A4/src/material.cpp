@@ -17,3 +17,13 @@ void PhongMaterial::apply_gl() const
 {
   // Perform OpenGL calls necessary to set up this material.
 }
+
+Colour PhongMaterial::get_diffuse(){
+	return m_kd;
+}
+Colour PhongMaterial::get_specular(){
+	return m_ks;
+}
+double PhongMaterial::get_shiny(){
+	return m_shininess;
+}

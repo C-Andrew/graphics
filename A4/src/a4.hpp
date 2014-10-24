@@ -1,10 +1,13 @@
 #ifndef CS488_A4_HPP
 #define CS488_A4_HPP
 
+#include <math.h>
 #include <string>
+#include <algorithm>    // std::max
 #include "algebra.hpp"
 #include "scene.hpp"
 #include "light.hpp"
+
 
 void a4_render(// What to render
                SceneNode* root,
