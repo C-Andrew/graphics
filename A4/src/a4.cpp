@@ -69,28 +69,28 @@ void a4_render(// What to render
   Vector3D cameraUp = up;
   cameraUp.normalize();
   // Camera X-Axis unit vector
-  Vector3D cameraX = cameraDirection.cross(cameraUp);
+  Vector3D cameraX = cameraUp.cross(cameraDirection);
   cameraX.normalize();
   // Camera Y-Axis unit vector
-  Vector3D cameraY = cameraDirection.cross(cameraX); //This should be the same as camera up
+  Vector3D cameraY = cameraX.cross(cameraDirection); //This should be the same as camera up
 
   Vector3D cameraDX = 2.0f * aspect * tan(fov / 2.0f) / (double)width * cameraX;
-  Vector3D cameraDY = 2.0f * tan(fov / 2.0f) / (double)height * cameraY;
+  Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
 
 
   Image img(width, height, 3);
   std::list<SceneNode*> allNodes = getAllNodes(root);
 
   for (int y = 0; y < height; y++) {
-    for (int x = 0; x < height; x++) {
+    for (int x = 0; x < width; x++) {
       // For every pixel (x,y)
       // Cast a ray
-      Vector3D rayOrigin(x - width/2.0f, height/2.0f - y, 500.0f); // TODO NEEDS TO BE EYE
-      Vector3D rayDirection(0.0f, 0.0f, -1.0f);
+      // Vector3D rayOrigin(x - width/2.0f, height/2.0f - y, 500.0f); // TODO NEEDS TO BE EYE
+      // Vector3D rayDirection(0.0f, 0.0f, -1.0f);
 
-      // Vector3D rayOrigin(eye);
-      // Vector3D rayDirection(cameraDirection - 0.5f * (2*y+1-height) * cameraDY + 0.5f * (2*x+1-width) * cameraDX);
-      // rayDirection.normalize();
+      Vector3D rayOrigin(eye);
+      Vector3D rayDirection(cameraDirection - 0.5f * (2*y+1-height) * cameraDY + 0.5f * (2*x+1-width) * cameraDX);
+      rayDirection.normalize();
       Ray rayFromPixel(rayOrigin, rayDirection);
 
       // find the closest intersection
@@ -114,20 +114,19 @@ void a4_render(// What to render
 
       // If intersection doesn't exist, paint background color
       if (minIntersection.t < 0 || minIntersection.normal.dot(rayDirection) <= 0 ) {
+        if(y < height/2){
+          img(x, y, 0) = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
+          img(x, y, 1) = 0.0f;
+          img(x, y, 2) = 205.0f/255.0f;  
+        }
+        else{
+          img(x, y, 0) = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
+          img(x, y, 1) = 0.0f;
+          img(x, y, 2) = 205.0f/255.0f;  
+        }
 
-        // Red: increasing from top to bottom
-        img(x, y, 0) = (double)y / height;
-        // Green: increasing from left to right
-        img(x, y, 1) = (double)x / width;
-        // Blue: in lower-left and upper-right corners
-        img(x, y, 2) = ((y < height/2 && x < height/2)
-                        || (y >= height/2 && x >= height/2)) ? 1.0 : 0.0;
       }
       else {
-        /*img(x,y,0) = 0.0;
-        img(x,y,1) = 1.0;
-        img(x,y,2) = 0.0;*/
-        std::cerr << "T: " <<  minIntersection.t << std::endl;
         Vector3D color;
 
         Material* mat = minIntersection.node->m_material;
