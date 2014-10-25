@@ -3,6 +3,8 @@
 
 #include "algebra.hpp"
 
+class Mesh;
+
 class Primitive {
 public:
   virtual ~Primitive();
@@ -28,10 +30,7 @@ private:
 
 class NonhierBox : public Primitive {
 public:
-  NonhierBox(const Point3D& pos, double size)
-    : m_pos(pos), m_size(size)
-  {
-  }
+  NonhierBox(const Point3D& pos, double size);
   
   virtual ~NonhierBox();
   virtual Intersection intersect(Ray r);
@@ -40,6 +39,7 @@ public:
 private:
   Point3D m_pos;
   double m_size;
+  Mesh *m_mesh;
 };
 
 class Sphere : public Primitive {

@@ -31,8 +31,69 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
 }
 
 Intersection Mesh::intersect(Ray r){
-  Intersection intersection;
+    Intersection intersection;
+  //For evert Face, check intersection
+  for (std::vector<Face>::const_iterator it = m_faces.begin(); it != m_faces.end(); it++)
+  {
+    std::vector<int> face = (*it);
+    // Create a vector<Point3D> to represent a face of the mesh
+    std::vector<Point3D> faceAsVertices;
+    for(unsigned int i = 0; i < face.size(); i++){
+      faceAsVertices.push_back( m_verts[face[i]] );
+    }
+
+
+    Intersection curIntersect = intersectFace(r, faceAsVertices);
+
+    if(curIntersect.hit){
+      if(!intersection.hit || curIntersect.t < intersection.t){
+        intersection = curIntersect;
+      }
+    }
+
+  }
   return intersection;
+}
+
+Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
+      // std::cerr << "ENTER" << std::endl;
+  Intersection intersection;
+
+  // point plane_normal = crossProduct(vectorSub(Poly.P[1], Poly.P[0]), vectorSub(Poly.P[2], Poly.P[0]))
+  Vector3D plane_normal = Vector3D(face[2]-face[1]).cross( Vector3D(face[0]-face[1]) );
+  plane_normal.normalize();
+
+  // float denominator = dotProduct(vectorSub(Ray.R2, Poly.P[0]), plane_normal)
+  float denominator = plane_normal.dot(r.direction);
+  float t_val = plane_normal.dot(face[0] - r.origin) / denominator;
+  if( denominator < 0.001f || t_val < 0.001f){
+    return intersection;
+  }
+
+  intersection.point = Point3D(r.origin[0], r.origin[1], r.origin[2]) + (t_val*r.direction);
+
+  bool inside = false;
+  for (unsigned int i = 0; i < face.size(); i++)
+  {
+    float d = ((face[(i+1)%face.size()]) - face[i]).cross(intersection.point - face[i]).dot(plane_normal);
+    if (d >= 0)
+    {
+      inside = true;
+    }
+    else
+    {
+      inside = false;
+      break;
+    }
+  }
+
+  if(inside){
+    intersection.t =t_val;
+    intersection.normal = plane_normal;
+    intersection.hit = true;
+  }
+  return intersection;
+
 }
 
 Point3D Mesh::get_pos(){
