@@ -74,6 +74,7 @@ Intersection NonhierSphere::intersect(Ray r){
 		normal.normalize();
 		intersection.normal = normal;
 		intersection.t = t;
+		intersection.hit = true;
 		
 	}
 	return intersection;
@@ -92,21 +93,22 @@ NonhierBox::NonhierBox(const Point3D& pos, double size)
   	// const std::vector<Point3D>& verts
   	// Setup vertices
   	std::vector<Point3D> vertices;
-  	// Build Front Face in clockwise order starting with bottom left vertex
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]) );
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]) );
+  	// Build Front Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+  	// REMEMBER WE ARE LOOKING AT THE NEG-Z AXIS
+  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]+m_size ) ); 
+  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]+m_size ) );
+  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]+m_size ) );
+  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]+m_size ) );
   	
-  	// Build Back Face in clockwise order starting with bottom left vertex
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]+m_size) ); 
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size,  m_pos[2]+m_size) ); 
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]+m_size) ); 
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]+m_size) ); 
+  	// Build Back Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]) );
+  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]) );
+  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]) );  
+  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]) ); 
 
   	//const std::vector< std::vector<int> >& faces)
   	std::vector< std::vector<int> > faces;
-  	// Front face
+  	// Push them in counterclockwise order startingwith loweest value
   	std::vector<int> front_face;
   	front_face.push_back(0); 
   	front_face.push_back(1); 
@@ -121,27 +123,27 @@ NonhierBox::NonhierBox(const Point3D& pos, double size)
 
   	std::vector<int> left_face;
   	left_face.push_back(0); 
-  	left_face.push_back(1); 
+  	left_face.push_back(3); 
   	left_face.push_back(5); 
   	left_face.push_back(4);
 
   	std::vector<int> right_face;
-  	right_face.push_back(3); 
-  	right_face.push_back(2); 
+  	right_face.push_back(1); 
+  	right_face.push_back(7); 
   	right_face.push_back(6); 
-  	right_face.push_back(7);
+  	right_face.push_back(2);
 
   	std::vector<int> top_face;
-  	top_face.push_back(1); 
-  	top_face.push_back(5); 
+  	top_face.push_back(2); 
   	top_face.push_back(6); 
-  	top_face.push_back(2);
+  	top_face.push_back(5); 
+  	top_face.push_back(3);
 
   	std::vector<int> bottom_face;
   	bottom_face.push_back(0); 
   	bottom_face.push_back(4); 
   	bottom_face.push_back(7); 
-  	bottom_face.push_back(3);
+  	bottom_face.push_back(1);
 
 	faces.push_back(front_face);
 	faces.push_back(top_face);

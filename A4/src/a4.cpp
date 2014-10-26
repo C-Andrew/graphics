@@ -77,19 +77,18 @@ void a4_render(// What to render
   Vector3D cameraDX = 2.0f * aspect * tan(fov / 2.0f) / (double)width * cameraX;
   Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
 
-
   Image img(width, height, 3);
   std::list<SceneNode*> allNodes = getAllNodes(root);
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      // For every pixel (x,y)
-      // Cast a ray
-      // Vector3D rayOrigin(x - width/2.0f, height/2.0f - y, 500.0f); // TODO NEEDS TO BE EYE
-      // Vector3D rayDirection(0.0f, 0.0f, -1.0f);
 
       Vector3D rayOrigin(eye);
-      Vector3D rayDirection(cameraDirection - 0.5f * (2*y+1-height) * cameraDY + 0.5f * (2*x+1-width) * cameraDX);
+      // Magical Math as provided by 
+      // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
+      double tangent = tan(fov*M_PI/360.0);
+      Vector3D rayDirection(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     (y/(double)height * 2 - 1) * tangent * (-m_up) );
       rayDirection.normalize();
       Ray rayFromPixel(rayOrigin, rayDirection);
 
@@ -100,7 +99,7 @@ void a4_render(// What to render
       // This does not handle hierarchical models yet
       // Assumes all objects are attached to the root scenenode
       for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++) {
-        GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it); // ASSUMING SceneNode only has spheres for now
+        GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
         Intersection intersect = geoNode->m_primitive->intersect(rayFromPixel);
 
         if (intersect.t > 0) {
@@ -137,7 +136,13 @@ void a4_render(// What to render
         for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
           Light * light = *it;
 
+          Vector3D lightDir = (light->position) - (minIntersection.point);
+          lightDir.normalize();
+
           Vector3D light_vector = (minIntersection.point) - (light->position);
+          light_vector.normalize();
+
+
           float distLightToObj = light_vector.length(); // distance form light souce to POI
           float attentuationFactor =  1.0 /
                                     (light->falloff[0] + light->falloff[1]*distLightToObj + light->falloff[2]*distLightToObj*distLightToObj);
@@ -153,14 +158,14 @@ void a4_render(// What to render
           finalColour = finalColour + attentuationFactor * (ndotl) * mat->get_diffuse() * light->colour;
           finalColour = finalColour + attentuationFactor * (rdotvp) * mat->get_specular() * light->colour;
 
-        }
+        }// End light for-loop
 
         img(x,y,0) = finalColour.R();
         img(x,y,1) = finalColour.G();
         img(x,y,2) = finalColour.B();
         // std::cerr << "r:" << color[0] << "  g:"<<color[1] << "   b:" << color[2] << std::endl;
 
-      }
+      }// End else clause
     }
   }
   img.savePng(filename);
