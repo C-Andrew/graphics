@@ -69,13 +69,12 @@ Intersection NonhierSphere::intersect(Ray r){
 	if ((t0 > 0.1f) )            { t = t0; } 
 	if ((t1 > 0.1f) && (t1 < t)) { t = t1; }
 	if(t > 0){
-		Vector3D temp = origin + dir * t;
-		normal = m_pos - temp;
-		normal.normalize();
-		intersection.normal = normal;
+		Point3D temp = Point3D(origin[0], origin[1], origin[2]) + dir * t;
+		intersection.point = temp;
+		intersection.normal = temp - m_pos;
+		intersection.normal.normalize();
 		intersection.t = t;
 		intersection.hit = true;
-		
 	}
 	return intersection;
 }

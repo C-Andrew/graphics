@@ -66,7 +66,7 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   float denominator = plane_normal.dot(r.direction);
   if( denominator < 0.001f ){ return intersection; }
 
-  float t_val = plane_normal.dot(face[0] - r.origin) / denominator;
+  float t_val = plane_normal.dot(face[0] - Point3D(r.origin[0], r.origin[1], r.origin[2])) / denominator;
   if(t_val < 0.001f){ return intersection; }
 
   intersection.point = Point3D(r.origin[0], r.origin[1], r.origin[2]) + (t_val*r.direction);
@@ -87,7 +87,7 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
 
   if(inside){
     intersection.t =t_val;
-    intersection.normal = 1.0f * plane_normal;
+    intersection.normal = -1.0f * plane_normal;
     intersection.hit = true;
   }
   return intersection;

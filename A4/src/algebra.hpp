@@ -20,11 +20,15 @@
 #include <cmath>
 
 
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
 class GeometryNode;
+class Material;
+class Primitive;
+
 
 class Point2D
 {
@@ -517,7 +521,8 @@ public:
   Point3D point;
   Vector3D normal;
   bool hit;
-  GeometryNode* node;
+  Material* material;
+  Primitive* primitive;
 };
 
 #endif // CS488_ALGEBRA_HPP

@@ -44,16 +44,18 @@ public:
 
   // Returns true if and only if this node is a JointNode
   virtual bool is_joint() const;
+  virtual Intersection intersect(Ray r);
   
   // Hierarchy
   typedef std::list<SceneNode*> ChildList;
   ChildList m_children;
+  std::string m_name;
+
 
 protected:
   
   // Useful for picking
   int m_id;
-  std::string m_name;
 
   // Transformations
   Matrix4x4 m_trans;
@@ -85,6 +87,7 @@ public:
   GeometryNode(const std::string& name,
                Primitive* primitive);
   virtual ~GeometryNode();
+  virtual Intersection intersect(Ray r);
 
   const Material* get_material() const;
   Material* get_material();
