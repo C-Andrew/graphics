@@ -79,18 +79,111 @@ void a4_render(// What to render
 
   Image img(width, height, 3);
   std::list<SceneNode*> allNodes = getAllNodes(root);
-  Colour prevColour(0,0,0);
+  double tangent = tan(fov*M_PI/360.0);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
 
       Vector3D rayOrigin(eye);
       // Magical Math as provided by 
       // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
-      double tangent = tan(fov*M_PI/360.0);
-      Vector3D rayDirection(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+
+      // Vector3D rayDirection1(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+      //                                (y/(double)height * 2 - 1) * tangent * (-m_up) );
+
+
+      Vector3D rayDirection1(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection2(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection3(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+      
+      Vector3D rayDirection4(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y)/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection5(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                      (y/(double)height * 2 - 1) * tangent * (-m_up) );
-      rayDirection.normalize();
-      Ray rayFromPixel(rayOrigin, rayDirection);
+      Vector3D rayDirection6(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     (y/(double)height * 2 - 1) * tangent * (-m_up) );
+      
+      Vector3D rayDirection7(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection8(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection9(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+
+      rayDirection1.normalize();
+      rayDirection2.normalize();
+      rayDirection3.normalize();
+      rayDirection4.normalize();
+      rayDirection5.normalize();
+      rayDirection6.normalize();
+      rayDirection7.normalize();
+      rayDirection8.normalize();
+      rayDirection9.normalize();
+
+      Ray rayFromPixel1(rayOrigin, rayDirection1);
+      Ray rayFromPixel2(rayOrigin, rayDirection2);
+      Ray rayFromPixel3(rayOrigin, rayDirection3);
+      Ray rayFromPixel4(rayOrigin, rayDirection4);
+      Ray rayFromPixel5(rayOrigin, rayDirection5);
+      Ray rayFromPixel6(rayOrigin, rayDirection6);
+      Ray rayFromPixel7(rayOrigin, rayDirection7);
+      Ray rayFromPixel8(rayOrigin, rayDirection8);
+      Ray rayFromPixel9(rayOrigin, rayDirection9);
+
+      Colour pixelColour1 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel1, y);
+      Colour pixelColour2 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel2, y);
+      Colour pixelColour3 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel3, y);
+      Colour pixelColour4 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel4, y);
+      Colour pixelColour5 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel5, y);
+      Colour pixelColour6 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel6, y);
+      Colour pixelColour7 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel7, y);
+      Colour pixelColour8 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel8, y);
+      Colour pixelColour9 = colourFromRay(root, height, ambient,
+                                  lights, rayFromPixel9, y);
+
+
+      // double red, green, blue;
+      // red = (pixelColour1.R() + pixelColour2.R() + pixelColour3.R() + pixelColour4.R())/4.0;
+      // green = (pixelColour1.G() + pixelColour2.G() + pixelColour3.G() + pixelColour4.G())/4.0;
+      // blue = (pixelColour1.B() + pixelColour2.B() + pixelColour3.B() + pixelColour4.B())/4.0;
+
+      Colour final = (float)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
+                                   pixelColour4 + pixelColour5 + pixelColour6 +
+                                   pixelColour7 + pixelColour8 + pixelColour9) ;
+        img(x,y,0) = final.R();
+        img(x,y,1) = final.G();
+        img(x,y,2) = final.B();
+        // img(x,y,0) = pixelColour4.R();
+        // img(x,y,1) = pixelColour4.G();
+        // img(x,y,2) = pixelColour4.B();
+    } // End X-loop
+    std::cerr << "Rendered line: "<< y << std::endl;
+  } // End Y-loop
+  img.savePng(filename);
+  
+}
+
+// Given a ray, tell me what colour to draw.
+Colour colourFromRay( 
+               // What to render
+               SceneNode* root,
+                int height,
+               // Lighting parameters
+               const Colour& ambient,
+               const std::list<Light*>& lights,
+               Ray ray, int y)
+{
+
 
       // find the closest intersection
       Intersection minIntersection;
@@ -102,34 +195,36 @@ void a4_render(// What to render
       // minIntersection = root->intersect(rayFromPixel);
       for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++) {
         GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
-        Intersection intersect = geoNode->m_primitive->intersect(rayFromPixel);
+        Intersection intersect = geoNode->m_primitive->intersect(ray);
 
         if (intersect.hit) {
-      	  if(!minIntersection.hit|| intersect.t < minIntersection.t){
-        		minIntersection.t = intersect.t;
+          if(!minIntersection.hit|| intersect.t < minIntersection.t){
+            minIntersection.t = intersect.t;
             minIntersection.material = geoNode->m_material;
             minIntersection.primitive = geoNode->m_primitive;
             minIntersection.normal = intersect.normal;
             minIntersection.hit = true;
             minIntersection.point = intersect.point;
-      	  }	
+          } 
         }
       }
 
       // If intersection doesn't exist, paint background color
       if (!minIntersection.hit) {
+        float red, green, blue;
         if(y < height/2){
-          img(x, y, 0) = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
-          img(x, y, 1) = 0.0f;
-          img(x, y, 2) = 205.0f/255.0f;  
+          red = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
+          green = 0.0f;
+          blue = 205.0f/255.0f;  
         }
         else{
-          img(x, y, 0) = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
-          img(x, y, 1) = 0.0f;
-          img(x, y, 2) = 205.0f/255.0f;  
+          red = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
+          green = 0.0f;
+          blue = 205.0f/255.0f;  
         }
-
+        return Colour(red, green, blue);
       }
+
       else {
         Vector3D color;
 
@@ -180,37 +275,15 @@ void a4_render(// What to render
 
 
           Vector3D r = light_vector -  (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
-          float rdotvp =  std::max( pow(r.dot(rayDirection), mat->get_shiny()) , 0.0);
+          float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
 
 
 
           finalColour = finalColour + (attentuationFactor* (ndotl) * mat->get_diffuse() * light->colour);
           finalColour = finalColour + (attentuationFactor* (rdotvp) * mat->get_specular() * light->colour);
-          // if(x > 4){
-          //   Colour temp1(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2) );
-          //   Colour temp2(img(x-2,y,0), img(x-1,y,1), img(x-1,y,2) );
-          //   Colour temp3(img(x-3,y,0), img(x-1,y,1), img(x-1,y,2) );
-          //   Colour temp4(img(x-4,y,0), img(x-1,y,1), img(x-1,y,2) );
-          //   finalColour = (temp1 + temp2 + temp3 + temp4 + finalColour) * 0.5f;
-          // }
-          // else{
-          //   prevColour = finalColour;
-          // }
-
 
         }// End light for-loop
-
-        img(x,y,0) = finalColour.R();
-        img(x,y,1) = finalColour.G();
-        img(x,y,2) = finalColour.B();
-        // std::cerr << "r:" << color[0] << "  g:"<<color[1] << "   b:" << color[2] << std::endl;
-
+        return finalColour;
       }// End else clause
-    } // End X-loop
-    // std::cerr << "Rendered line: "<< y << std::endl;
-  } // End Y-loop
-  img.savePng(filename);
-  
+
 }
-
-

@@ -22,5 +22,13 @@ void a4_render(// What to render
                const Colour& ambient,
                const std::list<Light*>& lights
                );
+Colour colourFromRay( 
+               // What to render
+               SceneNode* root,
+               int height,
+               // Lighting parameters
+               const Colour& ambient,
+               const std::list<Light*>& lights,
+               Ray ray, int y);
 
 #endif
