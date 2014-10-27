@@ -47,12 +47,8 @@ void a4_render(// What to render
   }
   std::cerr << "});" << std::endl;
   
-  // For now, just make a sample image.
-
-  // double fov_radius = fov * M_PI/180.0;
   double aspect = (double)width/(double)height; 
 
-  //2. get side vector
   Vector3D side_vector = view.cross(up);
   Vector3D m_view = view;
   Vector3D m_up = up;
@@ -61,21 +57,6 @@ void a4_render(// What to render
   side_vector.normalize();
   m_view.normalize();
   m_up.normalize();
-
-  // Camera view  unit vector
-  // Vector3D cameraDirection = view;
-  // cameraDirection.normalize();
-  // // Camera Up unit vector
-  // Vector3D cameraUp = up;
-  // cameraUp.normalize();
-  // // Camera X-Axis unit vector
-  // Vector3D cameraX = cameraUp.cross(cameraDirection);
-  // cameraX.normalize();
-  // // Camera Y-Axis unit vector
-  // Vector3D cameraY = cameraX.cross(cameraDirection); //This should be the same as camera up
-
-  // Vector3D cameraDX = 2.0f * aspect * tan(fov / 2.0f) / (double)width * cameraX;
-  // Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
 
   Image img(width, height, 3);
   std::list<SceneNode*> allNodes = getAllNodes(root);
@@ -87,10 +68,7 @@ void a4_render(// What to render
       // Magical Math as provided by 
       // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
 
-      // Vector3D rayDirection1(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-      //                                (y/(double)height * 2 - 1) * tangent * (-m_up) );
-
-
+      // Super Sampling X9
       Vector3D rayDirection1(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                      ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
       Vector3D rayDirection2(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
@@ -151,23 +129,17 @@ void a4_render(// What to render
       Colour pixelColour9 = colourFromRay(root, height, ambient,
                                   lights, rayFromPixel9, y);
 
-
-      // double red, green, blue;
-      // red = (pixelColour1.R() + pixelColour2.R() + pixelColour3.R() + pixelColour4.R())/4.0;
-      // green = (pixelColour1.G() + pixelColour2.G() + pixelColour3.G() + pixelColour4.G())/4.0;
-      // blue = (pixelColour1.B() + pixelColour2.B() + pixelColour3.B() + pixelColour4.B())/4.0;
-
       Colour final = (float)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
                                    pixelColour4 + pixelColour5 + pixelColour6 +
                                    pixelColour7 + pixelColour8 + pixelColour9) ;
         img(x,y,0) = final.R();
         img(x,y,1) = final.G();
         img(x,y,2) = final.B();
-        // img(x,y,0) = pixelColour4.R();
-        // img(x,y,1) = pixelColour4.G();
-        // img(x,y,2) = pixelColour4.B();
     } // End X-loop
-    std::cerr << "Rendered line: "<< y << std::endl;
+    if(y%10 == 0){
+      std::cerr << "Rendered line: "<< y << std::endl;      
+    }
+
   } // End Y-loop
   img.savePng(filename);
   
@@ -239,7 +211,7 @@ Colour colourFromRay(
           Vector3D light_vector = (light->position) - (minIntersection.point);
           light_vector.normalize();
 
-          // Computer Shadow
+          // Compute Shadow
           Vector3D lightDir = (minIntersection.point)-(light->position);
           lightDir.normalize();
           Ray objToLight(Vector3D(light->position), lightDir);
@@ -255,7 +227,6 @@ Colour colourFromRay(
               // std::cerr << "HIT" << node->m_name << std::endl;
               if ( (lightIntersection.point - light->position).length() < distToLight - 0.001)
               {
-                // std::cerr << "SHADOWED" << std::endl;
                 shadowed = true;
                 break;
               }
