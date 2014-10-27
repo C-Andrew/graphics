@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include <iostream>
+#include <assert.h>
 
 SceneNode::SceneNode(const std::string& name)
   : m_name(name)
@@ -46,7 +47,7 @@ void SceneNode::rotate(char axis, double angle)
 
   rotationMat =  Matrix4x4(r1,r2,r3,r4);
   m_trans = m_trans * rotationMat;
-  // set_transform(m_trans);
+  set_transform(m_trans);
 }
 
 void SceneNode::scale(const Vector3D& amount)
@@ -107,11 +108,10 @@ Intersection SceneNode::intersect(Ray r){
     if(t.hit){
       if(!intersection.hit || t.t < intersection.t){
         // std::cerr << "INTERSECTED" << std::endl;
-        GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
         intersection.t = t.t;
         intersection.normal = t.normal;
-        intersection.material = geoNode->m_material;
-        intersection.primitive = geoNode->m_primitive;
+        intersection.material = t.material;
+        intersection.primitive = t.primitive;
         intersection.hit = true;
         intersection.point = t.point;
          // std::cerr << "2222NORMALS: " << intersection.normal << std::endl;
