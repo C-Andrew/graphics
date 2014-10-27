@@ -45,6 +45,7 @@ private:
 class Sphere : public Primitive {
 public:
   virtual ~Sphere();
+  Sphere();
   virtual Intersection intersect(Ray r);
   virtual Point3D get_pos();
   NonhierSphere* m_sphere;
@@ -53,6 +54,7 @@ public:
 class Cube : public Primitive {
 public:
   virtual ~Cube();
+  Cube();
   virtual Intersection intersect(Ray r);
   virtual Point3D get_pos();
   NonhierBox* m_cube;

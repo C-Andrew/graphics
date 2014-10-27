@@ -93,7 +93,7 @@ Intersection SceneNode::intersect(Ray r){
     Intersection t = node->intersect(r);
     if(t.hit){
       if(!intersection.hit || t.t < intersection.t){
-        std::cerr << "INTERSECTED" << std::endl;
+        // std::cerr << "INTERSECTED" << std::endl;
         GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
         intersection.t = t.t;
         intersection.normal = t.normal;
@@ -101,6 +101,7 @@ Intersection SceneNode::intersect(Ray r){
         intersection.primitive = geoNode->m_primitive;
         intersection.hit = true;
         intersection.point = t.point;
+         // std::cerr << "2222NORMALS: " << intersection.normal << std::endl;
       }
     }
   }
@@ -109,6 +110,7 @@ Intersection SceneNode::intersect(Ray r){
   {
     intersection.point = m_trans * intersection.point;
     intersection.normal = m_invtrans.transpose() * intersection.normal;
+    intersection.normal.normalize();
   }
 
 
@@ -163,6 +165,7 @@ GeometryNode::~GeometryNode()
 
 
 
+
   // untransform the intersection
   if (t.hit)
   {
@@ -170,8 +173,10 @@ GeometryNode::~GeometryNode()
     intersection.material = m_material;
     intersection.primitive = m_primitive;
     intersection.hit = true;
-    intersection.point = m_trans * intersection.point;
-    intersection.normal = m_invtrans.transpose() * intersection.normal;
+    intersection.point = m_trans * t.point;
+    intersection.normal = m_invtrans.transpose() * t.normal;
+    // std::cerr << "GEONODE NORMALS: " << intersection.normal << std::endl;
+   
   }
 
 

@@ -164,22 +164,22 @@ Colour colourFromRay(
       // This does not handle hierarchical models yet
       // Assumes all objects are attached to the root scenenode
 
-      // minIntersection = root->intersect(rayFromPixel);
-      for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++) {
-        GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
-        Intersection intersect = geoNode->m_primitive->intersect(ray);
+      minIntersection = root->intersect(ray);
+      // for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++) {
+      //   GeometryNode *geoNode = dynamic_cast<GeometryNode*>(*it);
+      //   Intersection intersect = geoNode->m_primitive->intersect(ray);
 
-        if (intersect.hit) {
-          if(!minIntersection.hit|| intersect.t < minIntersection.t){
-            minIntersection.t = intersect.t;
-            minIntersection.material = geoNode->m_material;
-            minIntersection.primitive = geoNode->m_primitive;
-            minIntersection.normal = intersect.normal;
-            minIntersection.hit = true;
-            minIntersection.point = intersect.point;
-          } 
-        }
-      }
+      //   if (intersect.hit) {
+      //     if(!minIntersection.hit|| intersect.t < minIntersection.t){
+      //       minIntersection.t = intersect.t;
+      //       minIntersection.material = geoNode->m_material;
+      //       minIntersection.primitive = geoNode->m_primitive;
+      //       minIntersection.normal = intersect.normal;
+      //       minIntersection.hit = true;
+      //       minIntersection.point = intersect.point;
+      //     } 
+      //   }
+      // }
 
       // If intersection doesn't exist, paint background color
       if (!minIntersection.hit) {
@@ -218,19 +218,14 @@ Colour colourFromRay(
           bool shadowed = false;
           double distToLight = ( minIntersection.point- light->position).length();
 
-          for (SceneNode::ChildList::const_iterator it = root->m_children.begin(); it != root->m_children.end(); it++)
-          { 
-            GeometryNode *node = dynamic_cast<GeometryNode*>(*it);
-            Intersection lightIntersection = node->m_primitive->intersect(objToLight);
 
-            if (lightIntersection.hit){
+          Intersection lightIntersection = root->intersect(objToLight);
+          if (lightIntersection.hit){
               // std::cerr << "HIT" << node->m_name << std::endl;
               if ( (lightIntersection.point - light->position).length() < distToLight - 0.001)
               {
                 shadowed = true;
-                break;
               }
-            }
           }
           if(shadowed){
             continue;
@@ -248,10 +243,10 @@ Colour colourFromRay(
           Vector3D r = light_vector -  (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
           float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
 
+          Colour diffuse = (attentuationFactor* (ndotl) * mat->get_diffuse() * light->colour);
+          Colour specular = (attentuationFactor* (rdotvp) * mat->get_specular() * light->colour);
 
-
-          finalColour = finalColour + (attentuationFactor* (ndotl) * mat->get_diffuse() * light->colour);
-          finalColour = finalColour + (attentuationFactor* (rdotvp) * mat->get_specular() * light->colour);
+          finalColour = finalColour + diffuse + specular;
 
         }// End light for-loop
         return finalColour;

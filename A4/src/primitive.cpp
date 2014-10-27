@@ -10,8 +10,13 @@ Primitive::~Primitive()
 /////////////////////////////
 // Hierarchical Primitives //
 /////////////////////////////
+Sphere::Sphere(){
+  m_sphere = new NonhierSphere(Point3D(0.0f, 0.0f, 0.0f), 1.0f);
+}
+
 Sphere::~Sphere()
 {
+  delete m_sphere;
 }
 
 Intersection Sphere::intersect(Ray r){
@@ -27,6 +32,11 @@ Point3D Sphere::get_pos(){
 
 Cube::~Cube()
 {
+  delete m_cube;
+}
+
+Cube::Cube(){
+  m_cube = new NonhierBox(Point3D(0.0f,0.0f,0.0f), 1.0f);
 }
 
 Intersection Cube::intersect(Ray r){
@@ -109,40 +119,40 @@ NonhierBox::NonhierBox(const Point3D& pos, double size)
   	std::vector< std::vector<int> > faces;
   	// Push them in counterclockwise order startingwith loweest value
   	std::vector<int> front_face;
+    front_face.push_back(3);
+    front_face.push_back(2); 
+    front_face.push_back(1); 
   	front_face.push_back(0); 
-  	front_face.push_back(1); 
-  	front_face.push_back(2); 
-  	front_face.push_back(3);
 
   	std::vector<int> back_face;
-  	back_face.push_back(4); 
-  	back_face.push_back(5); 
-  	back_face.push_back(6); 
-  	back_face.push_back(7);
+    back_face.push_back(7);
+    back_face.push_back(6); 
+    back_face.push_back(5); 
+    back_face.push_back(4); 
 
   	std::vector<int> left_face;
-  	left_face.push_back(0); 
-  	left_face.push_back(3); 
-  	left_face.push_back(5); 
   	left_face.push_back(4);
+    left_face.push_back(5); 
+    left_face.push_back(3); 
+    left_face.push_back(0); 
 
   	std::vector<int> right_face;
-  	right_face.push_back(1); 
-  	right_face.push_back(7); 
-  	right_face.push_back(6); 
   	right_face.push_back(2);
+    right_face.push_back(6); 
+    right_face.push_back(7); 
+    right_face.push_back(1); 
 
   	std::vector<int> top_face;
-  	top_face.push_back(2); 
-  	top_face.push_back(6); 
-  	top_face.push_back(5); 
   	top_face.push_back(3);
+    top_face.push_back(5); 
+    top_face.push_back(6); 
+    top_face.push_back(2); 
 
   	std::vector<int> bottom_face;
-  	bottom_face.push_back(0); 
-  	bottom_face.push_back(4); 
-  	bottom_face.push_back(7); 
   	bottom_face.push_back(1);
+    bottom_face.push_back(7); 
+    bottom_face.push_back(4); 
+    bottom_face.push_back(0); 
 
 	faces.push_back(front_face);
 	faces.push_back(top_face);
