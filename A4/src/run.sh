@@ -8,5 +8,5 @@ echo "cp rt to new location"
 cp ./rt ../data
 
 cd ../data
-./rt nonhiersphere.lua && display nonhiersphere.png
+./rt hier.lua && display hier.png
 

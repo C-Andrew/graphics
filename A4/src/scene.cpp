@@ -46,19 +46,31 @@ void SceneNode::rotate(char axis, double angle)
 
   rotationMat =  Matrix4x4(r1,r2,r3,r4);
   m_trans = m_trans * rotationMat;
+  // set_transform(m_trans);
 }
 
 void SceneNode::scale(const Vector3D& amount)
 {
   std::cerr << "Stub: Scale " << m_name << " by " << amount << std::endl;
   // Fill me in
-  Matrix4x4 scaleMat;
-  scaleMat= Matrix4x4(Vector4D(amount[0], 0.0, 0.0, 0.0) ,
-                      Vector4D(0.0, amount[1], 0.0, 0.0) ,
-                      Vector4D(0.0, 0.0, amount[2], 0.0) ,
-                      Vector4D(0.0, 0.0, 0.0, 1.0));
+  Matrix4x4 transMat;
 
-  m_trans = m_trans * scaleMat;
+  Vector4D r1(amount[0], 0.0, 0.0, 0.0);
+  Vector4D r2(0.0, amount[1], 0.0, 0.0);
+  Vector4D r3(0.0, 0.0, amount[2], 0.0);
+  Vector4D r4(0.0, 0.0, 0.0, 1.0f);
+
+  transMat = Matrix4x4(r1,r2,r3,r4);
+  m_trans = m_trans * transMat;
+  set_transform(m_trans);
+
+  // Matrix4x4 scaleMat(Vector4D(amount[0], 0.0, 0.0, 0.0) ,
+  //                     Vector4D(0.0, amount[1], 0.0, 0.0) ,
+  //                     Vector4D(0.0, 0.0, amount[2], 0.0) ,
+  //                     Vector4D(0.0, 0.0, 0.0, 1.0));
+
+  // m_trans = m_trans * scaleMat;
+  // set_transform(m_trans);
 }
 
 void SceneNode::translate(const Vector3D& amount)
@@ -67,13 +79,14 @@ void SceneNode::translate(const Vector3D& amount)
   // Fill me in
   Matrix4x4 transMat;
 
-  Vector4D r1(1, 0.0, 0.0, amount[0]);
-  Vector4D r2(0.0, 1, 0.0, amount[1]);
-  Vector4D r3(0.0, 0.0, 1, amount[2]);
-  Vector4D r4(0.0, 0.0, 0.0, 1);
+  Vector4D r1(1.0, 0.0, 0.0, amount[0]);
+  Vector4D r2(0.0, 1.0f, 0.0, amount[1]);
+  Vector4D r3(0.0, 0.0, 1.0f, amount[2]);
+  Vector4D r4(0.0, 0.0, 0.0, 1.0f);
 
   transMat = Matrix4x4(r1,r2,r3,r4);
   m_trans = m_trans * transMat;
+  set_transform(m_trans);
 
 }
 
