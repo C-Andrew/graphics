@@ -3,7 +3,9 @@ Student Number: 20378330
 User-id: a8chin
 Assignment: 4
 
-The final executable was compiled on this machine: gl06
+The final executable was compiled on this machine: gl04
+
+My program does not have hierarchical modeling implemented.
 
 How to invoke my program: ./rt
 

@@ -1,22 +1,22 @@
 sum is: /usr/bin/sum
 
 
-2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 1
+2014-10-28 12:54        Checksum for A4 for a8chin on gl04        Page 1
 
 
 A4:
 total 1088
-40303142 drwxrwx--- 9 a8chin cs488     4096 Oct 28 12:48 ../
- 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:47 ./
+40303142 drwxrwx--- 9 a8chin cs488     4096 Oct 28 12:54 ../
+ 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:53 ./
+70406901 -rw-r--r-- 1 a8chin a8chin     831 Oct 28 12:53 README
 70406899 -rw-r--r-- 1 a8chin a8chin   81413 Oct 28 12:47 screenshot01.png
 71300674 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:45 src/
 49090817 -rwxr-xr-x 1 a8chin a8chin 1001861 Oct 28 12:45 rt*
  5010879 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:43 data/
-49090816 -rw-r--r-- 1 a8chin a8chin     770 Oct 28 12:41 README
 
 A4/src:
 total 864
- 5010873 drwxrwx--- 4 a8chin cs488    4096 Oct 28 12:47 ../
+ 5010873 drwxrwx--- 4 a8chin cs488    4096 Oct 28 12:53 ../
 71300674 drwxrwx--- 2 a8chin cs488    4096 Oct 28 12:45 ./
 71896351 -rwxr-xr-x 1 a8chin a8chin    195 Oct 28 12:43 run.sh*
 35185909 -rw-r--r-- 1 a8chin a8chin    145 Oct 28 12:38 scene_lua.hpp
@@ -48,7 +48,7 @@ total 864
 
 A4/data:
 total 2248
- 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:47 ../
+ 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:53 ../
 44444288 -rw-r--r-- 1 a8chin a8chin   51675 Oct 28 12:43 nonhier.png
 44444283 -rwxr-xr-x 1 a8chin a8chin 1001861 Oct 28 12:43 rt*
  5010879 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:43 ./
@@ -67,7 +67,7 @@ total 2248
 
 
 
-2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 2
+2014-10-28 12:54        Checksum for A4 for a8chin on gl04        Page 2
 
 
 80797199 -rw-r--r-- 1 a8chin a8chin    1287 Oct 28 03:44 nonhiersphere.lua
@@ -119,7 +119,7 @@ A4/data/simple-cows.lua                 10797     3
 A4/data/simple.lua                      02633     1
 A4/data/smstdodeca.lua                  02544     9
 A4/data/test                            00000     0
-A4/README                               07276     1
+A4/README                               14640     1
 A4/rt                                   45430   979
 A4/screenshot01.png                     50267    80
 A4/src                                  
@@ -133,7 +133,7 @@ A4/src/algebra.cpp                      00294     4
 
 
 
-2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 3
+2014-10-28 12:54        Checksum for A4 for a8chin on gl04        Page 3
 
 
 A4/src/algebra.hpp                      48468    10
