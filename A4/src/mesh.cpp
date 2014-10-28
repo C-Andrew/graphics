@@ -117,61 +117,61 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
   return out;
 }
 
-Intersection Mesh::intersectBoundingBox(Ray r){
+bool Mesh::intersectBoundingBox(Ray r){
   // X CHECKS
-  // float tmin = (near[0] - r.origin[0]) / r.direction[0];
-  // float tmax = (far[0] - r.origin[0]) / r.direction[0];
+  float tmin = (near[0] - r.origin[0]) / r.direction[0];
+  float tmax = (far[0] - r.origin[0]) / r.direction[0];
 
-  // if(tmin > tmax){
-  //   float temp = tmin;
-  //   tmin = tmax;
-  //   tmax = temp;
-  // }
+  if(tmin > tmax){
+    float temp = tmin;
+    tmin = tmax;
+    tmax = temp;
+  }
 
-  // // Y CHECKS
-  // float tymin = (near[1] - r.origin[1]) / r.direction[1];
-  // float tymax = (far[1] - r.origin[1]) / r.direction[1];
-  // if (tymin > tymax){
-  //   float temp = tymin;
-  //   tymin = tymax;
-  //   tymax = temp;
-  // }
-  // if ((tmin > tymax) || (tymin > tmax)) {return false;}
-  // if (tymin > tmin)
-  //     tmin = tymin;
-  // if (tymax < tmax)
-  //     tmax = tymax;
+  // Y CHECKS
+  float tymin = (near[1] - r.origin[1]) / r.direction[1];
+  float tymax = (far[1] - r.origin[1]) / r.direction[1];
+  if (tymin > tymax){
+    float temp = tymin;
+    tymin = tymax;
+    tymax = temp;
+  }
+  if ((tmin > tymax) || (tymin > tmax)) {return false;}
+  if (tymin > tmin)
+      tmin = tymin;
+  if (tymax < tmax)
+      tmax = tymax;
 
-  // // Z CHECKS
-  // float tzmin = (near[2] - r.origin[2]) / r.direction[2];
-  // float tzmax = (far[2] - r.origin[2]) / r.direction[2];
-  // if (tzmin > tzmax){
-  //   float temp = tzmin;
-  //   tzmin = tzmax;
-  //   tzmax = temp;
-  // }
-  // if ((tmin > tymax) || (tymin > tmax)){ return false; }
+  // Z CHECKS
+  float tzmin = (near[2] - r.origin[2]) / r.direction[2];
+  float tzmax = (far[2] - r.origin[2]) / r.direction[2];
+  if (tzmin > tzmax){
+    float temp = tzmin;
+    tzmin = tzmax;
+    tzmax = temp;
+  }
+  if ((tmin > tymax) || (tymin > tmax)){ return false; }
 
-  // return true;
+  return true;
 
 
 //For evert Face, check intersection
-  Intersection intersection;
-  std::vector< std::vector<Point3D> >::const_iterator it;
-  for (it = box_faces.begin(); it != box_faces.end(); it++)
-  {
-    std::vector<Point3D> faceAsVertices = (*it);
+  // Intersection intersection;
+  // std::vector< std::vector<Point3D> >::const_iterator it;
+  // for (it = box_faces.begin(); it != box_faces.end(); it++)
+  // {
+  //   std::vector<Point3D> faceAsVertices = (*it);
 
-    Intersection curIntersect = intersectFace(r, faceAsVertices);
+  //   Intersection curIntersect = intersectFace(r, faceAsVertices);
 
-    if(curIntersect.hit){
-      if(!intersection.hit || curIntersect.t < intersection.t){
-        intersection = curIntersect;
-      }
-    }
+  //   if(curIntersect.hit){
+  //     if(!intersection.hit || curIntersect.t < intersection.t){
+  //       intersection = curIntersect;
+  //     }
+  //   }
 
-  }
-  return intersection;
+  // }
+  // return intersection;
 
 }
 
@@ -182,12 +182,9 @@ Intersection Mesh::intersect(Ray r){
   Intersection intersection;
   // Check if the ray intersects your magical box
   // If it does, do real intersection
-  Intersection boundingBoxIntersection = intersectBoundingBox(r);
-  if(!boundingBoxIntersection.hit){
+  // Intersection boundingBoxIntersection = intersectBoundingBox(r);
+  if(!intersectBoundingBox(r)){
     return intersection;
-  }
-  else{
-    return boundingBoxIntersection;
   }
 
 
