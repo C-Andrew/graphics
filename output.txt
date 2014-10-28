@@ -1,0 +1,199 @@
+sum is: /usr/bin/sum
+
+
+2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 1
+
+
+A4:
+total 1088
+40303142 drwxrwx--- 9 a8chin cs488     4096 Oct 28 12:48 ../
+ 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:47 ./
+70406899 -rw-r--r-- 1 a8chin a8chin   81413 Oct 28 12:47 screenshot01.png
+71300674 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:45 src/
+49090817 -rwxr-xr-x 1 a8chin a8chin 1001861 Oct 28 12:45 rt*
+ 5010879 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:43 data/
+49090816 -rw-r--r-- 1 a8chin a8chin     770 Oct 28 12:41 README
+
+A4/src:
+total 864
+ 5010873 drwxrwx--- 4 a8chin cs488    4096 Oct 28 12:47 ../
+71300674 drwxrwx--- 2 a8chin cs488    4096 Oct 28 12:45 ./
+71896351 -rwxr-xr-x 1 a8chin a8chin    195 Oct 28 12:43 run.sh*
+35185909 -rw-r--r-- 1 a8chin a8chin    145 Oct 28 12:38 scene_lua.hpp
+35185908 -rw-r--r-- 1 a8chin a8chin  15893 Oct 28 12:38 scene_lua.cpp
+35185906 -rw-r--r-- 1 a8chin a8chin   6042 Oct 28 12:38 primitive.cpp
+35185905 -rw-r--r-- 1 a8chin a8chin    842 Oct 28 12:38 mesh.hpp
+ 3358088 -rw-r--r-- 1 a8chin a8chin   7777 Oct 28 12:38 mesh.cpp
+ 3358077 -rw-r--r-- 1 a8chin a8chin    525 Oct 28 12:38 main.cpp
+ 3358075 -rw-r--r-- 1 a8chin a8chin   1002 Oct 28 12:38 a4.hpp
+ 3358074 -rw-r--r-- 1 a8chin a8chin  11760 Oct 28 12:38 a4.cpp
+39701702 -rw-r--r-- 1 a8chin a8chin  10107 Oct 28 03:38 algebra.hpp
+29076919 -rw-r--r-- 1 a8chin a8chin   1168 Oct 28 03:29 primitive.hpp
+73887890 -rw-r--r-- 1 a8chin a8chin   5465 Oct 28 02:50 scene.cpp
+55872050 -rw-r--r-- 1 a8chin a8chin   2032 Oct 28 02:46 scene.hpp
+72282755 -rw-r--r-- 1 a8chin a8chin    656 Oct 28 00:22 Makefile
+40296832 -rwxrwxrwx 1 a8chin a8chin 662596 Oct 27 19:20 .nfs000000000266e180000004d7*
+28494452 -rw-r--r-- 1 a8chin a8chin   1080 Oct 24 20:21 temp
+33954578 -rw-r-x--- 1 a8chin cs488     586 Oct 24 11:46 light.hpp*
+81749869 -rw-r-x--- 1 a8chin cs488     492 Oct 23 16:39 material.cpp*
+24042261 -rw-r-x--- 1 a8chin cs488     632 Oct 23 16:39 material.hpp*
+43420924 -rw-r----- 1 a8chin a8chin  12288 Oct 23 14:14 .primitive.cpp.swp
+33954582 -rw-r-x--- 1 a8chin cs488     966 Sep 18 13:51 polyroots.hpp*
+19149963 -rw-r-x--- 1 a8chin cs488   47780 Sep 18 13:51 polyroots.cpp*
+24042265 -rw-r-x--- 1 a8chin cs488    1787 Sep 18 13:51 image.hpp*
+24042264 -rw-r-x--- 1 a8chin cs488     170 Sep 18 13:51 lua488.hpp*
+71300690 -rw-r-x--- 1 a8chin cs488     415 Sep 18 13:51 light.cpp*
+71300687 -rw-r-x--- 1 a8chin cs488    3308 Sep 18 13:51 algebra.cpp*
+71300676 -rw-r-x--- 1 a8chin cs488    6107 Sep 18 13:51 image.cpp*
+
+A4/data:
+total 2248
+ 5010873 drwxrwx--- 4 a8chin cs488     4096 Oct 28 12:47 ../
+44444288 -rw-r--r-- 1 a8chin a8chin   51675 Oct 28 12:43 nonhier.png
+44444283 -rwxr-xr-x 1 a8chin a8chin 1001861 Oct 28 12:43 rt*
+ 5010879 drwxrwx--- 2 a8chin cs488     4096 Oct 28 12:43 ./
+ 5010887 -rw-r-x--- 1 a8chin cs488     1281 Oct 28 12:43 nonhier.lua*
+44444290 -rw-r--r-- 1 a8chin a8chin   81413 Oct 28 12:38 sample.png
+44444289 -rw-r--r-- 1 a8chin a8chin    3107 Oct 28 12:38 sample.lua
+44444287 -rw-r--r-- 1 a8chin a8chin   22806 Oct 28 12:38 nonhier-small.png
+44444286 -rw-r--r-- 1 a8chin a8chin   50718 Oct 28 12:38 nonhier-bb.png
+44444285 -rw-r--r-- 1 a8chin a8chin   57079 Oct 28 12:38 nonhier-SS.png
+44444284 -rw-r--r-- 1 a8chin a8chin    1470 Oct 28 12:37 nonhier2.lua
+80797200 -rw-r--r-- 1 a8chin a8chin   16293 Oct 28 03:46 nonhier2.png
+
+
+
+
+
+
+
+2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 2
+
+
+80797199 -rw-r--r-- 1 a8chin a8chin    1287 Oct 28 03:44 nonhiersphere.lua
+54747518 -rw-r--r-- 1 a8chin a8chin    3348 Oct 28 03:38 hier.png
+54747512 -rwxr-xr-x 1 a8chin a8chin  662532 Oct 27 19:14 .nfs0000000003436178000004d6*
+30572031 -rw-r-x--- 1 a8chin cs488      997 Oct 25 20:09 simple.lua*
+35306191 -rw-r--r-- 1 a8chin a8chin       0 Oct 23 01:26 test
+30572034 -rw-r-x--- 1 a8chin cs488     2933 Oct 21 16:44 macho-cows.lua*
+34028166 -rw-r--r-- 1 a8chin a8chin     582 Oct 21 16:35 macho_cows.png
+30572033 -rw-r-x--- 1 a8chin cs488      755 Sep 18 13:51 icosa.lua*
+30572032 -rw-r-x--- 1 a8chin cs488     1011 Sep 18 13:51 cylinder.lua*
+ 5010893 -rw-r-x--- 1 a8chin cs488     2857 Sep 18 13:51 hier.lua*
+ 5010892 -rw-r-x--- 1 a8chin cs488     1268 Sep 18 13:51 readobj.lua*
+ 5010891 -rw-r-x--- 1 a8chin cs488     4322 Sep 18 13:51 buckyball.lua*
+ 5010890 -rw-r-x--- 1 a8chin cs488     1566 Sep 18 13:51 instance.lua*
+ 5010888 -rw-r-x--- 1 a8chin cs488     8859 Sep 18 13:51 smstdodeca.lua*
+ 5010886 -rw-r-x--- 1 a8chin cs488   180010 Sep 18 13:51 cow.obj*
+ 5010885 -rw-r-x--- 1 a8chin cs488    38328 Sep 18 13:51 mickey.lua*
+ 5010884 -rw-r-x--- 1 a8chin cs488     1673 Sep 18 13:51 dodeca.lua*
+ 5010883 -rw-r-x--- 1 a8chin cs488     2907 Sep 18 13:51 simple-cows.lua*
+
+A4                                      
+A4/data                                 
+A4/data/buckyball.lua                   10689     5
+A4/data/cow.obj                         57991   176
+A4/data/cylinder.lua                    01173     1
+A4/data/dodeca.lua                      50755     2
+A4/data/hier.lua                        09954     3
+A4/data/hier.png                        65351     4
+A4/data/icosa.lua                       58132     1
+A4/data/instance.lua                    25944     2
+A4/data/macho-cows.lua                  40913     3
+A4/data/macho_cows.png                  03220     1
+A4/data/mickey.lua                      01039    38
+A4/data/.nfs0000000003436178000004d6    28948   648
+A4/data/nonhier2.lua                    25636     2
+A4/data/nonhier2.png                    41743    16
+A4/data/nonhier-bb.png                  21462    50
+A4/data/nonhier.lua                     25784     2
+A4/data/nonhier.png                     55168    51
+A4/data/nonhier-small.png               43746    23
+A4/data/nonhiersphere.lua               51531     2
+A4/data/nonhier-SS.png                  22025    56
+A4/data/readobj.lua                     57040     2
+A4/data/rt                              45430   979
+A4/data/sample.lua                      39800     4
+A4/data/sample.png                      50267    80
+A4/data/simple-cows.lua                 10797     3
+A4/data/simple.lua                      02633     1
+A4/data/smstdodeca.lua                  02544     9
+A4/data/test                            00000     0
+A4/README                               07276     1
+A4/rt                                   45430   979
+A4/screenshot01.png                     50267    80
+A4/src                                  
+A4/src/a4.cpp                           31698    12
+A4/src/a4.hpp                           18726     1
+A4/src/algebra.cpp                      00294     4
+
+
+
+
+
+
+
+2014-10-28 12:48        Checksum for A4 for a8chin on gl04        Page 3
+
+
+A4/src/algebra.hpp                      48468    10
+A4/src/image.cpp                        42618     6
+A4/src/image.hpp                        52703     2
+A4/src/light.cpp                        61411     1
+A4/src/light.hpp                        25877     1
+A4/src/lua488.hpp                       04702     1
+A4/src/main.cpp                         31381     1
+A4/src/Makefile                         04934     1
+A4/src/material.cpp                     49287     1
+A4/src/material.hpp                     06957     1
+A4/src/mesh.cpp                         41571     8
+A4/src/mesh.hpp                         46170     1
+A4/src/.nfs000000000266e180000004d7     32826   648
+A4/src/polyroots.cpp                    59889    47
+A4/src/polyroots.hpp                    52382     1
+A4/src/primitive.cpp                    39363     6
+A4/src/.primitive.cpp.swp               08868    12
+A4/src/primitive.hpp                    61075     2
+A4/src/run.sh                           12225     1
+A4/src/scene.cpp                        60592     6
+A4/src/scene.hpp                        03301     2
+A4/src/scene_lua.cpp                    52296    16
+A4/src/scene_lua.hpp                    16878     1
+A4/src/temp                             35984     2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
