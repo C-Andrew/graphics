@@ -1,0 +1,35 @@
+Name: Andrew Chin
+Student Number: 20378330
+User-id: a8chin
+Assignment: 4
+
+The final executable was compiled on this machine: gl06
+
+How to invoke my program: ./rt
+
+
+How to use my extra features: 
+Super Sampling 
+./rt nonhier.lua -ss
+Please note that '-ss' flag must be the second paramter.
+
+
+I have created the following data files, which are in the data directory:
+These are to illustrate the implemented features.
+(bb bounding box | SS super sampling)
+
+nonhier.png
+nonhier-bb.png
+nonhier-small.png
+nonhier-SS.png
+sample.png
+
+
+
+My program assumes the following: Assumes you are running on machine gl04, or at least a machine with identical environment as gl04. 
+
+I also assume that the lua files being passed in to ./rt are in the correct locations when running rt.
+
+
+
+
