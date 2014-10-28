@@ -34,8 +34,8 @@ void a4_render(// What to render
                const Vector3D& up, double fov,
                // Lighting parameters
                const Colour& ambient,
-               const std::list<Light*>& lights
-               )
+               const std::list<Light*>& lights,
+               bool enableSuperSample)
 {
   // Fill in raytracing code here.
 
@@ -87,71 +87,79 @@ void a4_render(// What to render
       // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
 
       // Super Sampling X9
-      Vector3D rayDirection1(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection2(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection3(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-      
-      Vector3D rayDirection4(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y)/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection5(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+      Vector3D rayDirection1(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                      (y/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection6(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     (y/(double)height * 2 - 1) * tangent * (-m_up) );
-      
-      Vector3D rayDirection7(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection8(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-      Vector3D rayDirection9(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
-
       rayDirection1.normalize();
-      rayDirection2.normalize();
-      rayDirection3.normalize();
-      rayDirection4.normalize();
-      rayDirection5.normalize();
-      rayDirection6.normalize();
-      rayDirection7.normalize();
-      rayDirection8.normalize();
-      rayDirection9.normalize();
-
       Ray rayFromPixel1(rayOrigin, rayDirection1);
-      Ray rayFromPixel2(rayOrigin, rayDirection2);
-      Ray rayFromPixel3(rayOrigin, rayDirection3);
-      Ray rayFromPixel4(rayOrigin, rayDirection4);
-      Ray rayFromPixel5(rayOrigin, rayDirection5);
-      Ray rayFromPixel6(rayOrigin, rayDirection6);
-      Ray rayFromPixel7(rayOrigin, rayDirection7);
-      Ray rayFromPixel8(rayOrigin, rayDirection8);
-      Ray rayFromPixel9(rayOrigin, rayDirection9);
-
       Colour pixelColour1 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel1, y);
-      Colour pixelColour2 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel2, y);
-      Colour pixelColour3 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel3, y);
-      Colour pixelColour4 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel4, y);
-      Colour pixelColour5 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel5, y);
-      Colour pixelColour6 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel6, y);
-      Colour pixelColour7 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel7, y);
-      Colour pixelColour8 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel8, y);
-      Colour pixelColour9 = colourFromRay(root, height, ambient,
-                                  lights, rayFromPixel9, y);
+                                lights, rayFromPixel1, y);
+      Colour final = pixelColour1;
+      if(enableSuperSample){
+        // std::cerr << "super sample" << std::endl;
+        Vector3D rayDirection1(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection2(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection3(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y-0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        
+        Vector3D rayDirection4(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y)/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection5(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       (y/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection6(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       (y/(double)height * 2 - 1) * tangent * (-m_up) );
+        
+        Vector3D rayDirection7(m_view + ((x-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection8(m_view + ((x)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        Vector3D rayDirection9(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
+        
+        rayDirection1.normalize();
+        rayDirection2.normalize();
+        rayDirection3.normalize();
+        rayDirection4.normalize();
+        rayDirection5.normalize();
+        rayDirection6.normalize();
+        rayDirection7.normalize();
+        rayDirection8.normalize();
+        rayDirection9.normalize();  
 
-      Colour final = (float)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
-                                   pixelColour4 + pixelColour5 + pixelColour6 +
-                                   pixelColour7 + pixelColour8 + pixelColour9) ;
+        Ray rayFromPixel1(rayOrigin, rayDirection1);
+        Ray rayFromPixel2(rayOrigin, rayDirection2);
+        Ray rayFromPixel3(rayOrigin, rayDirection3);
+        Ray rayFromPixel4(rayOrigin, rayDirection4);
+        Ray rayFromPixel5(rayOrigin, rayDirection5);
+        Ray rayFromPixel6(rayOrigin, rayDirection6);
+        Ray rayFromPixel7(rayOrigin, rayDirection7);
+        Ray rayFromPixel8(rayOrigin, rayDirection8);
+        Ray rayFromPixel9(rayOrigin, rayDirection9);
 
-      // Colour final = pixelColour1;
+        Colour pixelColour1 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel1, y);
+        Colour pixelColour2 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel2, y);
+        Colour pixelColour3 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel3, y);
+        Colour pixelColour4 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel4, y);
+        Colour pixelColour5 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel5, y);
+        Colour pixelColour6 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel6, y);
+        Colour pixelColour7 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel7, y);
+        Colour pixelColour8 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel8, y);
+        Colour pixelColour9 = colourFromRay(root, height, ambient,
+                                    lights, rayFromPixel9, y);
+
+        final = (float)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
+                             pixelColour4 + pixelColour5 + pixelColour6 +
+                             pixelColour7 + pixelColour8 + pixelColour9);
+      }
 
         img(x,y,0) = final.R();
         img(x,y,1) = final.G();
@@ -222,7 +230,7 @@ Colour colourFromRay(
         Vector3D color;
 
         Material* mat = minIntersection.material;
-        Primitive* prim = minIntersection.primitive;
+        // Primitive* prim = minIntersection.primitive;
 
         Colour finalColour = ambient * mat->get_diffuse();
 

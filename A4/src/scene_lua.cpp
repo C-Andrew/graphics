@@ -101,6 +101,9 @@ void get_tuple(lua_State* L, int arg, T* data, int n)
   }
 }
 
+//GLOBAL SPACE
+bool enableSuperSample = false;
+
 // Create a node
 extern "C"
 int gr_node_cmd(lua_State* L)
@@ -360,7 +363,7 @@ int gr_render_cmd(lua_State* L)
 
   a4_render(root->node, filename, width, height,
             eye, view, up, fov,
-            ambient, lights);
+            ambient, lights, enableSuperSample);
   
   return 0;
 }
@@ -568,8 +571,9 @@ static const luaL_reg grlib_node_methods[] = {
 
 // This function calls the lua interpreter to define the scene and
 // raytrace it as appropriate.
-bool run_lua(const std::string& filename)
+bool run_lua(const std::string& filename, bool ss)
 {
+  enableSuperSample = ss;
   GRLUA_DEBUG("Importing scene from " << filename);
   
   // Start a lua interpreter

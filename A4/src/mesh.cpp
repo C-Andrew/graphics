@@ -31,6 +31,67 @@ Mesh::Mesh(const std::vector<Point3D>& verts,
   min = std::min(min, minZ);
 
   size = max - min;
+  sizeX = maxX - minX;
+  sizeY = maxY - minY;
+  sizeZ = maxZ - minZ;
+
+
+    // Build Front Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+    // REMEMBER WE ARE LOOKING AT THE NEG-Z AXIS
+    box_vertices.push_back(Point3D( near[0],        near[1],        near[2]+sizeZ ) ); 
+    box_vertices.push_back(Point3D( near[0],        near[1]+sizeY, near[2]+sizeZ ) );
+    box_vertices.push_back(Point3D( near[0]+sizeX, near[1]+sizeY, near[2]+sizeZ ) );
+    box_vertices.push_back(Point3D( near[0]+sizeX, near[1],        near[2]+sizeZ ) );
+    
+    // Build Back Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+    box_vertices.push_back(Point3D( near[0],        near[1],        near[2]) );
+    box_vertices.push_back(Point3D( near[0]+sizeX, near[1],        near[2]) );
+    box_vertices.push_back(Point3D( near[0]+sizeX, near[1]+sizeY, near[2]) );  
+    box_vertices.push_back(Point3D( near[0],        near[1]+sizeY, near[2]) ); 
+
+    // Push them in counterclockwise order startingwith loweest value
+    std::vector<Point3D> front_face;
+    front_face.push_back(box_vertices[3]);
+    front_face.push_back(box_vertices[2]); 
+    front_face.push_back(box_vertices[1]); 
+    front_face.push_back(box_vertices[0]); 
+
+    std::vector<Point3D> back_face;
+    back_face.push_back(box_vertices[7]);
+    back_face.push_back(box_vertices[6]); 
+    back_face.push_back(box_vertices[5]); 
+    back_face.push_back(box_vertices[4]); 
+
+    std::vector<Point3D> left_face;
+    left_face.push_back(box_vertices[4]);
+    left_face.push_back(box_vertices[5]); 
+    left_face.push_back(box_vertices[3]); 
+    left_face.push_back(box_vertices[0]); 
+
+    std::vector<Point3D> right_face;
+    right_face.push_back(box_vertices[2]);
+    right_face.push_back(box_vertices[6]); 
+    right_face.push_back(box_vertices[7]); 
+    right_face.push_back(box_vertices[1]); 
+
+    std::vector<Point3D> top_face;
+    top_face.push_back(box_vertices[3]);
+    top_face.push_back(box_vertices[5]); 
+    top_face.push_back(box_vertices[6]); 
+    top_face.push_back(box_vertices[2]); 
+
+    std::vector<Point3D> bottom_face;
+    bottom_face.push_back(box_vertices[1]);
+    bottom_face.push_back(box_vertices[7]); 
+    bottom_face.push_back(box_vertices[4]); 
+    bottom_face.push_back(box_vertices[0]);
+
+    box_faces.push_back(front_face);
+    box_faces.push_back(top_face);
+    box_faces.push_back(back_face);
+    box_faces.push_back(bottom_face);
+    box_faces.push_back(left_face);
+    box_faces.push_back(right_face); 
 
 }
 
@@ -56,45 +117,61 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
   return out;
 }
 
-bool Mesh::intersectBoundingBox(Ray r){
+Intersection Mesh::intersectBoundingBox(Ray r){
   // X CHECKS
-  float tmin = (near[0] - r.origin[0]) / r.direction[0];
-  float tmax = (far[0] - r.origin[0]) / r.direction[0];
+  // float tmin = (near[0] - r.origin[0]) / r.direction[0];
+  // float tmax = (far[0] - r.origin[0]) / r.direction[0];
 
-  if(tmin > tmax){
-    float temp = tmin;
-    tmin = tmax;
-    tmax = temp;
+  // if(tmin > tmax){
+  //   float temp = tmin;
+  //   tmin = tmax;
+  //   tmax = temp;
+  // }
+
+  // // Y CHECKS
+  // float tymin = (near[1] - r.origin[1]) / r.direction[1];
+  // float tymax = (far[1] - r.origin[1]) / r.direction[1];
+  // if (tymin > tymax){
+  //   float temp = tymin;
+  //   tymin = tymax;
+  //   tymax = temp;
+  // }
+  // if ((tmin > tymax) || (tymin > tmax)) {return false;}
+  // if (tymin > tmin)
+  //     tmin = tymin;
+  // if (tymax < tmax)
+  //     tmax = tymax;
+
+  // // Z CHECKS
+  // float tzmin = (near[2] - r.origin[2]) / r.direction[2];
+  // float tzmax = (far[2] - r.origin[2]) / r.direction[2];
+  // if (tzmin > tzmax){
+  //   float temp = tzmin;
+  //   tzmin = tzmax;
+  //   tzmax = temp;
+  // }
+  // if ((tmin > tymax) || (tymin > tmax)){ return false; }
+
+  // return true;
+
+
+//For evert Face, check intersection
+  Intersection intersection;
+  std::vector< std::vector<Point3D> >::const_iterator it;
+  for (it = box_faces.begin(); it != box_faces.end(); it++)
+  {
+    std::vector<Point3D> faceAsVertices = (*it);
+
+    Intersection curIntersect = intersectFace(r, faceAsVertices);
+
+    if(curIntersect.hit){
+      if(!intersection.hit || curIntersect.t < intersection.t){
+        intersection = curIntersect;
+      }
+    }
+
   }
-
-  // Y CHECKS
-  float tymin = (near[1] - r.origin[1]) / r.direction[1];
-  float tymax = (far[1] - r.origin[1]) / r.direction[1];
-  if (tymin > tymax){
-    float temp = tymin;
-    tymin = tymax;
-    tymax = temp;
-  }
-  if ((tmin > tymax) || (tymin > tmax)) {return false;}
-  if (tymin > tmin)
-      tmin = tymin;
-  if (tymax < tmax)
-      tmax = tymax;
-
-  // Z CHECKS
-  float tzmin = (near[2] - r.origin[2]) / r.direction[2];
-  float tzmax = (far[2] - r.origin[2]) / r.direction[2];
-  if (tzmin > tzmax){
-    float temp = tzmin;
-    tzmin = tzmax;
-    tzmax = temp;
-  }
-  if ((tmin > tymax) || (tymin > tmax)){ return false; }
-
-  // NonhierBox box(near, size);
-  // Intersection intersection;
-  // intersection.t =
-  return true;
+  return intersection;
 
 }
 
@@ -105,9 +182,14 @@ Intersection Mesh::intersect(Ray r){
   Intersection intersection;
   // Check if the ray intersects your magical box
   // If it does, do real intersection
-  if(!intersectBoundingBox(r)){
+  Intersection boundingBoxIntersection = intersectBoundingBox(r);
+  if(!boundingBoxIntersection.hit){
     return intersection;
   }
+  else{
+    return boundingBoxIntersection;
+  }
+
 
   //For evert Face, check intersection
   std::vector<Face>::const_iterator it;

@@ -20,7 +20,8 @@ void a4_render(// What to render
                const Vector3D& up, double fov,
                // Lighting parameters
                const Colour& ambient,
-               const std::list<Light*>& lights
+               const std::list<Light*>& lights,
+               bool enableSuperSample
                );
 Colour colourFromRay( 
                // What to render

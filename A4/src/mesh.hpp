@@ -16,11 +16,16 @@ public:
   virtual Intersection intersect(Ray r);
   Intersection intersectFace(Ray r, std::vector<Point3D> face);
   virtual Point3D get_pos();
+  //bounding box 
   Point3D far;
   Point3D near;
   float size;
-
-  bool intersectBoundingBox(Ray r);
+  float sizeX;
+  float sizeY;
+  float sizeZ;
+  std::vector<Point3D> box_vertices;
+  std::vector< std::vector<Point3D> > box_faces;
+  Intersection intersectBoundingBox(Ray r);
 
 private:
   std::vector<Point3D> m_verts;
