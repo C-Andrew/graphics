@@ -81,7 +81,7 @@ void a4_render(// What to render
   double tangent = tan(fov*M_PI/360.0);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-
+      // Point3D pixel(x-(width/2), y-(height/2), 1);
       Vector3D rayOrigin(eye);
       // Magical Math as provided by 
       // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
@@ -150,6 +150,9 @@ void a4_render(// What to render
       Colour final = (float)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
                                    pixelColour4 + pixelColour5 + pixelColour6 +
                                    pixelColour7 + pixelColour8 + pixelColour9) ;
+
+      // Colour final = pixelColour1;
+
         img(x,y,0) = final.R();
         img(x,y,1) = final.G();
         img(x,y,2) = final.B();
@@ -264,7 +267,7 @@ Colour colourFromRay(
           Colour diffuse = ( (ndotl) * mat->get_diffuse() * light->colour);
           Colour specular = ( (rdotvp) * mat->get_specular() * light->colour);
 
-          finalColour = finalColour + diffuse + specular;
+          finalColour = finalColour  + (diffuse) + ( specular);
 
         }// End light for-loop
         return finalColour;

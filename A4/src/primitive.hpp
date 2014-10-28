@@ -2,6 +2,8 @@
 #define CS488_PRIMITIVE_HPP
 
 #include "algebra.hpp"
+#include "polyroots.hpp"
+#include <algorithm>
 
 class Mesh;
 

@@ -18,6 +18,7 @@ public:
   virtual Point3D get_pos();
   Point3D far;
   Point3D near;
+  float size;
 
   bool intersectBoundingBox(Ray r);
 

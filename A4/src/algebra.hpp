@@ -516,7 +516,7 @@ public:
 
 class Intersection{
 public:
-  Intersection(): t(-1.0f), hit(false) {};
+  Intersection(): t(0.0f), hit(false) {};
   double t;
   Point3D point;
   Vector3D normal;

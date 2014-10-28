@@ -25,6 +25,13 @@ Mesh::Mesh(const std::vector<Point3D>& verts,
   }
   far = Point3D(maxX, maxY, maxZ);
   near = Point3D(minX, minY, minZ);
+  float max = std::max(maxX, maxY);
+  max = std::max(max, maxZ);
+  float min = std::min(minX, minY);
+  min = std::min(min, minZ);
+
+  size = max - min;
+
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
@@ -83,6 +90,10 @@ bool Mesh::intersectBoundingBox(Ray r){
     tzmax = temp;
   }
   if ((tmin > tymax) || (tymin > tmax)){ return false; }
+
+  // NonhierBox box(near, size);
+  // Intersection intersection;
+  // intersection.t =
   return true;
 
 }
