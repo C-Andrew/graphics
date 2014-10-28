@@ -255,7 +255,7 @@ Colour colourFromRay(
           float ndotl = std::max( minIntersection.normal.dot(light_vector) , 0.0);
 
 
-          Vector3D r =   (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal) - light_vector;
+          Vector3D r =  light_vector - (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
           float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
 
           Colour diffuse = ( (ndotl) * mat->get_diffuse() * light->colour);
