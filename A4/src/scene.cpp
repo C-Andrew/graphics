@@ -23,23 +23,23 @@ void SceneNode::rotate(char axis, double angle)
 
   switch(axis) {
     case 'x':
-      r1 = Vector4D(1, 0, 0, 0);
+      r1 = Vector4D(1.0f, 0, 0, 0);
       r2 = Vector4D(0, cosTheta, -sinTheta, 0);
       r3 = Vector4D(0, sinTheta, cosTheta, 0);
-      r4 = Vector4D(0, 0, 0, 1);
+      r4 = Vector4D(0, 0, 0, 1.0f);
       break;
   case 'y':
 
       r1 = Vector4D(cosTheta, 0, sinTheta, 0);
-      r2 = Vector4D(0, 1, 0, 0);
+      r2 = Vector4D(0, 1.0f, 0, 0);
       r3 = Vector4D(-sinTheta, 0, cosTheta, 0);
-      r4 = Vector4D(0, 0, 0, 1);
+      r4 = Vector4D(0, 0, 0, 1.0f);
       break;
   case 'z':
       r1 = Vector4D(cosTheta, -sinTheta, 0, 0);
       r2 = Vector4D(sinTheta, cosTheta, 0, 0);
-      r3 = Vector4D(0, 0, 1, 0);
-      r4 = Vector4D(0, 0, 0, 1);
+      r3 = Vector4D(0, 0, 1.0f, 0);
+      r4 = Vector4D(0, 0, 0, 1.0f);
       break;
   default:
       break;
@@ -80,7 +80,7 @@ void SceneNode::translate(const Vector3D& amount)
   // Fill me in
   Matrix4x4 transMat;
 
-  Vector4D r1(1.0, 0.0, 0.0, amount[0]);
+  Vector4D r1(1.0f, 0.0, 0.0, amount[0]);
   Vector4D r2(0.0, 1.0f, 0.0, amount[1]);
   Vector4D r3(0.0, 0.0, 1.0f, amount[2]);
   Vector4D r4(0.0, 0.0, 0.0, 1.0f);
@@ -101,15 +101,20 @@ Intersection SceneNode::intersect(Ray r){
   r.direction = m_invtrans * r.direction;
   r.origin = m_invtrans * r.origin;
 
+  // std::cerr << "TRANS: " << m_trans << std::endl;
+  Ray newRay(r.origin, r.direction);
+
+
   Intersection intersection;
   for (std::list<SceneNode*>::const_iterator it=m_children.begin(); it != m_children.end(); ++it){
     SceneNode* node = (*it);
-    Intersection t = node->intersect(r);
+    Intersection t = node->intersect(newRay);
     if(t.hit){
       if(!intersection.hit || t.t < intersection.t){
         // std::cerr << "INTERSECTED" << std::endl;
         intersection.t = t.t;
         intersection.normal = t.normal;
+        intersection.normal.normalize();
         intersection.material = t.material;
         intersection.primitive = t.primitive;
         intersection.hit = true;
@@ -123,7 +128,6 @@ Intersection SceneNode::intersect(Ray r){
   {
     intersection.point = m_trans * intersection.point;
     intersection.normal = m_invtrans.transpose() * intersection.normal;
-    intersection.normal.normalize();
   }
 
 
@@ -173,11 +177,9 @@ GeometryNode::~GeometryNode()
   r.direction = m_invtrans * r.direction;
   r.origin = m_invtrans * r.origin;
   Intersection intersection;
-  Intersection t = m_primitive->intersect(r);
+    Ray newRay(r.origin, r.direction);
 
-
-
-
+  Intersection t = m_primitive->intersect(newRay);
 
   // untransform the intersection
   if (t.hit)
@@ -188,6 +190,7 @@ GeometryNode::~GeometryNode()
     intersection.hit = true;
     intersection.point = m_trans * t.point;
     intersection.normal = m_invtrans.transpose() * t.normal;
+    intersection.normal.normalize();
     // std::cerr << "GEONODE NORMALS: " << intersection.normal << std::endl;
    
   }

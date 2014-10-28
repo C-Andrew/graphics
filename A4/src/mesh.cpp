@@ -1,11 +1,30 @@
 #include "mesh.hpp"
 #include <iostream>
+#include <algorithm>    // std::max
 
 Mesh::Mesh(const std::vector<Point3D>& verts,
            const std::vector< std::vector<int> >& faces)
   : m_verts(verts),
     m_faces(faces)
 {
+  float maxX, maxY, maxZ;
+  float minX, minY, minZ;
+  maxX= maxY= maxZ= minX= minY= minZ = 0;
+
+
+  std::vector<Point3D>::const_iterator I;
+  for (I = m_verts.begin(); I != m_verts.end(); ++I) {
+    Point3D pt = (*I);
+    if(pt[0] > maxX ){ maxX =  pt[0]; }
+    if(pt[1] > maxX ){ maxY =  pt[1]; }
+    if(pt[2] > maxX ){ maxZ =  pt[2]; }
+
+    if(pt[0] < minX ){ minX =  pt[0]; }
+    if(pt[1] < minY ){ minY =  pt[1]; }
+    if(pt[2] < minZ ){ minZ =  pt[2]; }
+  }
+  far = Point3D(maxX, maxY, maxZ);
+  near = Point3D(minX, minY, minZ);
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
@@ -30,8 +49,55 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
   return out;
 }
 
+bool Mesh::intersectBoundingBox(Ray r){
+  // X CHECKS
+  float tmin = (near[0] - r.origin[0]) / r.direction[0];
+  float tmax = (far[0] - r.origin[0]) / r.direction[0];
+
+  if(tmin > tmax){
+    float temp = tmin;
+    tmin = tmax;
+    tmax = temp;
+  }
+
+  // Y CHECKS
+  float tymin = (near[1] - r.origin[1]) / r.direction[1];
+  float tymax = (far[1] - r.origin[1]) / r.direction[1];
+  if (tymin > tymax){
+    float temp = tymin;
+    tymin = tymax;
+    tymax = temp;
+  }
+  if ((tmin > tymax) || (tymin > tmax)) {return false;}
+  if (tymin > tmin)
+      tmin = tymin;
+  if (tymax < tmax)
+      tmax = tymax;
+
+  // Z CHECKS
+  float tzmin = (near[2] - r.origin[2]) / r.direction[2];
+  float tzmax = (far[2] - r.origin[2]) / r.direction[2];
+  if (tzmin > tzmax){
+    float temp = tzmin;
+    tzmin = tzmax;
+    tzmax = temp;
+  }
+  if ((tmin > tymax) || (tymin > tmax)){ return false; }
+  return true;
+
+}
+
+
+
 Intersection Mesh::intersect(Ray r){
-    Intersection intersection;
+
+  Intersection intersection;
+  // Check if the ray intersects your magical box
+  // If it does, do real intersection
+  if(!intersectBoundingBox(r)){
+    return intersection;
+  }
+
   //For evert Face, check intersection
   std::vector<Face>::const_iterator it;
   for (it = m_faces.begin(); it != m_faces.end(); it++)

@@ -58,20 +58,20 @@ void a4_render(// What to render
   m_view.normalize();
   m_up.normalize();
 
-  // Camera view  unit vector
-  Vector3D cameraDirection = view;
-  cameraDirection.normalize();
-  // Camera Up unit vector
-  Vector3D cameraUp = up;
-  cameraUp.normalize();
-  // Camera X-Axis unit vector
-  Vector3D cameraX = cameraUp.cross(cameraDirection);
-  cameraX.normalize();
-  // Camera Y-Axis unit vector
-  Vector3D cameraY = cameraX.cross(cameraDirection); //This should be the same as camera up
+  // // Camera view  unit vector
+  // Vector3D cameraDirection = view;
+  // cameraDirection.normalize();
+  // // Camera Up unit vector
+  // Vector3D cameraUp = up;
+  // cameraUp.normalize();
+  // // Camera X-Axis unit vector
+  // Vector3D cameraX = cameraUp.cross(cameraDirection);
+  // cameraX.normalize();
+  // // Camera Y-Axis unit vector
+  // Vector3D cameraY = cameraX.cross(cameraDirection); //This should be the same as camera up
 
-  Vector3D cameraDX = 2.0f * aspect * tan(fov / 2.0f) / (double)width * cameraX;
-  Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
+  // Vector3D cameraDX = 2.0f * aspect * tan(fov / 2.0f) / (double)width * cameraX;
+  // Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
 
   Image img(width, height, 3);
   std::list<SceneNode*> allNodes = getAllNodes(root);
