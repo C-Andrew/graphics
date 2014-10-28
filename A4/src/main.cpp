@@ -1,8 +1,13 @@
 #include <iostream>
 #include "scene_lua.hpp"
+#include <time.h>
+#include <stdlib.h> 
 
 int main(int argc, char** argv)
 {
+
+  srand(time(NULL));
+
   std::string filename = "nonhiersphere.lua";
   if (argc >= 2) {
     filename = argv[1];

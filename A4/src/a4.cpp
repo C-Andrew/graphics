@@ -2,6 +2,9 @@
 #include "image.hpp"
 #include <assert.h> 
 
+float rand_green = rand();
+float rand_blue = (rand() % 205) / 255.0f;
+
 std::list<SceneNode*> getAllNodes(SceneNode* root){
   std::list<SceneNode*> retVal;
   std::list<SceneNode*> nodes;
@@ -202,12 +205,12 @@ Colour colourFromRay(
         if(y < height/2){
           red = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
           green = 0.0f;
-          blue = 205.0f/255.0f;  
+          blue = rand_blue;  
         }
         else{
           red = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
           green = 0.0f;
-          blue = 205.0f/255.0f;  
+          blue = rand_blue;
         }
         return Colour(red, green, blue);
       }
