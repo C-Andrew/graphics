@@ -11,7 +11,6 @@ class Primitive {
 public:
   virtual ~Primitive();
   virtual Intersection intersect(Ray r) = 0;
-  virtual Point3D get_pos() = 0;
 };
 
 
@@ -23,10 +22,9 @@ public:
   }
   virtual ~NonhierSphere();
   virtual Intersection intersect(Ray r);
-  virtual Point3D get_pos();
-
-private:
   Point3D m_pos;
+private:
+
   double m_radius;
 };
 
@@ -36,10 +34,9 @@ public:
   
   virtual ~NonhierBox();
   virtual Intersection intersect(Ray r);
-  virtual Point3D get_pos();
+  Point3D m_pos;
 
 private:
-  Point3D m_pos;
   double m_size;
   Mesh *m_mesh;
 };
@@ -49,7 +46,6 @@ public:
   virtual ~Sphere();
   Sphere();
   virtual Intersection intersect(Ray r);
-  virtual Point3D get_pos();
   NonhierSphere* m_sphere;
 };
 
@@ -58,7 +54,6 @@ public:
   virtual ~Cube();
   Cube();
   virtual Intersection intersect(Ray r);
-  virtual Point3D get_pos();
   NonhierBox* m_cube;
 };
 

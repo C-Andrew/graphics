@@ -55,11 +55,16 @@ void a4_render(// What to render
   Vector3D side_vector = view.cross(up);
   Vector3D m_view = view;
   Vector3D m_up = up;
+  Vector3D nLeft = up.cross(view); 
 
   //normalize view, side, up
   side_vector.normalize();
   m_view.normalize();
   m_up.normalize();
+  nLeft.normalize();
+
+  int largerDimension = std::max(width, height);
+  double distance = ((double)largerDimension / 2.0) / tan(M_PI * fov / 360); // Divide fov by 2 to get angle wrt to mid
 
   // // Camera view  unit vector
   // Vector3D cameraDirection = view;
@@ -77,20 +82,25 @@ void a4_render(// What to render
   // Vector3D cameraDY = 2.0f * aspect * tan(fov / 2.0f) / (double)height * cameraY;
 
   Image img(width, height, 3);
-  std::list<SceneNode*> allNodes = getAllNodes(root);
+  // std::list<SceneNode*> allNodes = getAllNodes(root);
   double tangent = tan(fov*M_PI/360.0);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
+      double yDisplacement = ((double)height / 2) - (double)y;
+      double xDisplacement = ((double)width / 2) - (double)x;
+
+
       // Point3D pixel(x-(width/2), y-(height/2), 1);
       Vector3D rayOrigin(eye);
       // Magical Math as provided by 
       // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
 
       // Super Sampling X9
-      Vector3D rayDirection1(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                     (y/(double)height * 2 - 1) * tangent * (-m_up) );
+      // Vector3D rayDirection1(m_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+      //                                (y/(double)height * 2 - 1) * tangent * (-m_up) );
+      Vector3D rayDirection1(distance * m_view + yDisplacement * m_up + xDisplacement * nLeft);
       rayDirection1.normalize();
-      Ray rayFromPixel1(rayOrigin, rayDirection1);
+      Ray rayFromPixel1(eye, rayDirection1);
       Colour pixelColour1 = colourFromRay(root, height, ambient,
                                 lights, rayFromPixel1, y);
       Colour final = pixelColour1;
@@ -117,25 +127,25 @@ void a4_render(// What to render
         Vector3D rayDirection9(m_view + ((x+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                        ((y+0.33f)/(double)height * 2 - 1) * tangent * (-m_up) );
         
-        rayDirection1.normalize();
-        rayDirection2.normalize();
-        rayDirection3.normalize();
-        rayDirection4.normalize();
-        rayDirection5.normalize();
-        rayDirection6.normalize();
-        rayDirection7.normalize();
-        rayDirection8.normalize();
-        rayDirection9.normalize();  
+        // rayDirection1.normalize();
+        // rayDirection2.normalize();
+        // rayDirection3.normalize();
+        // rayDirection4.normalize();
+        // rayDirection5.normalize();
+        // rayDirection6.normalize();
+        // rayDirection7.normalize();
+        // rayDirection8.normalize();
+        // rayDirection9.normalize();  
 
-        Ray rayFromPixel1(rayOrigin, rayDirection1);
-        Ray rayFromPixel2(rayOrigin, rayDirection2);
-        Ray rayFromPixel3(rayOrigin, rayDirection3);
-        Ray rayFromPixel4(rayOrigin, rayDirection4);
-        Ray rayFromPixel5(rayOrigin, rayDirection5);
-        Ray rayFromPixel6(rayOrigin, rayDirection6);
-        Ray rayFromPixel7(rayOrigin, rayDirection7);
-        Ray rayFromPixel8(rayOrigin, rayDirection8);
-        Ray rayFromPixel9(rayOrigin, rayDirection9);
+        Ray rayFromPixel1(eye, rayDirection1);
+        Ray rayFromPixel2(eye, rayDirection2);
+        Ray rayFromPixel3(eye, rayDirection3);
+        Ray rayFromPixel4(eye, rayDirection4);
+        Ray rayFromPixel5(eye, rayDirection5);
+        Ray rayFromPixel6(eye, rayDirection6);
+        Ray rayFromPixel7(eye, rayDirection7);
+        Ray rayFromPixel8(eye, rayDirection8);
+        Ray rayFromPixel9(eye, rayDirection9);
 
         Colour pixelColour1 = colourFromRay(root, height, ambient,
                                     lights, rayFromPixel1, y);
@@ -205,7 +215,7 @@ Colour colourFromRay(
       //       minIntersection.primitive = geoNode->m_primitive;
       //       minIntersection.normal = intersect.normal;
       //       minIntersection.hit = true;
-      //       minIntersection.point = intersect.point;
+      //       minIntersection.point = geoNode->m_trans *  intersect.point;
       //     } 
       //   }
       // }
@@ -227,6 +237,7 @@ Colour colourFromRay(
       }
 
       else {
+        minIntersection.normal.normalize();
         Vector3D color;
 
         Material* mat = minIntersection.material;
@@ -243,7 +254,7 @@ Colour colourFromRay(
           // Compute Shadow
           Vector3D lightDir = (minIntersection.point)-(light->position);
           lightDir.normalize();
-          Ray objToLight(Vector3D(light->position), lightDir);
+          Ray objToLight(light->position, lightDir);
           bool shadowed = false;
           double distToLight = ( minIntersection.point- light->position).length();
 

@@ -217,11 +217,10 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   Intersection intersection;
 
   Vector3D face_normal = Vector3D(face[2]-face[1]).cross( Vector3D(face[0]-face[1]) );
-  face_normal.normalize();
 
   // float denominator = dotProduct(vectorSub(Ray.R2, Poly.P[0]), face_normal)
   float denominator = face_normal.dot(r.direction);
-  float numerator = face_normal.dot(face[0] - Point3D(r.origin[0], r.origin[1], r.origin[2]));
+  float numerator = face_normal.dot(face[0] - r.origin);
   if( denominator == 0.00f ){ 
     return intersection;
   }
@@ -229,7 +228,7 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   float t_val = numerator / denominator;
   if(t_val <= 0.0f){ return intersection; }
 
-  Point3D pt = Point3D(r.origin[0], r.origin[1], r.origin[2]) + t_val*r.direction;
+  Point3D pt = r.origin + t_val*r.direction;
   
   bool inside = false;
   for (unsigned int i = 0; i < face.size(); i++)
@@ -253,11 +252,6 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   }
   return intersection;
 
-}
-
-Point3D Mesh::get_pos(){
-  Point3D p(0.0f, 0.0f, 0.0f);
-  return p;
 }
 
 // 

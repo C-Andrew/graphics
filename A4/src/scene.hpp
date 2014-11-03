@@ -51,7 +51,9 @@ public:
   ChildList m_children;
   std::string m_name;
 
-
+  Matrix4x4 m_translate;
+  Matrix4x4 m_scale;
+  Matrix4x4 m_rotate;
 protected:
   
   // Useful for picking

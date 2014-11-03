@@ -15,7 +15,6 @@ public:
   typedef std::vector<int> Face;
   virtual Intersection intersect(Ray r);
   Intersection intersectFace(Ray r, std::vector<Point3D> face);
-  virtual Point3D get_pos();
   //bounding box 
   Point3D far;
   Point3D near;

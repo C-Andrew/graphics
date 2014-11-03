@@ -505,12 +505,12 @@ inline std::ostream& operator <<(std::ostream& os, const Colour& c)
 
 class Ray{
 public:
-  Ray(Vector3D orig, Vector3D dir)
+  Ray(Point3D orig, Vector3D dir)
     : origin(orig), 
       direction(dir)
   {}
   // Point3D eyePosition;
-  Vector3D origin; // Eye location
+  Point3D origin; // Eye location
   Vector3D direction;
 };
 
