@@ -1,5 +1,6 @@
 #include "mesh.hpp"
 #include <iostream>
+#include <float.h>
 #include <algorithm>    // std::max
 
 Mesh::Mesh(const std::vector<Point3D>& verts,
@@ -219,14 +220,12 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   Vector3D face_normal = Vector3D(face[2]-face[1]).cross( Vector3D(face[0]-face[1]) );
 
   // float denominator = dotProduct(vectorSub(Ray.R2, Poly.P[0]), face_normal)
-  float denominator = face_normal.dot(r.direction);
-  float numerator = face_normal.dot(face[0] - r.origin);
-  if( denominator == 0.00f ){ 
-    return intersection;
-  }
+  double denominator = face_normal.dot(r.direction);
+  double numerator = face_normal.dot(face[0] - r.origin);
+  if( denominator >= DBL_MIN ){ return intersection; }
 
-  float t_val = numerator / denominator;
-  if(t_val <= 0.0f){ return intersection; }
+  double t_val = numerator / denominator;
+  if(t_val <= DBL_MIN){ return intersection; }
 
   Point3D pt = r.origin + t_val*r.direction;
   
@@ -235,8 +234,8 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   {
     Vector3D edgeOfFace = ((face[(i+1)%face.size()]) - face[i]);
     Vector3D edgeToVertex = pt - face[i];
-    float d = (edgeOfFace.cross(edgeToVertex)).dot(face_normal);
-    if( d < 0.001f) {
+    double d = (edgeOfFace.cross(edgeToVertex)).dot(face_normal);
+    if( d < DBL_MIN) {
       inside = false;
       break;
     }
