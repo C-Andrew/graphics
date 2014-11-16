@@ -71,7 +71,6 @@ void SceneNode::translate(const Vector3D& amount)
   set_transform(m_trans * test);
   // m_trans = m_trans * t;
   // m_invtrans = m_trans.invert();
-  std::cerr << m_name << "TEST"  << m_trans << " " << m_invtrans << std::endl;
 }
 
 bool SceneNode::is_joint() const
@@ -151,7 +150,6 @@ GeometryNode::~GeometryNode()
   // std::cerr << "name" << m_name <<std::endl;
   for (it = m_children.begin(); it != m_children.end(); ++it){
     SceneNode* node = (*it);
-    std::cerr << "GHERE"<< std::endl;
     // Intersection t = node->intersect(newRay);
   }
 

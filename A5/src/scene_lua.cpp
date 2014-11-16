@@ -43,8 +43,10 @@
 #include <vector>
 #include "lua488.hpp"
 #include "light.hpp"
-#include "a4.hpp"
+#include "renderer.hpp"
 #include "mesh.hpp"
+#include "image.hpp"
+#include <string>
 
 // Uncomment the following line to enable debugging messages
 // #define GRLUA_ENABLE_DEBUG
@@ -330,7 +332,7 @@ int gr_render_cmd(lua_State* L)
   gr_node_ud* root = (gr_node_ud*)luaL_checkudata(L, 1, "gr.node");
   luaL_argcheck(L, root != 0, 1, "Root node expected");
 
-  const char* filename = luaL_checkstring(L, 2);
+  std::string filename(luaL_checkstring(L, 2));
 
   int width = luaL_checknumber(L, 3);
   int height = luaL_checknumber(L, 4);
@@ -362,9 +364,11 @@ int gr_render_cmd(lua_State* L)
     lua_pop(L, 1);
   }
 
-  a4_render(root->node, filename, width, height,
+  Image img(width, height, 3);
+  Renderer r(root->node, filename, width, height,
             eye, view, up, fov,
-            ambient, lights, enableSuperSample, enableMultiThreading);
+            ambient, lights, img, enableSuperSample, enableMultiThreading);
+  r.render();
   
   return 0;
 }
