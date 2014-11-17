@@ -1,7 +1,10 @@
 #include "renderer.hpp"
 #include <pthread.h>
 #include <assert.h> 
-#define NUM_THREADS     3
+#define NUM_THREADS 5
+#define REFLECTION_DEPTH 5
+
+
 
 float rand_green = rand();
 float rand_blue = (rand() % 205) / 255.0f;
@@ -78,7 +81,7 @@ void Renderer::render()
   for(i = 0; i < NUM_THREADS; i++){
     data[i].renderer = this;
     data[i].rowStart = i * rowsPerThread;
-    if(i == NUM_THREADS-1){
+    if(i == NUM_THREADS - 1){
       data[i].rowEnd = height;
     }
     else{
@@ -92,19 +95,6 @@ void Renderer::render()
     assert(0 == rc);
   }
 
-  // for (int y = 0; y != height;) {
-  //   data[y].renderer = this;
-  //   data[y].rowStart = y;
-
-  //   if(height - y > height/NUM_THREADS){
-  //     data[y].rowEnd = y+(height/NUM_THREADS);
-  //     y += height/NUM_THREADS;    
-  //   }
-  //   else if(height - y < height/NUM_THREADS){
-  //     data[y].rowEnd = height;
-  //     y = height; 
-  //   }
-  // } // End Y-loop
   img.savePng(filename);
   
 }
@@ -125,7 +115,7 @@ void Renderer::renderRow(int rowStart, int rowEnd)
       Vector3D rayDirection1(distance * normalized_view + yDisplacement * normalized_up + xDisplacement * normalized_left);
       rayDirection1.normalize();
       Ray rayFromPixel1(eye, rayDirection1);
-      Colour pixelColour1 = colourFromRay(rayFromPixel1, currentRow);
+      Colour pixelColour1 = pixelColour(rayFromPixel1, currentRow, 0);
       Colour final = pixelColour1;
       if(enableSuperSample){
         // Super Sampling X9
@@ -171,15 +161,15 @@ void Renderer::renderRow(int rowStart, int rowEnd)
         Ray rayFromPixel8(eye, rayDirection8);
         Ray rayFromPixel9(eye, rayDirection9);
 
-        Colour pixelColour1 = colourFromRay(rayFromPixel1, currentRow);
-        Colour pixelColour2 = colourFromRay(rayFromPixel2, currentRow);
-        Colour pixelColour3 = colourFromRay(rayFromPixel3, currentRow);
-        Colour pixelColour4 = colourFromRay(rayFromPixel4, currentRow);
-        Colour pixelColour5 = colourFromRay(rayFromPixel5, currentRow);
-        Colour pixelColour6 = colourFromRay(rayFromPixel6, currentRow);
-        Colour pixelColour7 = colourFromRay(rayFromPixel7, currentRow);
-        Colour pixelColour8 = colourFromRay(rayFromPixel8, currentRow);
-        Colour pixelColour9 = colourFromRay(rayFromPixel9, currentRow);
+        Colour pixelColour1 = pixelColour(rayFromPixel1, currentRow, 0);
+        Colour pixelColour2 = pixelColour(rayFromPixel2, currentRow, 0);
+        Colour pixelColour3 = pixelColour(rayFromPixel3, currentRow, 0);
+        Colour pixelColour4 = pixelColour(rayFromPixel4, currentRow, 0);
+        Colour pixelColour5 = pixelColour(rayFromPixel5, currentRow, 0);
+        Colour pixelColour6 = pixelColour(rayFromPixel6, currentRow, 0);
+        Colour pixelColour7 = pixelColour(rayFromPixel7, currentRow, 0);
+        Colour pixelColour8 = pixelColour(rayFromPixel8, currentRow, 0);
+        Colour pixelColour9 = pixelColour(rayFromPixel9, currentRow, 0);
 
         final = (double)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
                              pixelColour4 + pixelColour5 + pixelColour6 +
@@ -190,15 +180,14 @@ void Renderer::renderRow(int rowStart, int rowEnd)
       img(i,currentRow,2) = final.B();
 
     }
-    std::cerr << "Rendered rows: " << currentRow << std::endl;
+    // std::cerr << "Rendered rows: " << currentRow << std::endl;
 
   }
   std::cerr << "Rendered rows: " << rowStart << " to " << rowEnd << std::endl;
 }
 
-
 // Given a ray, and the height(specific y-coord) tell me what colour to draw.
-Colour Renderer::colourFromRay(Ray ray, int y)
+Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
 {
       // find the closest intersection
       Intersection minIntersection;
@@ -223,60 +212,86 @@ Colour Renderer::colourFromRay(Ray ray, int y)
       }
 
       else {
-        minIntersection.normal.normalize();
-        Vector3D color;
-
-        Material* mat = minIntersection.material;
-        Colour finalColour = ambient * mat->get_diffuse();
-
-        for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
-          Light * light = *it;
-
-          Vector3D light_vector = (light->position) - (minIntersection.point);
-          light_vector.normalize();
-
-          // Compute Shadow
-          Vector3D lightDir = (minIntersection.point)-(light->position);
-          lightDir.normalize();
-          Ray objToLight(light->position, lightDir);
-          bool shadowed = false;
-          double distToLight = ( minIntersection.point- light->position).length();
-
-
-          Intersection lightIntersection = root->intersect(objToLight);
-          if (lightIntersection.hit){
-              // std::cerr << "HIT" << node->m_name << std::endl;
-              if ( (lightIntersection.point - light->position).length() < distToLight - 0.001)
-              {
-                shadowed = true;
-              }
-          }
-          if(shadowed){
-            continue;
-          }
-
-
-          float distLightToObj = light_vector.length(); // distance form light souce to POI
-          float attentuationFactor =  1.0 /
-                                    (light->falloff[0] + light->falloff[1]*distLightToObj + light->falloff[2]*distLightToObj*distLightToObj);
-
-          light_vector.normalize(); 
-          float ndotl = std::max( minIntersection.normal.dot(light_vector) , 0.0);
-
-
-          Vector3D r =  light_vector - (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
-          float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
-
-          Colour diffuse = ( (ndotl) * mat->get_diffuse() * light->colour);
-          Colour specular = ( (rdotvp) * mat->get_specular() * light->colour);
-
-          finalColour = finalColour  + (diffuse) + ( specular);
-
-        }// End light for-loop
+        Colour finalColour = colourFromRay(ray, minIntersection, 0);
         return finalColour;
       }// End else clause
 
 }
+
+Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth){
+  if(recursionDepth < REFLECTION_DEPTH){
+    Vector3D normal = intersection.normal;
+    normal.normalize();
+    Vector3D reflection_direction = ray.direction - 2 * ( ray.direction.dot(normal) ) * normal;
+    Ray reflection_ray(intersection.point , reflection_direction);
+
+    Intersection reflection_intersection = root->intersect(reflection_ray);
+    if(reflection_intersection.hit){
+      return colourFromRay(reflection_ray, reflection_intersection, recursionDepth+1);
+    }
+  }
+  return Colour(0.0);
+}
+
+Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth){
+  minIntersection.normal.normalize();
+  Vector3D color;
+
+  Material* mat = minIntersection.material;
+  Colour finalColour = ambient * mat->get_diffuse();
+
+  double reflectiveIndex = mat->get_reflect();
+  Colour reflectColour = Colour(0.0);
+  if (reflectiveIndex > 0.0)   
+    reflectColour = colourFromReflection(ray, minIntersection, recursionDepth);
+
+
+  for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
+    Light * light = *it;
+
+    Vector3D light_vector = (light->position) - (minIntersection.point);
+    light_vector.normalize();
+
+    // Compute Shadow
+    Vector3D lightDir = (minIntersection.point)-(light->position);
+    lightDir.normalize();
+    Ray objToLight(light->position, lightDir);
+    bool shadowed = false;
+    double distToLight = ( minIntersection.point- light->position).length();
+
+
+    Intersection lightIntersection = root->intersect(objToLight);
+    if (lightIntersection.hit){
+        // std::cerr << "HIT" << node->m_name << std::endl;
+        if ( (lightIntersection.point - light->position).length() < distToLight - 0.001)
+        {
+          shadowed = true;
+        }
+    }
+    if(shadowed){
+      continue;
+    }
+
+
+    float distLightToObj = light_vector.length(); // distance form light souce to POI
+    float attentuationFactor =  1.0 /
+                              (light->falloff[0] + light->falloff[1]*distLightToObj + light->falloff[2]*distLightToObj*distLightToObj);
+
+    light_vector.normalize(); 
+    float ndotl = std::max( minIntersection.normal.dot(light_vector) , 0.0);
+
+
+    Vector3D r =  light_vector - (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
+    float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
+
+    Colour diffuse = ( (ndotl) * mat->get_diffuse() * light->colour);
+    Colour specular = ( (rdotvp) * mat->get_specular() * light->colour);
+
+    finalColour = finalColour + diffuse + specular;
+  }
+  return (1.0 - mat->get_reflect()) * finalColour + mat->get_reflect() * reflectColour;
+}
+
 
 std::list<SceneNode*> getAllNodes(SceneNode* root){
   std::list<SceneNode*> retVal;

@@ -58,47 +58,47 @@ Intersection NonhierSphere::intersect(Ray r){
 	Vector3D dir = r.direction;
 	Vector3D normal;	
 
-Vector3D center = (r.origin - m_pos);
+// Vector3D center = (r.origin - m_pos);
 
-double t1 = dir.dot(dir);
-double t2 = 2*dir.dot(center);
-double t3 = center.dot(center) - pow(m_radius,2);
+// double t1 = dir.dot(dir);
+// double t2 = 2*dir.dot(center);
+// double t3 = center.dot(center) - pow(m_radius,2);
 
-double root[2] = {0,0};
+// double root[2] = {0,0};
 
-if(quadraticRoots(t1,t2,t3, root) != 0){
-  double shortest = std::min(root[0], root[1]);
-  if(!intersection.hit   || shortest < intersection.t){
-    // std::cerr<<"HELLO" <<std::endl;
-    intersection.t = shortest;
-    intersection.point = r.origin + dir * shortest;
-    intersection.normal = intersection.point - m_pos;
+// if(quadraticRoots(t1,t2,t3, root) != 0){
+//   double shortest = std::min(root[0], root[1]);
+//   if(!intersection.hit   || shortest < intersection.t){
+//     // std::cerr<<"HELLO" <<std::endl;
+//     intersection.t = shortest;
+//     intersection.point = r.origin + dir * shortest;
+//     intersection.normal = intersection.point - m_pos;
 
+//     intersection.hit = true;
+//   }
+// }
+
+  double bsq = pow(r.direction.dot(r.origin - m_pos), 2);
+  double ac = r.direction.length2() * ((r.origin - m_pos).length2() - pow(m_radius,2) ) ;
+  double underRoot = bsq - ac;
+  if(underRoot < 0.1f){
+    return intersection;
+  }
+  double negVal = -sqrt(underRoot);
+  double posVal = sqrt(underRoot);
+
+  double t0 = (-(r.direction.dot(r.origin-m_pos)) + negVal) / r.direction.length2();
+  double t1 = (-(r.direction.dot(r.origin-m_pos)) + posVal) / r.direction.length2();
+  double t = -1;
+  if ((t0 > 0.1f) )            { t = t0; } 
+  if ((t1 > 0.1f) && (t1 < t)) { t = t1; }
+  if(t > 0){
+    Point3D temp = r.origin + dir * t;
+    intersection.point = temp;
+    intersection.normal = temp - m_pos;
+    intersection.t = t;
     intersection.hit = true;
   }
-}
-
-  // double bsq = pow(r.direction.dot(r.origin - m_pos), 2);
-  // double ac = r.direction.length2() * ((r.origin - m_pos).length2() - pow(m_radius,2) ) ;
-  // double underRoot = bsq - ac;
-  // if(underRoot < 0.1f){
-  //   return intersection;
-  // }
-  // double negVal = -sqrt(underRoot);
-  // double posVal = sqrt(underRoot);
-
-  // double t0 = (-(r.direction.dot(r.origin-m_pos)) + negVal) / r.direction.length2();
-  // double t1 = (-(r.direction.dot(r.origin-m_pos)) + posVal) / r.direction.length2();
-  // double t = -1;
-  // if ((t0 > 0.1f) )            { t = t0; } 
-  // if ((t1 > 0.1f) && (t1 < t)) { t = t1; }
-  // if(t > 0){
-  //   Point3D temp = r.origin + dir * t;
-  //   intersection.point = temp;
-  //   intersection.normal = temp - m_pos;
-  //   intersection.t = t;
-  //   intersection.hit = true;
-  // }
 
 	// x = Xe + t(Xp -Xe) ..y..z
 	// x^2 + y^2 + z^2 = 1

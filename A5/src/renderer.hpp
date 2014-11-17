@@ -54,33 +54,11 @@ public:
                bool enableSuperSample,
                bool enableMultiThreading);
      void render();
-     Colour colourFromRay(Ray ray, int y);
+     Colour pixelColour(Ray ray, int y, int recursionDepth);
+     Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth);
+     Colour colourFromRefraction();
+     Colour colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth);
      void renderRow(int rowNumber, int length);
 };
-
-void render(// What to render
-               SceneNode* root,
-               // Where to output the image
-               const std::string& filename,
-               // Image size
-               int width, int height,
-               // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
-               // Lighting parameters
-               const Colour& ambient,
-               const std::list<Light*>& lights,
-               bool enableSuperSample, 
-               bool enableMultiThreading
-               );
-
-Colour colourFromRay( 
-               // What to render
-               SceneNode* root,
-               int height,
-               // Lighting parameters
-               const Colour& ambient,
-               const std::list<Light*>& lights,
-               Ray ray, int y);
 
 #endif

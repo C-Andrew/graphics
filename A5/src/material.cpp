@@ -4,8 +4,8 @@ Material::~Material()
 {
 }
 
-PhongMaterial::PhongMaterial(const Colour& kd, const Colour& ks, double shininess)
-  : m_kd(kd), m_ks(ks), m_shininess(shininess)
+PhongMaterial::PhongMaterial(const Colour& kd, const Colour& ks, double shininess, double reflect, double refract)
+  : m_kd(kd), m_ks(ks), m_shininess(shininess), m_reflect(reflect), m_refract(refract)
 {
 }
 
@@ -27,3 +27,10 @@ Colour PhongMaterial::get_specular(){
 double PhongMaterial::get_shiny(){
 	return m_shininess;
 }
+double PhongMaterial::get_reflect(){
+	return m_reflect;
+}
+double PhongMaterial::get_refract(){
+	return m_refract;
+}
+
