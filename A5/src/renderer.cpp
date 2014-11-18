@@ -1,8 +1,8 @@
 #include "renderer.hpp"
 #include <pthread.h>
 #include <assert.h> 
-#define NUM_THREADS 5
-#define REFLECTION_DEPTH 5
+#define NUM_THREADS 3
+#define REFLECTION_DEPTH 6
 
 
 
@@ -103,6 +103,7 @@ void Renderer::render()
 // lenght = x
 void Renderer::renderRow(int rowStart, int rowEnd)
 {
+  std::cerr << "Initiate Render rows: " << rowStart << " to " << rowEnd << std::endl;
   for(int currentRow = rowStart; currentRow < rowEnd; currentRow++){
     for(int i = 0; i < width; i++){
       double yDisplacement = ((double)height / 2) - (double)currentRow;
@@ -212,13 +213,15 @@ Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
       }
 
       else {
-        Colour finalColour = colourFromRay(ray, minIntersection, 0);
+        //TODO
+        //Get intersected object's refractive index and pass in
+        Colour finalColour = colourFromRay(ray, minIntersection, 0, 1.0);
         return finalColour;
       }// End else clause
 
 }
 
-Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth){
+Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
   if(recursionDepth < REFLECTION_DEPTH){
     Vector3D normal = intersection.normal;
     normal.normalize();
@@ -227,13 +230,43 @@ Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int re
 
     Intersection reflection_intersection = root->intersect(reflection_ray);
     if(reflection_intersection.hit){
-      return colourFromRay(reflection_ray, reflection_intersection, recursionDepth+1);
+      return colourFromRay(reflection_ray, reflection_intersection, recursionDepth+1, refractiveIndex);
     }
   }
   return Colour(0.0);
 }
 
-Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth){
+Colour Renderer::colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
+
+  Material* mat = intersection.material;
+  double refractive_index =  mat->get_refract();
+
+  Vector3D normal = intersection.normal;
+
+  bool inside = (ray.direction.dot(normal) < 0);
+  double n = 1/refractive_index;
+  if (!inside) {
+    normal = -normal;
+  }
+
+  double cosI = normal.dot(ray.direction);
+  double sinT2 = n * n * (1 - cosI * cosI);
+
+  if (sinT2 > 1) {
+      return Colour(0.0, 0.0, 0.0);
+  } else {
+    Vector3D refraction_direction = n * ray.direction - (n + std::sqrt(1 - sinT2)) * normal;
+    Ray refraction_ray(intersection.point, refraction_direction);
+
+    Intersection refraction_intersection = root->intersect(refraction_ray);
+    if (refraction_intersection.hit) {
+      return colourFromRay(refraction_ray, refraction_intersection, recursionDepth + 1, refractiveIndex);
+    }
+  }
+  return Colour(0.0, 0.0, 0.0);
+}
+
+Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, int refractiveIndex){
   minIntersection.normal.normalize();
   Vector3D color;
 
@@ -241,9 +274,10 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
   Colour finalColour = ambient * mat->get_diffuse();
 
   double reflectiveIndex = mat->get_reflect();
+  double refract = mat->get_refract();
   Colour reflectColour = Colour(0.0);
   if (reflectiveIndex > 0.0)   
-    reflectColour = colourFromReflection(ray, minIntersection, recursionDepth);
+    reflectColour = colourFromReflection(ray, minIntersection, recursionDepth, refractiveIndex);
 
 
   for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
@@ -289,24 +323,24 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
 
     finalColour = finalColour + diffuse + specular;
   }
-  return (1.0 - mat->get_reflect()) * finalColour + mat->get_reflect() * reflectColour;
+  return (1.0 - reflectiveIndex) * finalColour + reflectiveIndex * reflectColour;
 }
 
 
-std::list<SceneNode*> getAllNodes(SceneNode* root){
-  std::list<SceneNode*> retVal;
-  std::list<SceneNode*> nodes;
-  nodes.push_back(root);
-  int i = 0;
-  while(!nodes.empty()){
-    SceneNode* currentNode = nodes.front();
-    nodes.pop_front();
-    for (std::list<SceneNode*>::iterator it=currentNode->m_children.begin(); it != currentNode->m_children.end(); it++){
-        nodes.push_back(*it);
-        i++;
-    }
-    retVal.push_back(currentNode);
-  }
-  std::cerr << "Num of Nodes:" << i << std::endl;
-   return retVal;
-}
+// std::list<SceneNode*> getAllNodes(SceneNode* root){
+//   std::list<SceneNode*> retVal;
+//   std::list<SceneNode*> nodes;
+//   nodes.push_back(root);
+//   int i = 0;
+//   while(!nodes.empty()){
+//     SceneNode* currentNode = nodes.front();
+//     nodes.pop_front();
+//     for (std::list<SceneNode*>::iterator it=currentNode->m_children.begin(); it != currentNode->m_children.end(); it++){
+//         nodes.push_back(*it);
+//         i++;
+//     }
+//     retVal.push_back(currentNode);
+//   }
+//   std::cerr << "Num of Nodes:" << i << std::endl;
+//    return retVal;
+// }
