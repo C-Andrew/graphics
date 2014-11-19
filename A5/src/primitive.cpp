@@ -1,39 +1,18 @@
 #include <vector>
+#include <list>
+#include <utility>      // std::pair
+#include <float.h>
 #include "primitive.hpp"
 #include "mesh.hpp"
 #include <math.h>
 
 
-bool hasQuadRoots(Ray ray, const double T1, const double T2, const double T3, double& minT){
+////////////
+// Utility//
+////////////
 
-  bool found = false;
-  double root[2] = {0,0};
-
-  if(quadraticRoots(T1,T2,T3, root) != 0){
-    for(int i = 0; i < 2; i++){
-      double T = root[i];
-      if(T < minT && T > DBL_MIN){
-        Point3D poi = ray.origin + T * ray.direction;
-        if(poi[2] >= 0.0 && poi[2] <= 1.0){
-          minT = T;
-          found = true;
-        } 
-      }
-    }
-  }
-  return found;
-}
-
-bool hasCircleRoots(Ray ray, double& minT, const double plane){
-  double T = (plane - ray.origin[2])/ray.direction[2];
-  Point3D poi = ray.origin + T * ray.direction;
-  if(pow(poi[0],2) + pow(poi[1],2) <= 1.0 ){
-    if(T >= DBL_MIN && T < minT){
-      minT = T;
-      return true;
-    }
-  }
-  return false;
+bool inRange(double checkValue, double min, double max) {
+    return (checkValue <= max && checkValue >= min);
 }
 
 Primitive::~Primitive()
@@ -127,6 +106,7 @@ Intersection NonhierSphere::intersect(Ray r){
   if ((t1 > 0.1f) && (t1 < t)) { t = t1; }
   if(t > 0){
     Point3D temp = r.origin + dir * t;
+    // std::cerr << temp << std::endl;;
     intersection.point = temp;
     intersection.normal = temp - m_pos;
     intersection.t = t;
@@ -237,23 +217,106 @@ Intersection NonhierBox::intersect(Ray r){
  return intersection;
 }
 
-Intersection NonhierCylinder(Ray r){
-  Intersection intersection;
-  double T1 = 0;
-  double T2 = 0;
-  double T3 = 0;
+Cylinder::~Cylinder(){
 
-  for(int i =0; i < 2; i++){
-    T1 += pow(r.direction[i],2);
-    T2 += 2 * ray.origin[i] * ray.direction[i]; 
-    T3 += pow(ray.origin[i],2);
-  }
-  T3 -= 1.0;
+}
 
-  bool found = false;
-  if(hasQuadRoots(r, T1, T2. T3, ))
+Intersection Cylinder::intersect(Ray ray){
 
-  return intersection;
+    // From: http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00023200000000000000
+    Intersection intersection;
+
+    if (ray.direction[2] == 0 || ray.direction[2] == 1) {
+        return intersection;
+    }
+
+    // Solve Cylinder t values
+    double a = (ray.direction[0] * ray.direction[0]) + (ray.direction[1] * ray.direction[1]);
+    double b = (2 * ray.origin[0] * ray.direction[0]) + (2 * ray.origin[1] * ray.direction[1]);
+    double c = (ray.origin[0] * ray.origin[0]) + (ray.origin[1] * ray.origin[1]) - 1;
+
+    double roots[2];
+    int quadResult = quadraticRoots(a, b, c, roots);
+
+    // If no t values then no intersection
+    if(quadResult == 0){
+      return intersection;
+    }
+
+    // There is at least 1 intersection. Find minimum
+    double Y_MAX = 1.1;
+    double Y_MIN = -1.1;
+    double radius_2 = 1.1;
+
+    std::vector< std::pair<Point3D, double> > possiblePOI;
+    double minRoot = DBL_MAX;
+    for (int i = 0; i < quadResult; i++) {
+        if (roots[i] < 0) continue;
+        if (roots[i] > minRoot) continue;
+
+        Point3D poi = ray.origin + (roots[i] * ray.direction);
+        double hitX_2 = poi[0] * poi[0];
+        double hitY_2 = poi[1] * poi[1];
+        if (inRange(poi[2], Y_MIN, Y_MAX)) {
+            minRoot = roots[i];
+            possiblePOI.clear();
+            std::pair<Point3D, double> p;
+            p = std::make_pair(poi, roots[i]);
+            possiblePOI.push_back(p);
+        }
+    }
+
+
+
+    double t4 = (Y_MAX - ray.origin[2])/ray.direction[2];
+    Point3D topPoint = ray.origin + (t4 * ray.direction);
+    double topX_2 = topPoint[0] * topPoint[0];
+    double topY_2 = topPoint[1] * topPoint[1];
+    if ((t4 >= 0) && (topX_2 + topY_2 <= (1 + DBL_MIN))) {
+        std::pair<Point3D, double> p;
+        p = std::make_pair(topPoint, t4);
+        possiblePOI.push_back(p);
+    }
+
+
+    double t3 = (Y_MIN - ray.origin[2])/ray.direction[2];
+    Point3D bottomPoint = ray.origin + (t3 * ray.direction);
+    double bottomX_2 = bottomPoint[0] * bottomPoint[0];
+    double bottomY_2 = bottomPoint[1] * bottomPoint[1];
+    if ((t3 >= 0) && (bottomX_2 + bottomY_2 <= (1 + DBL_MIN))) {
+        std::pair<Point3D, double> p; 
+        p = std::make_pair(bottomPoint, t3);
+        possiblePOI.push_back(p);
+    }
+
+    Point3D closestPoint;
+    double minDist = DBL_MAX;
+    for (std::vector<std::pair<Point3D, double> >::iterator it = possiblePOI.begin(); it != possiblePOI.end(); it++) {
+        std::pair<Point3D, double> p = *it;
+        double distance = p.first.dist(ray.origin);
+        if (distance < minDist) {
+            minDist = distance;
+            closestPoint = p.first;
+            minRoot = p.second;
+        }
+    }
+
+    if(minDist == DBL_MAX){
+      return intersection;
+    }
+
+    intersection.point = closestPoint;
+    intersection.hit = true;
+    intersection.t = minRoot;
+    if (intersection.point[2] <= -1.1 ) {
+        intersection.normal = Vector3D(0, 1, 0);
+    } else if (intersection.point[2] >= 1.1 ) {
+        intersection.normal = Vector3D(0, -1, 0);
+    } else {
+        intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
+    }
+
+    return intersection;
 }
 
 /**********************************************/
