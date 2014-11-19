@@ -1,8 +1,8 @@
 #include "renderer.hpp"
 #include <pthread.h>
 #include <assert.h> 
-#define NUM_THREADS 3
-#define REFLECTION_DEPTH 6
+#define NUM_THREADS 10
+#define REFLECTION_DEPTH 10
 
 
 

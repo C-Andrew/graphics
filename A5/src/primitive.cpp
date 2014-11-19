@@ -3,6 +3,39 @@
 #include "mesh.hpp"
 #include <math.h>
 
+
+bool hasQuadRoots(Ray ray, const double T1, const double T2, const double T3, double& minT){
+
+  bool found = false;
+  double root[2] = {0,0};
+
+  if(quadraticRoots(T1,T2,T3, root) != 0){
+    for(int i = 0; i < 2; i++){
+      double T = root[i];
+      if(T < minT && T > DBL_MIN){
+        Point3D poi = ray.origin + T * ray.direction;
+        if(poi[2] >= 0.0 && poi[2] <= 1.0){
+          minT = T;
+          found = true;
+        } 
+      }
+    }
+  }
+  return found;
+}
+
+bool hasCircleRoots(Ray ray, double& minT, const double plane){
+  double T = (plane - ray.origin[2])/ray.direction[2];
+  Point3D poi = ray.origin + T * ray.direction;
+  if(pow(poi[0],2) + pow(poi[1],2) <= 1.0 ){
+    if(T >= DBL_MIN && T < minT){
+      minT = T;
+      return true;
+    }
+  }
+  return false;
+}
+
 Primitive::~Primitive()
 {
 }
@@ -124,8 +157,6 @@ Intersection NonhierSphere::intersect(Ray r){
 	return intersection;
 }
 
-/**********************************************/
-
 NonhierBox::NonhierBox(const Point3D& pos, double size)
     : m_pos(pos), m_size(size)
   {
@@ -205,3 +236,24 @@ Intersection NonhierBox::intersect(Ray r){
  Intersection intersection = m_mesh->intersect(r);
  return intersection;
 }
+
+Intersection NonhierCylinder(Ray r){
+  Intersection intersection;
+  double T1 = 0;
+  double T2 = 0;
+  double T3 = 0;
+
+  for(int i =0; i < 2; i++){
+    T1 += pow(r.direction[i],2);
+    T2 += 2 * ray.origin[i] * ray.direction[i]; 
+    T3 += pow(ray.origin[i],2);
+  }
+  T3 -= 1.0;
+
+  bool found = false;
+  if(hasQuadRoots(r, T1, T2. T3, ))
+
+  return intersection;
+}
+
+/**********************************************/

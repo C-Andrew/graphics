@@ -57,5 +57,17 @@ public:
   NonhierBox* m_cube;
 };
 
+class NonhierCylinder : public Primitive {
+public:
+  NonhierCylinder(const Point3D& pos, double radius, double height)
+    : m_pos(pos), m_radius(radius), m_height(height)
+  {
+  }
+  virtual ~NonhierCylinder();
+  virtual Intersection intersect(Ray r);
+  Point3D m_pos;
+  double m_radius;
+  double m_height;
 
+};
 #endif
