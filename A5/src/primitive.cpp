@@ -15,6 +15,10 @@ bool inRange(double checkValue, double min, double max) {
     return (checkValue <= max && checkValue >= min);
 }
 
+bool epsilonEquals(double a, double b) {
+    return abs(a - b) <= DBL_MIN;
+}
+
 Primitive::~Primitive()
 {
 }
@@ -265,8 +269,8 @@ Intersection Cylinder::intersect(Ray ray){
             possiblePOI.push_back(p);
         }
     }
-
-
+    // At this point minimum root is found and stored in possiblePOI
+    // 
 
     double t4 = (Y_MAX - ray.origin[2])/ray.direction[2];
     Point3D topPoint = ray.origin + (t4 * ray.direction);
@@ -311,6 +315,96 @@ Intersection Cylinder::intersect(Ray ray){
     if (intersection.point[2] <= -1.1 ) {
         intersection.normal = Vector3D(0, 1, 0);
     } else if (intersection.point[2] >= 1.1 ) {
+        intersection.normal = Vector3D(0, -1, 0);
+    } else {
+        intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
+    }
+
+    return intersection;
+}
+
+Cone::~Cone(){
+}
+
+Intersection Cone::intersect(Ray ray){
+    Intersection intersection;
+
+    if (ray.direction[2] == 0) {
+        return intersection;
+    }
+
+    // Solve Cone t values
+    double a = (ray.direction[0] * ray.direction[0]) + (ray.direction[1] * ray.direction[1]) - (ray.direction[2] * ray.direction[2]) ;
+    double b = (2 * ray.origin[0] * ray.direction[0]) + (2 * ray.origin[1] * ray.direction[1]) - (2 * ray.origin[2] * ray.direction[2]);
+    double c = (ray.origin[0] * ray.origin[0]) + (ray.origin[1] * ray.origin[1]) - (ray.origin[2] * ray.origin[2]) ;
+
+    double roots[2];
+    int quadResult = quadraticRoots(a, b, c, roots);
+
+    // If no t values then no intersection
+    if(quadResult == 0){
+      return intersection;
+    }
+
+    // There is at least 1 intersection. Find minimum
+    double Y_MAX = 1 + DBL_MIN;
+
+    std::vector< std::pair<Point3D, double> > possiblePOI;
+    double minRoot = DBL_MAX;
+    for (int i = 0; i < quadResult; i++) {
+        if (roots[i] < 0) continue;
+        if (roots[i] > minRoot) continue;
+
+        Point3D poi = ray.origin + (roots[i] * ray.direction);
+        double hitX_2 = poi[0] * poi[0];
+        double hitY_2 = poi[1] * poi[1];
+        double cone_r_2 = (poi[2]) * (poi[2]);
+
+        if (inRange(poi[2], 0, Y_MAX) && (hitX_2 + hitY_2 <= cone_r_2 + 0.1) ) {
+            minRoot = roots[i];
+            possiblePOI.clear();
+            std::pair<Point3D, double> p;
+            p = std::make_pair(poi, roots[i]);
+            possiblePOI.push_back(p);
+        }
+    }
+
+    // At this point minimum root is found and stored in possiblePOI
+    double t3 = (0 - ray.origin[2])/ray.direction[2];
+    Point3D bottomPoint = ray.origin + (t3 * ray.direction);
+    double bottomX_2 = bottomPoint[0] * bottomPoint[0];
+    double bottomY_2 = bottomPoint[1] * bottomPoint[1];
+    if ((t3 > 0) && (bottomX_2 + bottomY_2 <= (DBL_MIN * DBL_MIN))) {
+        std::pair<Point3D, double> p;
+        p = std::make_pair(bottomPoint, t3);
+        possiblePOI.push_back(p);
+    }
+
+    Point3D closestPoint;
+    double minDist = DBL_MAX;
+    for (std::vector<std::pair<Point3D, double> >::iterator it = possiblePOI.begin(); it != possiblePOI.end(); it++) {
+        std::pair<Point3D, double> p = *it;
+        double distance = p.first.dist(ray.origin);
+        if (distance < minDist) {
+            minDist = distance;
+            closestPoint = p.first;
+            minRoot = p.second;
+        }
+    }
+
+    if(minDist == DBL_MAX){
+      return intersection;
+    }
+
+    intersection.point = closestPoint;
+    intersection.hit = true;
+    intersection.t = minRoot;
+  
+    if (intersection.point[2] <= Y_MAX && intersection.point[2]>= Y_MAX + DBL_MIN)  {   // x >= 1.0 && x <= 1.0000001 intersection.point[2] <= Y_MAX && intersection.point[2]>= Y_MAX - DBL_MIN
+      // intersection.hit=false;
+        intersection.normal = Vector3D(0, 0, 1);
+    } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= 0) { //intersection.point[2] >= 0.0 && intersection.point[2] <= 0.0001
+        // intersection.hit=false;
         intersection.normal = Vector3D(0, -1, 0);
     } else {
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);

@@ -49,6 +49,14 @@ public:
 
 };
 
+class Cone : public Primitive {
+public:
+  virtual ~Cone();
+  Cone(){};
+  virtual Intersection intersect(Ray r);
+
+};
+
 class Sphere : public Primitive {
 public:
   virtual ~Sphere();

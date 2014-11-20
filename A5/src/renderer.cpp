@@ -6,9 +6,6 @@
 
 
 
-float rand_green = rand();
-float rand_blue = (rand() % 205) / 255.0f;
-
 Renderer::Renderer( SceneNode* root,
                const std::string& filename,
                int width, int height,
@@ -202,12 +199,12 @@ Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
         if(y < height/2){
           red = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
           green = 0.0f;
-          blue = rand_blue;  
+          blue = 205.0f/255.0f;  
         }
         else{
           red = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
           green = 0.0f;
-          blue = rand_blue;
+          blue = 205.0f/255.0f;
         }
         return Colour(red, green, blue);
       }
