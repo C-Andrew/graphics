@@ -1,8 +1,9 @@
 #include "renderer.hpp"
 #include <pthread.h>
 #include <assert.h> 
-#define NUM_THREADS 1
-#define REFLECTION_DEPTH 5
+#define NUM_THREADS 3
+#define REFLECTION_DEPTH 2
+#define GLOSSY_AMOUNT 10
 
 
 
@@ -93,6 +94,27 @@ void Renderer::render()
   }
 
   img.savePng(filename);
+
+  // Work for adaptive AA goes here
+  // for (int y = 1; y < height - 1; y++) {
+  //     for (int x = 1 ; x < width - 1; x++) {
+  //       Colour c9_[9];
+  //       c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
+  //       c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
+  //       c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
+  //       c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+  //       c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
+  //       c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
+  //       c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
+  //       c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
+  //       c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
+  //       Colour adaptive;
+  //       adaptive = tr->calculateAdaptive(c9,x,y,1);
+  //       img2(x,y,0) = adaptive.R();
+  //       img2(x,y,1) = adaptive.G();
+  //       img2(x,y,2) = adaptive.B();
+  //     }
+  //   }
   
 }
 
@@ -221,7 +243,6 @@ Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
 Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
   if(recursionDepth < REFLECTION_DEPTH){
     Vector3D normal = intersection.normal;
-    normal.normalize();
     Vector3D reflection_direction = ray.direction - 2 * ( ray.direction.dot(normal) ) * normal;
     Ray reflection_ray(intersection.point , reflection_direction);
 
@@ -229,6 +250,43 @@ Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int re
     if(reflection_intersection.hit){
       return colourFromRay(reflection_ray, reflection_intersection, recursionDepth+1, refractiveIndex);
     }
+  }
+  return Colour(0.0);
+}
+
+
+Colour Renderer::colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
+  if(recursionDepth < REFLECTION_DEPTH){
+    Colour glossyColour(0.0);
+    Vector3D normal = intersection.normal;
+    normal.normalize();
+    Vector3D reflect_dir = ray.direction - 2 * ( ray.direction.dot(normal) ) * normal;
+
+    //Shoot 10 random rays 
+    for(int i = 0; i < GLOSSY_AMOUNT; i++){
+
+      Vector3D randRay_dir;
+      Point3D randRay_origin;
+      double a = rand() / (double) RAND_MAX;
+      double b = rand() / (double) RAND_MAX;
+      double theta = acos(pow((1 - a), intersection.material->get_glossy()));
+      double phi = 2 * M_PI * b;
+      double x = sin(phi) * cos(theta)/16;
+      double y = sin(phi) * sin(theta)/16;
+      double z = cos(phi);
+      Vector3D u = reflect_dir.cross(intersection.normal);
+      Vector3D v = reflect_dir.cross(u);
+      randRay_dir = x  * u + y * v  + reflect_dir;
+      randRay_dir.normalize();
+
+      Ray glossy_ray(intersection.point, randRay_dir);
+      Intersection glossy_intersection = root->intersect(glossy_ray);
+      if(glossy_intersection.hit){
+        glossyColour = glossyColour + colourFromRay(glossy_ray, glossy_intersection, REFLECTION_DEPTH, refractiveIndex);
+      }
+    }
+    glossyColour =  (1/(double) GLOSSY_AMOUNT) * glossyColour;
+    return glossyColour;
   }
   return Colour(0.0);
 }
@@ -272,10 +330,14 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
 
   double reflectiveIndex = mat->get_reflect();
   double refract = mat->get_refract();
+  double glossy = mat->get_glossy();
   Colour reflectColour = Colour(0.0);
+  Colour glossyColour = Colour(0.0);
+  Colour refractColour = Colour(0.0);
   if (reflectiveIndex > 0.0)   
     reflectColour = colourFromReflection(ray, minIntersection, recursionDepth, refractiveIndex);
-
+  if( glossy > 0.0)
+    glossyColour = colourFromGlossy(ray, minIntersection, recursionDepth, refractiveIndex);
 
   for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
     Light * light = *it;
@@ -320,7 +382,7 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
 
     finalColour = finalColour + diffuse + specular;
   }
-  return (1.0 - reflectiveIndex) * finalColour + reflectiveIndex * reflectColour;
+  return (1.0 - reflectiveIndex - glossy) * finalColour + reflectiveIndex * reflectColour + glossy * glossyColour;
 }
 
 

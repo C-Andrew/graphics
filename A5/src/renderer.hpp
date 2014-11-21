@@ -57,6 +57,7 @@ public:
      Colour pixelColour(Ray ray, int y, int recursionDepth);
      Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
      Colour colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
+     Colour colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
      Colour colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, int refractiveIndex);
      void renderRow(int rowNumber, int length);
 };
