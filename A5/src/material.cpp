@@ -4,8 +4,8 @@ Material::~Material()
 {
 }
 
-Material::Material(const Colour& kd, const Colour& ks, double shininess, double reflect, double refract)
-  : m_kd(kd), m_ks(ks), m_shininess(shininess), m_reflect(reflect), m_refract(refract)
+Material::Material(const Colour& kd, const Colour& ks, double shininess, double reflect, double refract, double glossy)
+  : m_kd(kd), m_ks(ks), m_shininess(shininess), m_reflect(reflect), m_refract(refract), m_glossy(glossy)
 {
 }
 
@@ -23,6 +23,9 @@ double Material::get_reflect(){
 }
 double Material::get_refract(){
 	return m_refract;
+}
+double Material::get_glossy(){
+	return m_glossy;
 }
 
 Colour Material::getCoefficient(const Vector3D& normal, const Vector3D& light, const Vector3D& view) const

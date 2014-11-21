@@ -257,7 +257,6 @@ Intersection Cylinder::intersect(Ray ray){
     for (int i = 0; i < quadResult; i++) {
         if (roots[i] < 0) continue;
         if (roots[i] > minRoot) continue;
-
         Point3D poi = ray.origin + (roots[i] * ray.direction);
         double hitX_2 = poi[0] * poi[0];
         double hitY_2 = poi[1] * poi[1];
@@ -317,7 +316,10 @@ Intersection Cylinder::intersect(Ray ray){
     } else if (intersection.point[2] >= 1.1 ) {
         intersection.normal = Vector3D(0, -1, 0);
     } else {
+        // Vector3D norm = intersection.point - Point3D(0,0,ray.origin[2]); 
+        // intersection.normal = norm;
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
+        intersection.normal.normalize();
     }
 
     return intersection;
@@ -405,7 +407,7 @@ Intersection Cone::intersect(Ray ray){
         intersection.normal = Vector3D(0, 0, 1);
     } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= 0) { //intersection.point[2] >= 0.0 && intersection.point[2] <= 0.0001
         // intersection.hit=false;
-        intersection.normal = Vector3D(0, -1, 0);
+        intersection.normal = Vector3D(0, 0, -1);
     } else {
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
     }

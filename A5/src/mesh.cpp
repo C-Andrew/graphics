@@ -217,8 +217,8 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
       // std::cerr << "ENTER" << std::endl;
   Intersection intersection;
 
-  Vector3D face_normal = Vector3D(face[2]-face[1]).cross( Vector3D(face[0]-face[1]) );
-
+  Vector3D face_normal = Vector3D(face[1]-face[0]).cross( Vector3D(face[2]-face[1]) );
+  face_normal.normalize();
   // float denominator = dotProduct(vectorSub(Ray.R2, Poly.P[0]), face_normal)
   double denominator = face_normal.dot(r.direction);
   double numerator = face_normal.dot(face[0] - r.origin);
@@ -235,11 +235,14 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
     Vector3D edgeOfFace = ((face[(i+1)%face.size()]) - face[i]);
     Vector3D edgeToVertex = pt - face[i];
     double d = (edgeOfFace.cross(edgeToVertex)).dot(face_normal);
-    if( d < DBL_MIN) {
+    if(d >= 0){
+      inside = true;      
+    }
+    else{
       inside = false;
       break;
     }
-    inside = true;
+
         
   }
 

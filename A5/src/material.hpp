@@ -5,7 +5,7 @@
 
 class Material {
 public:
-  Material(const Colour& kd, const Colour& ks, double shininess, double reflect, double refract); 
+  Material(const Colour& kd, const Colour& ks, double shininess, double reflect, double refract, double glossy); 
   virtual ~Material();
 
   Colour getAmbient(const Colour& ambient);
@@ -15,6 +15,7 @@ public:
   double get_shiny();
   double get_reflect();
   double get_refract();
+  double get_glossy();
 
 private:
   Colour m_kd;
@@ -22,6 +23,7 @@ private:
   double m_shininess;
   double m_reflect;
   double m_refract;
+  double m_glossy;
 
 };
 

@@ -429,15 +429,21 @@ int gr_material_cmd(lua_State* L)
 
   double reflect = 0.0;// luaL_checknumber(L, 4);
   double refract = 0.0;//luaL_checknumber(L, 5);
+  double glossy = 0.0;//luaL_checknumber(L, 5);
 
-  if (numArgs == 5) {
-    reflect = luaL_checknumber(L, 4);
+  if (numArgs >= 4) {
+    reflect = luaL_checknumber(L, 4);    
+  }
+  if (numArgs >= 5) {
     refract = luaL_checknumber(L, 5);
+  }
+  if(numArgs >= 6){
+    glossy = luaL_checknumber(L, 6);
   }
 
   data->material = new Material(Colour(kd[0], kd[1], kd[2]),
                                      Colour(ks[0], ks[1], ks[2]),
-                                     shininess, reflect, refract);
+                                     shininess, reflect, refract, glossy);
 
   luaL_newmetatable(L, "gr.material");
   lua_setmetatable(L, -2);
