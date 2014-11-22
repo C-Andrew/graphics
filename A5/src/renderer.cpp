@@ -93,29 +93,97 @@ void Renderer::render()
     assert(0 == rc);
   }
 
-  img.savePng(filename);
+  if(!enableSuperSample){
+    img.savePng(filename);
+  }
+  else {
+    std::cerr << "Adaptive Anti-Aliasing" << std::endl;
+    Colour c9[16];
+    Image img2(width, height, 3);
+    for (int y = 1; y < height - 1; y++) {
+        for (int x = 1; x < width - 1; x++) {
+          c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
+          c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
+          c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
+          c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+          c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
+          c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
+          c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
+          c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
+          c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
 
-  // Work for adaptive AA goes here
-  // for (int y = 1; y < height - 1; y++) {
-  //     for (int x = 1 ; x < width - 1; x++) {
-  //       Colour c9_[9];
-  //       c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
-  //       c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
-  //       c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
-  //       c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-  //       c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
-  //       c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
-  //       c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
-  //       c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
-  //       c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
-  //       Colour adaptive;
-  //       adaptive = tr->calculateAdaptive(c9,x,y,1);
-  //       img2(x,y,0) = adaptive.R();
-  //       img2(x,y,1) = adaptive.G();
-  //       img2(x,y,2) = adaptive.B();
-  //     }
-  //   }
-  
+          c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
+          c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
+          c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
+
+          c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
+          c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
+          c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
+          c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          Colour adaptive = colourFromAdaptive(c9,x,y,1);
+          img2(x,y,0) = adaptive.R();
+          img2(x,y,1) = adaptive.G();
+          img2(x,y,2) = adaptive.B();
+        }
+      }
+      img2.savePng(filename);
+  }
+}
+
+double absolute(double a) {
+  if(a < 0.0){
+    return -1.0 * a;
+  }
+  return a;
+}
+
+Colour averageColour(Colour* colourSample, int size){
+  double red, green, blue;
+  red = green = blue = 0;
+  for(int i = 0; i < size; i++){
+    red += colourSample[i].R();
+    green += colourSample[i].G();
+    blue += colourSample[i].B();
+  }
+  red = red/size;
+  green = green/size;
+  blue = blue/size;
+  return Colour(red, green, blue);
+}
+
+
+Colour Renderer::colourFromAdaptive(Colour colourSample[9], double x, double y, int recursionDepth){
+  double errorEpsilon = 0.1;
+  bool colourChange = false;
+  for(int i = 0; i < 16; i++){
+    double error = absolute(colourSample[i].R()) - absolute(colourSample[0].R());
+    error += absolute(colourSample[i].G()) - absolute(colourSample[0].G());
+    error += absolute(colourSample[i].B()) - absolute(colourSample[0].B());
+
+    if(error > errorEpsilon){
+      colourChange = true;
+      break;
+    }
+  }
+  if(!colourChange){
+    return colourSample[0];
+  }
+  else{
+    // return Colour(1.0, 0, 0);
+    Colour c9[16];
+    int counter = 0;
+    for (int sx = -1; sx <= 2; sx++) {
+        for (int sy = -1; sy <= 1; sy++) {
+          double px = sx * 0.33 + x;
+          double py = sy * 0.33 + y;
+          c9[counter] = pixelColour(px, py);
+          counter++;
+      }
+    }
+    Colour averagedSample = averageColour(c9, counter);
+    return averagedSample;
+  }
+  // return returnColour;
 }
 
 // rowNumber = y
@@ -125,76 +193,30 @@ void Renderer::renderRow(int rowStart, int rowEnd)
   std::cerr << "Initiate Render rows: " << rowStart << " to " << rowEnd << std::endl;
   for(int currentRow = rowStart; currentRow < rowEnd; currentRow++){
     for(int i = 0; i < width; i++){
-      double yDisplacement = ((double)height / 2) - (double)currentRow;
-      double xDisplacement = ((double)width / 2) - (double)i;
-      Vector3D rayOrigin(eye);
-
-      // Magical Math as provided by 
-      // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
-
-      Vector3D rayDirection1(distance * normalized_view + yDisplacement * normalized_up + xDisplacement * normalized_left);
-      rayDirection1.normalize();
-      Ray rayFromPixel1(eye, rayDirection1);
-      Colour pixelColour1 = pixelColour(rayFromPixel1, currentRow, 0);
+      Colour pixelColour1 = pixelColour(i, currentRow);
       Colour final = pixelColour1;
-      if(enableSuperSample){
+      // We no longer want to do inefficient super sampling
+      // I will keep this here for time comparisons
+
+      // BAD SUPER SAMPLING BAD!
+      if(false){
         // Super Sampling X9
-        // std::cerr << "super sample" << std::endl;
-        Vector3D rayDirection1(normalized_view + ((i-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow-0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection2(normalized_view + ((i)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow-0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection3(normalized_view + ((i+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow-0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        
-        Vector3D rayDirection4(normalized_view + ((i-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection5(normalized_view + (i/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       (currentRow/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection6(normalized_view + ((i+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       (currentRow/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        
-        Vector3D rayDirection7(normalized_view + ((i-0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow+0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection8(normalized_view + ((i)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow+0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        Vector3D rayDirection9(normalized_view + ((i+0.33f)/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       ((currentRow+0.33f)/(double)height * 2 - 1) * tangent * (-normalized_up) );
-        
-        rayDirection1.normalize();
-        rayDirection2.normalize();
-        rayDirection3.normalize();
-        rayDirection4.normalize();
-        rayDirection5.normalize();
-        rayDirection6.normalize();
-        rayDirection7.normalize();
-        rayDirection8.normalize();
-        rayDirection9.normalize();  
-
-        Ray rayFromPixel1(eye, rayDirection1);
-        Ray rayFromPixel2(eye, rayDirection2);
-        Ray rayFromPixel3(eye, rayDirection3);
-        Ray rayFromPixel4(eye, rayDirection4);
-        Ray rayFromPixel5(eye, rayDirection5);
-        Ray rayFromPixel6(eye, rayDirection6);
-        Ray rayFromPixel7(eye, rayDirection7);
-        Ray rayFromPixel8(eye, rayDirection8);
-        Ray rayFromPixel9(eye, rayDirection9);
-
-        Colour pixelColour1 = pixelColour(rayFromPixel1, currentRow, 0);
-        Colour pixelColour2 = pixelColour(rayFromPixel2, currentRow, 0);
-        Colour pixelColour3 = pixelColour(rayFromPixel3, currentRow, 0);
-        Colour pixelColour4 = pixelColour(rayFromPixel4, currentRow, 0);
-        Colour pixelColour5 = pixelColour(rayFromPixel5, currentRow, 0);
-        Colour pixelColour6 = pixelColour(rayFromPixel6, currentRow, 0);
-        Colour pixelColour7 = pixelColour(rayFromPixel7, currentRow, 0);
-        Colour pixelColour8 = pixelColour(rayFromPixel8, currentRow, 0);
-        Colour pixelColour9 = pixelColour(rayFromPixel9, currentRow, 0);
+        // std::cerr << " BAD super sample" << std::endl;
+        Colour pixelColour1 = pixelColour(i - 0.33, currentRow - 0.33);
+        Colour pixelColour2 = pixelColour(i, currentRow - 0.33);
+        Colour pixelColour3 = pixelColour(i + 0.33, currentRow - 0.33);
+        Colour pixelColour4 = pixelColour(i - 0.33, currentRow);
+        Colour pixelColour5 = pixelColour(i, currentRow);
+        Colour pixelColour6 = pixelColour(i + 0.33, currentRow);
+        Colour pixelColour7 = pixelColour(i - 0.33, currentRow + 0.33);
+        Colour pixelColour8 = pixelColour(i, currentRow + 0.33);
+        Colour pixelColour9 = pixelColour(i + 0.33, currentRow + 0.33);
 
         final = (double)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
                              pixelColour4 + pixelColour5 + pixelColour6 +
                              pixelColour7 + pixelColour8 + pixelColour9);
       }
+
       img(i,currentRow,0) = final.R();
       img(i,currentRow,1) = final.G();
       img(i,currentRow,2) = final.B();
@@ -207,8 +229,20 @@ void Renderer::renderRow(int rowStart, int rowEnd)
 }
 
 // Given a ray, and the height(specific y-coord) tell me what colour to draw.
-Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
-{
+Colour Renderer::pixelColour(double x, double y)
+{   
+      // Calculate ray based on (x,y) 
+      double yDisplacement = ((double)height / 2) - (double)y;
+      double xDisplacement = ((double)width / 2) - (double)x;
+      Vector3D rayOrigin(eye);
+
+      // Magical Math as provided by 
+      // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
+     Vector3D rayDirection(normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                       (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
+      rayDirection.normalize();
+      Ray ray(eye, rayDirection);
+
       // find the closest intersection
       Intersection minIntersection;
 
@@ -229,6 +263,8 @@ Colour Renderer::pixelColour(Ray ray, int y, int recursionDepth)
           blue = 205.0f/255.0f;
         }
         return Colour(red, green, blue);
+
+        // return Colour(0.0);
       }
 
       else {
