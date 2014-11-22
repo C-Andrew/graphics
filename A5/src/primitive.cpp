@@ -150,16 +150,17 @@ NonhierBox::NonhierBox(const Point3D& pos, double size)
   	std::vector<Point3D> vertices;
   	// Build Front Face in COUNTERCLOCKERWISE order starting with bottom left vertex
   	// REMEMBER WE ARE LOOKING AT THE NEG-Z AXIS
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]+m_size ) ); 
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]+m_size ) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]+m_size ) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]+m_size ) );
+    double h = m_size/(double)2.0;
+  	vertices.push_back(Point3D( m_pos[0]-h,        m_pos[1]-h,        m_pos[2]+h ) ); 
+  	vertices.push_back(Point3D( m_pos[0]-h,        m_pos[1]+h,        m_pos[2]+h ) );
+  	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]+h,        m_pos[2]+h ) );
+  	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]-h,        m_pos[2]+h ) );
   	
   	// Build Back Face in COUNTERCLOCKERWISE order starting with bottom left vertex
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]) );
-  	vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]) );  
-  	vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]) ); 
+  	vertices.push_back(Point3D( m_pos[0]-h,        m_pos[1]-h,        m_pos[2]-h) );
+  	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]-h,        m_pos[2]-h) );
+  	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]+h,        m_pos[2]-h) );  
+  	vertices.push_back(Point3D( m_pos[0]-h,        m_pos[1]+h,        m_pos[2]-h) ); 
 
   	//const std::vector< std::vector<int> >& faces)
   	std::vector< std::vector<int> > faces;
@@ -218,6 +219,10 @@ NonhierBox::~NonhierBox()
 
 Intersection NonhierBox::intersect(Ray r){
  Intersection intersection = m_mesh->intersect(r);
+ Vector3D norm =  intersection.point - Point3D( m_pos[0],        m_pos[1],        m_pos[2]) ;
+
+ intersection.normal = norm;
+ intersection.normal.normalize();
  return intersection;
 }
 
