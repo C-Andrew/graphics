@@ -58,7 +58,7 @@ public:
      Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
      Colour colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
      Colour colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
-     Colour colourFromAdaptive(Colour colourSample[9], double x, double y, int recursionDepth);
+     Colour colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth);
      Colour colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, int refractiveIndex);
      void renderRow(int rowNumber, int length);
 };

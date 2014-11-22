@@ -98,7 +98,7 @@ void Renderer::render()
   }
   else {
     std::cerr << "Adaptive Anti-Aliasing" << std::endl;
-    Colour c9[16];
+    Colour c9[25];
     Image img2(width, height, 3);
     for (int y = 1; y < height - 1; y++) {
         for (int x = 1; x < width - 1; x++) {
@@ -120,6 +120,19 @@ void Renderer::render()
           c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
           c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
           c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+
+          c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
+          c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
+          c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
+
+          c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
+          c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+          c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
+
+
           Colour adaptive = colourFromAdaptive(c9,x,y,1);
           img2(x,y,0) = adaptive.R();
           img2(x,y,1) = adaptive.G();
@@ -128,6 +141,7 @@ void Renderer::render()
       }
       img2.savePng(filename);
   }
+  std::cerr << "DONE" << std::endl;
 }
 
 double absolute(double a) {
@@ -152,10 +166,10 @@ Colour averageColour(Colour* colourSample, int size){
 }
 
 
-Colour Renderer::colourFromAdaptive(Colour colourSample[9], double x, double y, int recursionDepth){
+Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth){
   double errorEpsilon = 0.1;
   bool colourChange = false;
-  for(int i = 0; i < 16; i++){
+  for(int i = 0; i < 25; i++){
     double error = absolute(colourSample[i].R()) - absolute(colourSample[0].R());
     error += absolute(colourSample[i].G()) - absolute(colourSample[0].G());
     error += absolute(colourSample[i].B()) - absolute(colourSample[0].B());
@@ -170,9 +184,9 @@ Colour Renderer::colourFromAdaptive(Colour colourSample[9], double x, double y, 
   }
   else{
     // return Colour(1.0, 0, 0);
-    Colour c9[16];
+    Colour c9[9];
     int counter = 0;
-    for (int sx = -1; sx <= 2; sx++) {
+    for (int sx = -1; sx <= 1; sx++) {
         for (int sy = -1; sy <= 1; sy++) {
           double px = sx * 0.33 + x;
           double py = sy * 0.33 + y;
@@ -181,6 +195,21 @@ Colour Renderer::colourFromAdaptive(Colour colourSample[9], double x, double y, 
       }
     }
     Colour averagedSample = averageColour(c9, counter);
+
+
+    // Colour pixelColour1 = pixelColour(x - 0.33, y - 0.33);
+    // Colour pixelColour2 = pixelColour(x, y - 0.33);
+    // Colour pixelColour3 = pixelColour(x + 0.33, y - 0.33);
+    // Colour pixelColour4 = pixelColour(x - 0.33, y);
+    // Colour pixelColour5 = pixelColour(x, y);
+    // Colour pixelColour6 = pixelColour(x + 0.33, y);
+    // Colour pixelColour7 = pixelColour(x - 0.33, y + 0.33);
+    // Colour pixelColour8 = pixelColour(x, y + 0.33);
+    // Colour pixelColour9 = pixelColour(x + 0.33, y + 0.33);
+
+    // Colour averagedSample = (double)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
+    //                      pixelColour4 + pixelColour5 + pixelColour6 +
+    //                      pixelColour7 + pixelColour8 + pixelColour9);
     return averagedSample;
   }
   // return returnColour;
@@ -262,9 +291,12 @@ Colour Renderer::pixelColour(double x, double y)
           green = 0.0f;
           blue = 205.0f/255.0f;
         }
+        // red+= 1.0*x/width * (0.749) ;
+        // green+= 0.859 + 1.0*y/width * -0.859 ;
+        // blue+= 0.592 + 1.0*y/height * (0.4);
         return Colour(red, green, blue);
 
-        // return Colour(0.0);
+        return Colour(0.0);
       }
 
       else {
@@ -413,8 +445,8 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
     Vector3D r =  light_vector - (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
     float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
 
-    Colour diffuse = ( (ndotl) * mat->get_diffuse() * light->colour);
-    Colour specular = ( (rdotvp) * mat->get_specular() * light->colour);
+    Colour diffuse = ( (ndotl) * mat->get_diffuse() * attentuationFactor * light->colour);
+    Colour specular = ( (rdotvp) * mat->get_specular() * attentuationFactor * light->colour);
 
     finalColour = finalColour + diffuse + specular;
   }
