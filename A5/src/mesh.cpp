@@ -222,10 +222,10 @@ Intersection Mesh::intersectFace(Ray r, std::vector<Point3D> face){
   // float denominator = dotProduct(vectorSub(Ray.R2, Poly.P[0]), face_normal)
   double denominator = face_normal.dot(r.direction);
   double numerator = face_normal.dot(face[0] - r.origin);
-  if( denominator >= DBL_MIN ){ return intersection; }
+  if( denominator >= 0.1 ){ return intersection; }
 
   double t_val = numerator / denominator;
-  if(t_val <= DBL_MIN){ return intersection; }
+  if(t_val <= 0.1){ return intersection; }
 
   Point3D pt = r.origin + t_val*r.direction;
   

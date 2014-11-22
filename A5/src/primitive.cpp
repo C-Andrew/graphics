@@ -220,9 +220,7 @@ NonhierBox::~NonhierBox()
 Intersection NonhierBox::intersect(Ray r){
  Intersection intersection = m_mesh->intersect(r);
  Vector3D norm =  intersection.point - Point3D( m_pos[0],        m_pos[1],        m_pos[2]) ;
-
  intersection.normal = norm;
- intersection.normal.normalize();
  return intersection;
 }
 
