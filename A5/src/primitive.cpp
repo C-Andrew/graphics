@@ -251,14 +251,13 @@ Intersection Cylinder::intersect(Ray ray){
     }
 
     // There is at least 1 intersection. Find minimum
-    double Y_MAX = 1.1;
-    double Y_MIN = -1.1;
-    double radius_2 = 1.1;
+    double Y_MAX = 1.0 + DBL_MIN;
+    double Y_MIN = -1.0 - DBL_MIN;
 
     std::vector< std::pair<Point3D, double> > possiblePOI;
     double minRoot = DBL_MAX;
     for (int i = 0; i < quadResult; i++) {
-        if (roots[i] < 0) continue;
+        if (roots[i] < 0 + 0.1) continue;
         if (roots[i] > minRoot) continue;
         Point3D poi = ray.origin + (roots[i] * ray.direction);
         double hitX_2 = poi[0] * poi[0];
@@ -314,15 +313,16 @@ Intersection Cylinder::intersect(Ray ray){
     intersection.point = closestPoint;
     intersection.hit = true;
     intersection.t = minRoot;
-    if (intersection.point[2] <= -1.1 ) {
-        intersection.normal = Vector3D(0, 1, 0);
-    } else if (intersection.point[2] >= 1.1 ) {
-        intersection.normal = Vector3D(0, -1, 0);
+    if (intersection.point[2] <= Y_MIN ) {
+        intersection.normal = Vector3D(0, 0, -1);
+    } else if (intersection.point[2] >= Y_MAX) {
+        intersection.normal = Vector3D(0, 0, 1);
     } else {
-        // Vector3D norm = intersection.point - Point3D(0,0,ray.origin[2]); 
-        // intersection.normal = norm;
+        Vector3D norm = intersection.point - Point3D(0,0,ray.origin[2]); 
+        intersection.normal = norm;
+
+        // To turn off reflective surfaces, uncomment next line
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
-        intersection.normal.normalize();
     }
 
     return intersection;
@@ -357,7 +357,7 @@ Intersection Cone::intersect(Ray ray){
     std::vector< std::pair<Point3D, double> > possiblePOI;
     double minRoot = DBL_MAX;
     for (int i = 0; i < quadResult; i++) {
-        if (roots[i] < 0) continue;
+        if (roots[i] < 0 + 0.1) continue;
         if (roots[i] > minRoot) continue;
 
         Point3D poi = ray.origin + (roots[i] * ray.direction);
@@ -383,6 +383,17 @@ Intersection Cone::intersect(Ray ray){
         std::pair<Point3D, double> p;
         p = std::make_pair(bottomPoint, t3);
         possiblePOI.push_back(p);
+        std::cerr << "HIT BOTTOM" << std::endl;
+    }
+
+    double t4 = (Y_MAX - ray.origin[2])/ray.direction[2];
+    Point3D topPoint = ray.origin + (t4 * ray.direction);
+    double topX_2 = topPoint[0] * topPoint[0];
+    double topY_2 = topPoint[1] * topPoint[1];
+    if ((t4 >= 0) && (topX_2 + topY_2 <= (1 + DBL_MIN))) {
+        std::pair<Point3D, double> p;
+        p = std::make_pair(topPoint, t4);
+        possiblePOI.push_back(p);
     }
 
     Point3D closestPoint;
@@ -405,14 +416,30 @@ Intersection Cone::intersect(Ray ray){
     intersection.hit = true;
     intersection.t = minRoot;
   
-    if (intersection.point[2] <= Y_MAX && intersection.point[2]>= Y_MAX + DBL_MIN)  {   // x >= 1.0 && x <= 1.0000001 intersection.point[2] <= Y_MAX && intersection.point[2]>= Y_MAX - DBL_MIN
+    if (intersection.point[2] >= Y_MAX - DBL_MIN && intersection.point[2]<= Y_MAX + DBL_MIN + DBL_MIN )  {
       // intersection.hit=false;
-        intersection.normal = Vector3D(0, 0, 1);
-    } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= 0) { //intersection.point[2] >= 0.0 && intersection.point[2] <= 0.0001
+      intersection.normal = Vector3D(intersection.point[0], intersection.point[1], ray.origin[2]); 
+        // intersection.normal = Vector3D(0, 0, 1);
+    } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= -DBL_MIN) {
         // intersection.hit=false;
-        intersection.normal = Vector3D(0, 0, -1);
+        intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0); 
+        // intersection.normal = Vector3D(0, 0, -1);
     } else {
-        intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
+
+        Vector3D topToBase = intersection.point - Point3D();
+        topToBase.normalize();
+
+        Point3D centerPoint = Point3D(0, 0, intersection.point[2]);
+        Vector3D centerToHit = intersection.point - centerPoint;
+        Vector3D coneTangent = Vector3D(-centerToHit[1], centerToHit[0], 0);
+        coneTangent.normalize();
+
+        intersection.normal = coneTangent.cross(topToBase);
+        // intersection.normal.normalize();
+
+        // To turn off reflective surfaces uncomment this line
+        // intersection.normal = Vector3D(intersection.point[0], intersection.point[1], ray.origin[2]; 
+        // intersection.normal.normalize();
     }
 
     return intersection;

@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <assert.h> 
 #define NUM_THREADS 3
-#define REFLECTION_DEPTH 2
+#define REFLECTION_DEPTH 1
 #define GLOSSY_AMOUNT 10
 
 
@@ -93,54 +93,54 @@ void Renderer::render()
     assert(0 == rc);
   }
 
-  if(!enableSuperSample){
+  // if(!enableSuperSample){
     img.savePng(filename);
-  }
-  else {
-    std::cerr << "Adaptive Anti-Aliasing" << std::endl;
-    Colour c9[25];
-    Image img2(width, height, 3);
-    for (int y = 1; y < height - 1; y++) {
-        for (int x = 1; x < width - 1; x++) {
-          c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
-          c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
-          c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
-          c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-          c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
-          c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
-          c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
-          c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
-          c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
+  // }
+  // else {
+  //   std::cerr << "Adaptive Anti-Aliasing" << std::endl;
+  //   Colour c9[25];
+  //   Image img2(width, height, 3);
+  //   for (int y = 1; y < height - 1; y++) {
+  //       for (int x = 1; x < width - 1; x++) {
+  //         c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
+  //         c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
+  //         c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
+  //         c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+  //         c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
+  //         c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
+  //         c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
+  //         c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
+  //         c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
 
-          c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
-          c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
-          c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
+  //         c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
+  //         c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
+  //         c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
 
-          c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
-          c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
-          c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
-          c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+  //         c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
+  //         c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
+  //         c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
+  //         c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
 
-          c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-          c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
-          c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
-          c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
+  //         c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+  //         c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
+  //         c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
+  //         c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
 
-          c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
-          c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-          c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
-          c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-          c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
+  //         c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+  //         c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+  //         c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
+  //         c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+  //         c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
 
 
-          Colour adaptive = colourFromAdaptive(c9,x,y,1);
-          img2(x,y,0) = adaptive.R();
-          img2(x,y,1) = adaptive.G();
-          img2(x,y,2) = adaptive.B();
-        }
-      }
-      img2.savePng(filename);
-  }
+  //         Colour adaptive = colourFromAdaptive(c9,x,y,1);
+  //         img2(x,y,0) = adaptive.R();
+  //         img2(x,y,1) = adaptive.G();
+  //         img2(x,y,2) = adaptive.B();
+  //       }
+  //     }
+  //     img2.savePng(filename);
+  // }
   std::cerr << "DONE" << std::endl;
 }
 
@@ -195,21 +195,6 @@ Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y,
       }
     }
     Colour averagedSample = averageColour(c9, counter);
-
-
-    // Colour pixelColour1 = pixelColour(x - 0.33, y - 0.33);
-    // Colour pixelColour2 = pixelColour(x, y - 0.33);
-    // Colour pixelColour3 = pixelColour(x + 0.33, y - 0.33);
-    // Colour pixelColour4 = pixelColour(x - 0.33, y);
-    // Colour pixelColour5 = pixelColour(x, y);
-    // Colour pixelColour6 = pixelColour(x + 0.33, y);
-    // Colour pixelColour7 = pixelColour(x - 0.33, y + 0.33);
-    // Colour pixelColour8 = pixelColour(x, y + 0.33);
-    // Colour pixelColour9 = pixelColour(x + 0.33, y + 0.33);
-
-    // Colour averagedSample = (double)1/9 * (pixelColour1 + pixelColour2 + pixelColour3 +
-    //                      pixelColour4 + pixelColour5 + pixelColour6 +
-    //                      pixelColour7 + pixelColour8 + pixelColour9);
     return averagedSample;
   }
   // return returnColour;
@@ -228,7 +213,7 @@ void Renderer::renderRow(int rowStart, int rowEnd)
       // I will keep this here for time comparisons
 
       // BAD SUPER SAMPLING BAD!
-      if(false){
+      if(enableSuperSample){
         // Super Sampling X9
         // std::cerr << " BAD super sample" << std::endl;
         Colour pixelColour1 = pixelColour(i - 0.33, currentRow - 0.33);
