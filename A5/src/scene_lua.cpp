@@ -49,6 +49,10 @@
 #include "image.hpp"
 #include <string>
 
+//GLOBAL SPACE
+bool enableSuperSample = false;
+bool enableMultiThreading = false;
+
 // Uncomment the following line to enable debugging messages
 // #define GRLUA_ENABLE_DEBUG
 
@@ -103,10 +107,6 @@ void get_tuple(lua_State* L, int arg, T* data, int n)
     lua_pop(L, 1);
   }
 }
-
-//GLOBAL SPACE
-bool enableSuperSample = false;
-bool enableMultiThreading = false;
 
 // Create a node
 extern "C"

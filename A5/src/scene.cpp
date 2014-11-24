@@ -142,16 +142,13 @@ GeometryNode::~GeometryNode()
   Ray newRay(m_invtrans * r.origin, m_invtrans * r.direction);
     
   Intersection t = m_primitive->intersect(newRay);
-  // if(t.hit){
 
-  // }
-
-  std::list<SceneNode*>::const_iterator it;
+  // std::list<SceneNode*>::const_iterator it;
   // std::cerr << "name" << m_name <<std::endl;
-  for (it = m_children.begin(); it != m_children.end(); ++it){
-    SceneNode* node = (*it);
-    // Intersection t = node->intersect(newRay);
-  }
+  // for (it = m_children.begin(); it != m_children.end(); ++it){
+  //   SceneNode* node = (*it);
+  //   Intersection t = node->intersect(newRay);
+  // }
 
 
   if (t.hit)
@@ -161,8 +158,7 @@ GeometryNode::~GeometryNode()
     intersection.primitive = m_primitive;
     intersection.point = m_trans * t.point;
     intersection.normal = m_invtrans.transpose() *  t.normal;
-    // std::cerr << "GEONODE NORMALS: " << intersection.normal << std::endl;
-   
+    // std::cerr << "GEONODE NORMALS: " << intersection.normal << std::endl; 
   }
 
 

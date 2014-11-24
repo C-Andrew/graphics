@@ -97,7 +97,7 @@ Intersection NonhierSphere::intersect(Ray r){
   double bsq = pow(r.direction.dot(r.origin - m_pos), 2);
   double ac = r.direction.length2() * ((r.origin - m_pos).length2() - pow(m_radius,2) ) ;
   double underRoot = bsq - ac;
-  if(underRoot < 0.1f){
+  if(underRoot < -DBL_MIN){
     return intersection;
   }
   double negVal = -sqrt(underRoot);
@@ -106,9 +106,9 @@ Intersection NonhierSphere::intersect(Ray r){
   double t0 = (-(r.direction.dot(r.origin-m_pos)) + negVal) / r.direction.length2();
   double t1 = (-(r.direction.dot(r.origin-m_pos)) + posVal) / r.direction.length2();
   double t = -1;
-  if ((t0 > 0.1f) )            { t = t0; } 
-  if ((t1 > 0.1f) && (t1 < t)) { t = t1; }
-  if(t > 0){
+  if ((t0 > DBL_MIN) )            { t = t0; } 
+  if ((t1 > DBL_MIN) && (t1 < t)) { t = t1; }
+  if(t > DBL_MIN){
     Point3D temp = r.origin + dir * t;
     // std::cerr << temp << std::endl;;
     intersection.point = temp;
@@ -417,11 +417,9 @@ Intersection Cone::intersect(Ray ray){
     intersection.t = minRoot;
   
     if (intersection.point[2] >= Y_MAX - DBL_MIN && intersection.point[2]<= Y_MAX + DBL_MIN + DBL_MIN )  {
-      // intersection.hit=false;
       intersection.normal = Vector3D(intersection.point[0], intersection.point[1], ray.origin[2]); 
         // intersection.normal = Vector3D(0, 0, 1);
     } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= -DBL_MIN) {
-        // intersection.hit=false;
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0); 
         // intersection.normal = Vector3D(0, 0, -1);
     } else {

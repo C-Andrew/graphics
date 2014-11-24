@@ -38,10 +38,14 @@ public:
      Vector3D normalized_left;
      Image& img;
 
+     Point3D focal_point;
+
      double aspect;
-     int largerDimension;
+     int larger_dimension;
      double distance;
      double tangent;
+
+     Matrix4x4 WorldCoordMatrix;
 
      Renderer( SceneNode* root,
                const std::string& filename,
@@ -54,6 +58,9 @@ public:
                bool enableSuperSample,
                bool enableMultiThreading);
      void render();
+     Point3D jitterCamera();
+
+     Colour backgroundColour(double x, double y);
      Colour pixelColour(double x, double y);
      Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
      Colour colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);

@@ -4,8 +4,34 @@
 #define NUM_THREADS 3
 #define REFLECTION_DEPTH 1
 #define GLOSSY_AMOUNT 10
+#define JITTER_AMOUNT 1
 
+///////////////////////
+// Utility Functions //
+///////////////////////
 
+double absVal(double a) {
+  if(a < 0.0){
+    return -1.0 * a;
+  }
+  return a;
+}
+
+Colour averageColour(Colour* colourSample, double size){
+  double red, green, blue;
+  red = green = blue = 0;
+  for(int i = 0; i < size; i++){
+    red += colourSample[i].R();
+    green += colourSample[i].G();
+    blue += colourSample[i].B();
+  }
+  red = red/size;
+  green = green/size;
+  blue = blue/size;
+  return Colour(red, green, blue);
+}
+
+/*******************/
 
 Renderer::Renderer( SceneNode* root,
                const std::string& filename,
@@ -32,10 +58,62 @@ Renderer::Renderer( SceneNode* root,
   normalized_left.normalize();
 
   aspect = (double)width/(double)height; 
-  largerDimension = std::max(width, height);
-  distance = ((double)largerDimension / 2.0) / tan(M_PI * fov / 360); // Divide fov by 2 to get angle wrt to mid
+  larger_dimension = std::max(width, height);
+  distance = ((double)larger_dimension / 2.0) / tan(M_PI * fov / 360); // Divide fov by 2 to get angle wrt to mid
   tangent = tan(fov*M_PI/360.0);
 
+  Vector3D wVector = view;
+  wVector.normalize();
+
+  Vector3D u = up.cross(wVector);
+  u.normalize();
+
+  Vector3D v = wVector.cross(u);
+  v.normalize();
+
+  double d = view.length();
+  double h = 2 * d * tan((fov * M_PI/180)/2);
+  double w = width * h / height;
+
+  double rotateArray[] = {
+    u[0], v[0], wVector[0], 0,
+    u[1], v[1], wVector[1], 0,
+    u[2], v[2], wVector[2], 0,
+    0, 0, 0, 1
+  };
+
+  double basisTranslate[] = {
+    1, 0, 0, eye[0],
+    0, 1, 0, eye[1],
+    0, 0, 1, eye[2],
+    0, 0, 0, 1
+  };
+
+  double scaleArray[] = {
+    -h/height, 0, 0, 0,
+    0, -w/width, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+  };
+
+  double translate[] = {
+    1, 0, 0, -1 * width/2,
+    0, 1, 0, -1 * height/d,
+    0, 0, 1, d,
+    0, 0, 0, 1
+  };
+
+  Matrix4x4 t4 = Matrix4x4(basisTranslate);
+  Matrix4x4 r3 = Matrix4x4(rotateArray);
+  Matrix4x4 s2 = Matrix4x4(scaleArray);
+  Matrix4x4 t1 = Matrix4x4(translate);
+
+  Matrix4x4 WorldCoordMatrix = t4 * r3 * s2 * t1;
+
+
+  // TODO: Default focal point to be something reasonable
+  focal_point = Point3D(0.0, 4.0, -16.0);
+  // focal_point = Point3D(0.0, 0.0, 0.0);
 }
 
 // Thread Task
@@ -144,61 +222,6 @@ void Renderer::render()
   std::cerr << "DONE" << std::endl;
 }
 
-double absolute(double a) {
-  if(a < 0.0){
-    return -1.0 * a;
-  }
-  return a;
-}
-
-Colour averageColour(Colour* colourSample, int size){
-  double red, green, blue;
-  red = green = blue = 0;
-  for(int i = 0; i < size; i++){
-    red += colourSample[i].R();
-    green += colourSample[i].G();
-    blue += colourSample[i].B();
-  }
-  red = red/size;
-  green = green/size;
-  blue = blue/size;
-  return Colour(red, green, blue);
-}
-
-
-Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth){
-  double errorEpsilon = 0.1;
-  bool colourChange = false;
-  for(int i = 0; i < 25; i++){
-    double error = absolute(colourSample[i].R()) - absolute(colourSample[0].R());
-    error += absolute(colourSample[i].G()) - absolute(colourSample[0].G());
-    error += absolute(colourSample[i].B()) - absolute(colourSample[0].B());
-
-    if(error > errorEpsilon){
-      colourChange = true;
-      break;
-    }
-  }
-  if(!colourChange){
-    return colourSample[0];
-  }
-  else{
-    // return Colour(1.0, 0, 0);
-    Colour c9[9];
-    int counter = 0;
-    for (int sx = -1; sx <= 1; sx++) {
-        for (int sy = -1; sy <= 1; sy++) {
-          double px = sx * 0.33 + x;
-          double py = sy * 0.33 + y;
-          c9[counter] = pixelColour(px, py);
-          counter++;
-      }
-    }
-    Colour averagedSample = averageColour(c9, counter);
-    return averagedSample;
-  }
-  // return returnColour;
-}
 
 // rowNumber = y
 // lenght = x
@@ -242,55 +265,136 @@ void Renderer::renderRow(int rowStart, int rowEnd)
   std::cerr << "Rendered rows: " << rowStart << " to " << rowEnd << std::endl;
 }
 
+// Returns a new camera/eye point that is slightly "jittered" from the original
+// This is si help with depth of field to provide a more "scattered" image
+Point3D Renderer::jitterCamera() {
+  double jitter_x =  (((double)rand() / (double)RAND_MAX) - 0.5);
+  double jitter_y =  (((double)rand() / (double)RAND_MAX) - 0.5);
+  Vector3D side = up.cross(view);
+  return eye + jitter_x * side + jitter_y * up; 
+  // return eye;
+}
+
+
 // Given a ray, and the height(specific y-coord) tell me what colour to draw.
-Colour Renderer::pixelColour(double x, double y)
-{   
-      // Calculate ray based on (x,y) 
-      double yDisplacement = ((double)height / 2) - (double)y;
-      double xDisplacement = ((double)width / 2) - (double)x;
-      Vector3D rayOrigin(eye);
+Colour Renderer::pixelColour(double x, double y){   
+  // // Calculate ray based on (x,y) 
+  double yDisplacement = ((double)height / 2) - (double)y;
+  double xDisplacement = ((double)width / 2) - (double)x;
+  Vector3D rayOrigin(eye);
 
-      // Magical Math as provided by 
-      // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
-     Vector3D rayDirection(normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                       (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
-      rayDirection.normalize();
-      Ray ray(eye, rayDirection);
+  // Magical Math as provided by 
+  // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
+  Vector3D rayDirection(normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                   (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
+  // rayDirection.normalize();
+  // Point3D pt = WorldCoordMatrix * Point3D(x,y,0);
+  // rayDirection = pt - eye;
+  Ray ray(eye, rayDirection);
 
-      // find the closest intersection
-      Intersection minIntersection;
+  // find the closest intersection
+  Intersection minIntersection;
 
-      // Check if the ray intersects any of the objects in the scene
+  // If focal point has been set, compute using lensing technique
+  if(focal_point[0] != 0.0 || focal_point[1] != 0.0 || focal_point[2] != 0.0){
+
+    Colour jitteredColours[JITTER_AMOUNT];
+    Vector3D side = up.cross(view);
+
+    for(int i = 0; i < JITTER_AMOUNT; i++){
+      // double rand_x =  (((double)rand() / (double)RAND_MAX) - 0.5);
+      // double rand_y =  (((double)rand() / (double)RAND_MAX) - 0.5);
+      // Point3D jitteredEye = eye + jitter_x * side + jitter_y * up; 
+      Vector3D jitteredDirection(normalized_view + (x + rand_x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                   (y + rand_y/(double)height * 2 - 1) * tangent * (-normalized_up) );
+
+      Point3D jitteredEye = jitterCamera();
+      double t = (focal_point - ray.origin).dot(view) / ray.direction.dot(view);
+      ray.origin = jitteredEye;
+      Point3D fp = eye + t * ray.direction;
+      ray.direction = fp - (WorldCoordMatrix * jitteredEye);
+
       minIntersection = root->intersect(ray);
-
-      // If intersection doesn't exist, paint background color
-      if (!minIntersection.hit) {
-        float red, green, blue;
-        if(y < height/2){
-          red = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
-          green = 0.0f;
-          blue = 205.0f/255.0f;  
-        }
-        else{
-          red = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
-          green = 0.0f;
-          blue = 205.0f/255.0f;
-        }
-        // red+= 1.0*x/width * (0.749) ;
-        // green+= 0.859 + 1.0*y/width * -0.859 ;
-        // blue+= 0.592 + 1.0*y/height * (0.4);
-        return Colour(red, green, blue);
-
-        return Colour(0.0);
+      if(minIntersection.hit){
+          if(x == 250 && y == 350){
+            std::cerr << "IP: " << minIntersection.point << std::endl;
+          }
+         return colourFromRay(ray, minIntersection, 0, 1.0);
       }
+      else{
+        jitteredColours[i] = backgroundColour(x, y);
+      }
+    }
+    return averageColour(jitteredColours, JITTER_AMOUNT);
 
-      else {
-        //TODO
-        //Get intersected object's refractive index and pass in
-        Colour finalColour = colourFromRay(ray, minIntersection, 0, 1.0);
-        return finalColour;
-      }// End else clause
+  }
+  else{
+    // Check if the ray intersects any of the objects in the scene
+    minIntersection = root->intersect(ray);
 
+    // If intersection doesn't exist, paint background color
+    if (!minIntersection.hit) {
+      return backgroundColour(x, y);
+    }
+    else {
+      //TODO
+      //Get intersected object's refractive index and pass in
+      if(x == 250 && y == 350){
+            std::cerr << "IP: " << minIntersection.point << std::endl;
+          }
+      Colour finalColour = colourFromRay(ray, minIntersection, 0, 1.0);
+      return finalColour;
+    }// End else clause
+  }
+}
+
+Colour Renderer::backgroundColour(double x, double y){
+    float red, green, blue;
+    if(y < height/2){
+      red = (((double) y / (height/2)) * 110.0f)/255.0f + 10.0f/255.0f ;
+      green = 0.0f;
+      blue = 205.0f/255.0f;  
+    }
+    else{
+      red = 120.0f/255.0f -  (( ((double)y-(height/2.0f)) / (height/2.0f) * 110.0f )/255.0f);
+      green = 0.0f;
+      blue = 205.0f/255.0f;
+    }
+    return Colour(red, green, blue);
+}
+
+Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth){
+  double errorEpsilon = 0.1;
+  bool colourChange = false;
+  for(int i = 0; i < 25; i++){
+    double error = absVal(colourSample[i].R()) - absVal(colourSample[0].R());
+    error += absVal(colourSample[i].G()) - absVal(colourSample[0].G());
+    error += absVal(colourSample[i].B()) - absVal(colourSample[0].B());
+
+    if(error > errorEpsilon){
+      colourChange = true;
+      break;
+    }
+  }
+  if(!colourChange){
+    return colourSample[0];
+  }
+  else{
+    // return Colour(1.0, 0, 0);
+    Colour c9[9];
+    int counter = 0;
+    for (int sx = -1; sx <= 1; sx++) {
+        for (int sy = -1; sy <= 1; sy++) {
+          double px = sx * 0.33 + x;
+          double py = sy * 0.33 + y;
+          c9[counter] = pixelColour(px, py);
+          counter++;
+      }
+    }
+    Colour averagedSample = averageColour(c9, counter);
+    return averagedSample;
+  }
+  // return returnColour;
 }
 
 Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
