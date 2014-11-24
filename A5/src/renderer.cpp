@@ -287,7 +287,7 @@ Colour Renderer::pixelColour(double x, double y){
   // http://graphics.ucsd.edu/courses/cse168_s06/ucsd/CSE168_raytrace.pdf
   Vector3D rayDirection(normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                    (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
-  // rayDirection.normalize();
+  rayDirection.normalize();
   // Point3D pt = WorldCoordMatrix * Point3D(x,y,0);
   // rayDirection = pt - eye;
   Ray ray(eye, rayDirection);
@@ -305,8 +305,8 @@ Colour Renderer::pixelColour(double x, double y){
       // double rand_x =  (((double)rand() / (double)RAND_MAX) - 0.5);
       // double rand_y =  (((double)rand() / (double)RAND_MAX) - 0.5);
       // Point3D jitteredEye = eye + jitter_x * side + jitter_y * up; 
-      Vector3D jitteredDirection(normalized_view + (x + rand_x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
-                                   (y + rand_y/(double)height * 2 - 1) * tangent * (-normalized_up) );
+      // Vector3D jitteredDirection(normalized_view + (x + rand_x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+      //                              (y + rand_y/(double)height * 2 - 1) * tangent * (-normalized_up) );
 
       Point3D jitteredEye = jitterCamera();
       double t = (focal_point - ray.origin).dot(view) / ray.direction.dot(view);
@@ -319,6 +319,9 @@ Colour Renderer::pixelColour(double x, double y){
           if(x == 250 && y == 350){
             std::cerr << "IP: " << minIntersection.point << std::endl;
           }
+         ray.origin = eye;
+         ray.direction = (normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
+                                   (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
          return colourFromRay(ray, minIntersection, 0, 1.0);
       }
       else{
@@ -340,8 +343,8 @@ Colour Renderer::pixelColour(double x, double y){
       //TODO
       //Get intersected object's refractive index and pass in
       if(x == 250 && y == 350){
-            std::cerr << "IP: " << minIntersection.point << std::endl;
-          }
+        std::cerr << "IP: " << minIntersection.point << std::endl;
+      }
       Colour finalColour = colourFromRay(ray, minIntersection, 0, 1.0);
       return finalColour;
     }// End else clause
