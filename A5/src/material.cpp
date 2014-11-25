@@ -9,7 +9,7 @@ Material::Material(const Colour& kd, const Colour& ks, double shininess, double 
 {
 }
 
-Colour Material::get_diffuse(){
+Colour Material::get_diffuse(Intersection i){
 	return m_kd;
 }
 Colour Material::get_specular(){
@@ -37,4 +37,31 @@ Colour Material::getCoefficient(const Vector3D& normal, const Vector3D& light, c
 Colour Material::getAmbient(const Colour& ambient)
 {
   return ambient * (m_kd);
+}
+
+/////////////////
+// Texture Map //
+/////////////////
+
+TextureMap::~TextureMap()
+{
+}
+
+TextureMap::TextureMap(const std::string& filename, const Colour& ks, double shininess,
+              double reflect, double refract, double glossy)
+	: Material(0.0, ks, shininess, reflect, refract, glossy),
+		m_textureMap()
+{
+  if (!m_textureMap.loadPng(filename)) {
+    std::cerr << "No png file found: " << filename << std::endl;
+  }
+}
+
+Colour TextureMap::get_diffuse(Intersection i){
+	Point2D p = i.primitive->get_texture(i.point);
+	int x = p[0] * (double)m_textureMap.width();
+	int y = p[1] * (double)m_textureMap.height();
+  return Colour(m_textureMap(x, y, 0),
+                m_textureMap(x, y, 1),
+                m_textureMap(x, y, 2));
 }

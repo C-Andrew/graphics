@@ -11,6 +11,7 @@ class Primitive {
 public:
   virtual ~Primitive();
   virtual Intersection intersect(Ray r) = 0;
+  virtual Point2D get_texture(const Point3D& p) const = 0;
 };
 
 
@@ -22,6 +23,7 @@ public:
   }
   virtual ~NonhierSphere();
   virtual Intersection intersect(Ray r);
+  Point2D get_texture(const Point3D& p) const;
   Point3D m_pos;
 private:
 
@@ -34,6 +36,7 @@ public:
   
   virtual ~NonhierBox();
   virtual Intersection intersect(Ray r);
+  Point2D get_texture(const Point3D& p) const;
   Point3D m_pos;
 
 private:
@@ -45,6 +48,7 @@ class Cylinder : public Primitive {
 public:
   virtual ~Cylinder();
   Cylinder(){};
+  Point2D get_texture(const Point3D& p) const;
   virtual Intersection intersect(Ray r);
 
 };
@@ -53,6 +57,7 @@ class Cone : public Primitive {
 public:
   virtual ~Cone();
   Cone(){};
+  Point2D get_texture(const Point3D& p) const;
   virtual Intersection intersect(Ray r);
 
 };
@@ -61,6 +66,7 @@ class Sphere : public Primitive {
 public:
   virtual ~Sphere();
   Sphere();
+  Point2D get_texture(const Point3D& p) const;
   virtual Intersection intersect(Ray r);
   NonhierSphere* m_sphere;
 };
@@ -69,6 +75,7 @@ class Cube : public Primitive {
 public:
   virtual ~Cube();
   Cube();
+  Point2D get_texture(const Point3D& p) const;
   virtual Intersection intersect(Ray r);
   NonhierBox* m_cube;
 };

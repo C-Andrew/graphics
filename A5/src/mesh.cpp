@@ -96,6 +96,10 @@ Mesh::Mesh(const std::vector<Point3D>& verts,
 
 }
 
+Point2D Mesh::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
+}
+
 std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
 {
   std::cerr << "mesh({";

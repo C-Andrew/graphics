@@ -41,6 +41,10 @@ Intersection Sphere::intersect(Ray r){
   //return 0.0f;
 }
 
+Point2D Sphere::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
+}
+
 /**********************************************/
 
 Cube::~Cube()
@@ -56,6 +60,9 @@ Intersection Cube::intersect(Ray r){
  return m_cube->intersect(r);
 }
 
+Point2D Cube::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
+}
 
 ////////////////////////////////
 // Nonhierarchical primitives //
@@ -64,8 +71,6 @@ Intersection Cube::intersect(Ray r){
 NonhierSphere::~NonhierSphere()
 {
 }
-
-
 
 Intersection NonhierSphere::intersect(Ray r){
 	Intersection intersection;	
@@ -140,6 +145,34 @@ Intersection NonhierSphere::intersect(Ray r){
 	// }
 	return intersection;
 }
+
+Point2D NonhierSphere::get_texture(const Point3D& p) const{
+  // Using explanation from:
+  // http://ray-tracer-concept.blogspot.ca/2011/12/texture-mapping.html
+  // to assit with sphere texture mapping
+
+  static Vector3D north(0.0, 1.0, 0.0);
+  static Vector3D equator(0.0, 0.0, -1.0);
+
+  Vector3D normal = p - m_pos;
+  normal.normalize();
+
+  double phi = acos(north.dot(normal));
+  double v = phi / M_PI;
+
+  Vector3D proj(normal[0], 0.0, normal[2]);
+  proj.normalize();
+
+  double theta = acos(equator.dot(proj));
+  if (proj[0] < 0) {
+    theta = 2* M_PI - theta;
+  }
+  double u = theta / (2*M_PI);
+
+  return Point2D(u, v);  
+}
+
+/*******************************************/
 
 NonhierBox::NonhierBox(const Point3D& pos, double size)
     : m_pos(pos), m_size(size)
@@ -223,6 +256,12 @@ Intersection NonhierBox::intersect(Ray r){
  intersection.normal = norm;
  return intersection;
 }
+
+Point2D NonhierBox::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
+}
+
+/*********************************************/
 
 Cylinder::~Cylinder(){
 
@@ -327,6 +366,13 @@ Intersection Cylinder::intersect(Ray ray){
 
     return intersection;
 }
+
+
+Point2D Cylinder::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
+}
+
+/*********************************************/
 
 Cone::~Cone(){
 }
@@ -441,6 +487,10 @@ Intersection Cone::intersect(Ray ray){
     }
 
     return intersection;
+}
+
+Point2D Cone::get_texture(const Point3D& p) const{
+   return Point2D(-1, -1);
 }
 
 /**********************************************/

@@ -15,6 +15,7 @@ public:
   typedef std::vector<int> Face;
   virtual Intersection intersect(Ray r);
   Intersection intersectFace(Ray r, std::vector<Point3D> face);
+  Point2D get_texture(const Point3D& p) const;
   //bounding box 
   Point3D far;
   Point3D near;

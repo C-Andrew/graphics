@@ -451,6 +451,46 @@ int gr_material_cmd(lua_State* L)
   return 1;
 }
 
+// Create a texture map
+extern "C"
+int gr_texture_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+  
+  int numArgs = lua_gettop(L);
+
+  gr_material_ud* data = (gr_material_ud*)lua_newuserdata(L, sizeof(gr_material_ud));
+  data->material = 0;
+  
+  const char* name = luaL_checkstring(L, 1);
+
+  double ks[3];
+  get_tuple(L, 2, ks, 3);
+
+  double shininess = luaL_checknumber(L, 3);
+  double reflect = 0.0;// luaL_checknumber(L, 4);
+  double refract = 0.0;//luaL_checknumber(L, 5);
+  double glossy = 0.0;//luaL_checknumber(L, 5);
+  if (numArgs >= 4) {
+    reflect = luaL_checknumber(L, 4);    
+  }
+  if (numArgs >= 5) {
+    refract = luaL_checknumber(L, 5);
+  }
+  if(numArgs >= 6){
+    glossy = luaL_checknumber(L, 6);
+  }
+
+  data->material = new TextureMap(std::string(name),
+                                  Colour(ks[0], ks[1], ks[2]),
+                                  shininess, reflect, refract, glossy);
+
+  luaL_newmetatable(L, "gr.material");
+  lua_setmetatable(L, -2);
+  
+  return 1;
+}
+
 // Add a child to a node
 extern "C"
 int gr_node_add_child_cmd(lua_State* L)
@@ -596,6 +636,7 @@ static const luaL_reg grlib_functions[] = {
   {"cone", gr_cone_cmd},
   {"joint", gr_joint_cmd},
   {"material", gr_material_cmd},
+  {"texture", gr_texture_cmd},
   // New for assignment 4
   {"cube", gr_cube_cmd},
   {"nh_sphere", gr_nh_sphere_cmd},

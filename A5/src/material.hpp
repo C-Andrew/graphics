@@ -2,6 +2,9 @@
 #define CS488_MATERIAL_HPP
 
 #include "algebra.hpp"
+#include "image.hpp"
+#include "primitive.hpp"
+
 
 class Material {
 public:
@@ -10,7 +13,7 @@ public:
 
   Colour getAmbient(const Colour& ambient);
   Colour getCoefficient(const Vector3D& normal, const Vector3D& light, const Vector3D& view) const;
-  Colour get_diffuse();
+  virtual Colour get_diffuse(Intersection i);
   Colour get_specular();
   double get_shiny();
   double get_reflect();
@@ -25,6 +28,20 @@ private:
   double m_refract;
   double m_glossy;
 
+};
+
+
+class TextureMap : public Material {
+ public:
+  TextureMap(const std::string& filename, const Colour& ks, double shininess,
+              double reflect, double refract, double glossy);
+  virtual ~TextureMap();
+
+ protected:
+  Colour get_diffuse(Intersection i);
+
+ private:
+  Image m_textureMap;
 };
 
 #endif
