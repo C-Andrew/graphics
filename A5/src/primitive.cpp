@@ -144,8 +144,14 @@ Intersection NonhierSphere::intersect(Ray r){
 	// 	intersection.hit = true;
 	// }
 
-  intersection.u = (atan2(intersection.point[2] - m_pos[2], intersection.point[0] - m_pos[0])) / 2 / M_PI;
+  intersection.u = -(atan2(m_pos[2] - intersection.point[2], m_pos[0] - intersection.point[0])) / 2 / M_PI;
   intersection.v = acos((intersection.point[1] - m_pos[1]) / m_radius) / M_PI;;
+  if(intersection.u < 0){
+    // std::cerr << "Sphere.u NEG" << std::endl;
+  }
+  if(intersection.v < 0){
+    // std::cerr << "Sphere.v NEG" << std::endl;
+  }
 	return intersection;
 }
 
@@ -176,6 +182,20 @@ NonhierBox::NonhierBox(const Point3D& pos, double size)
   	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]-h,        m_pos[2]-h) );
   	vertices.push_back(Point3D( m_pos[0]+h,        m_pos[1]+h,        m_pos[2]-h) );  
   	vertices.push_back(Point3D( m_pos[0]-h,        m_pos[1]+h,        m_pos[2]-h) ); 
+
+    // // OLD
+    // // Build Front Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+    // // REMEMBER WE ARE LOOKING AT THE NEG-Z AXIS
+    // vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]+m_size ) ); 
+    // vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]+m_size ) );
+    // vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]+m_size ) );
+    // vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]+m_size ) );
+    
+    // // Build Back Face in COUNTERCLOCKERWISE order starting with bottom left vertex
+    // vertices.push_back(Point3D( m_pos[0],        m_pos[1],        m_pos[2]) );
+    // vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1],        m_pos[2]) );
+    // vertices.push_back(Point3D( m_pos[0]+m_size, m_pos[1]+m_size, m_pos[2]) );  
+    // vertices.push_back(Point3D( m_pos[0],        m_pos[1]+m_size, m_pos[2]) ); 
 
   	//const std::vector< std::vector<int> >& faces)
   	std::vector< std::vector<int> > faces;
@@ -241,31 +261,48 @@ Intersection NonhierBox::intersect(Ray r){
  double u, v;
  u = 0;
  v = 0;
-    if (intersection.normal[2] == 1) { // Front Face
-        u = (intersection.point[0] - h + m_size) / m_size;
-        v = ((m_size/(double)2 - intersection.point[1])) / m_size;
-    } else if (intersection.normal[2] == -1) { // Back Face
-        u = ((h - intersection.point[0])) / m_size;
-        v = ((h - intersection.point[1])) / m_size;
-    } else if (intersection.normal[0] == 1) { // Right Face
-        u = ( (h - intersection.point[2])) / m_size;
-        v = ((h - intersection.point[1])) / m_size;
-    } else if (intersection.normal[0] == -1) { // Left Face
-        u = (intersection.point[2] - h) / m_size;
-        v = ((h - intersection.point[1])) / m_size;
-    } else if (intersection.normal[1] == 1) { // Top Face
-        u = (intersection.point[0] - h - m_size) / m_size;
-        v = (h - intersection.point[2]) / m_size;
-    } else if (intersection.normal[1] == -1) { // Bottom Face
-        u = (intersection.point[0] - h) / m_size;
-        v = (h - intersection.point[2]) / m_size;
-    }
-
-
+  if (intersection.normal[2] == 1) { // Front Face
+      u = (intersection.point[0] - h + m_size) / m_size;
+      v = ((h - intersection.point[1])) / m_size;
+  } else if (intersection.normal[2] == -1) { // Back Face
+      u = ((h - intersection.point[0])) / m_size;
+      v = ((h - intersection.point[1])) / m_size;
+  } else if (intersection.normal[0] == 1) { // Right Face
+      u = ( (h - intersection.point[2])) / m_size;
+      v = ((h - intersection.point[1])) / m_size;
+  } else if (intersection.normal[0] == -1) { // Left Face
+      u = (intersection.point[2] - h) / m_size;
+      v = ((h - intersection.point[1])) / m_size;
+  } else if (intersection.normal[1] == 1) { // Top Face
+      u = (intersection.point[0] - h - m_size) / m_size;
+      v = (h - intersection.point[2]) / m_size;
+  } else if (intersection.normal[1] == -1) { // Bottom Face
+      u = (intersection.point[0] - h) / m_size;
+      v = (h - intersection.point[2]) / m_size;
+  }
+   // if (intersection.normal[2] == 1) { // Front Face
+   //      u = (intersection.point[0] - m_pos[0]) / m_size;
+   //      v = ((intersection.point[1] - m_pos[1])) / m_size;
+   //  } else if (intersection.normal[2] == -1) { // Back Face
+   //      u = ((intersection.point[0] - m_pos[0])) / m_size;
+   //      v = ((intersection.point[1] - m_pos[1])) / m_size;
+   //  } else if (intersection.normal[0] == 1) { // Right Face
+   //      u = ((intersection.point[2] - m_pos[2])) / m_size;
+   //      v = ((intersection.point[1] - m_pos[1])) / m_size;
+   //  } else if (intersection.normal[0] == -1) { // Left Face
+   //      u = (intersection.point[2] - m_pos[2]) / m_size;
+   //      v = ((intersection.point[1] - m_pos[1])) / m_size;
+   //  } else if (intersection.normal[1] == 1) { // Top Face
+   //      u = (intersection.point[0] - m_pos[0]) / m_size;
+   //      v = (intersection.point[2] - m_pos[2]) / m_size;
+   //  } else if (intersection.normal[1] == -1) { // Bottom Face
+   //      u = (intersection.point[0] - m_pos[0]) / m_size;
+   //      v = ((intersection.point[2] - m_pos[2])) / m_size;
+   //  }
+  // 190 325
 
   intersection.u = u;
   intersection.v = v;
-
 
  Vector3D norm =  intersection.point - Point3D( m_pos[0],        m_pos[1],        m_pos[2]) ;
  intersection.normal = norm;

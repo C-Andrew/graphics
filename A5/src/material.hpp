@@ -19,7 +19,13 @@ public:
   double get_reflect();
   double get_refract();
   double get_glossy();
+  virtual bool loadBumps(const std::string& filename);
+  virtual bool is_bumpy();
+  virtual Vector3D bumpNormal(Intersection i);
 
+
+  Image m_bumpMap;
+  bool m_hasBumps;
 private:
   Colour m_kd;
   Colour m_ks;
@@ -39,6 +45,9 @@ class TextureMap : public Material {
 
  protected:
   Colour get_diffuse(Intersection i);
+  virtual bool loadBumps(const std::string& filename);
+  virtual bool is_bumpy();
+  virtual Vector3D bumpNormal(Intersection i);
 
  private:
   Image m_textureMap;

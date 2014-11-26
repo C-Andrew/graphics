@@ -491,6 +491,23 @@ int gr_texture_cmd(lua_State* L)
   return 1;
 }
 
+// Create a bump map
+extern "C"
+int gr_bump_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+  
+  gr_material_ud* data = (gr_material_ud*)luaL_checkudata(L, 1, "gr.material");
+  luaL_argcheck(L, data != 0, 1, "Material expected");
+
+  Material* m = data->material;
+
+  const char* filename = luaL_checkstring(L, 2);
+  m->loadBumps(filename);
+
+  return 0;
+}
+
 // Add a child to a node
 extern "C"
 int gr_node_add_child_cmd(lua_State* L)
@@ -637,6 +654,7 @@ static const luaL_reg grlib_functions[] = {
   {"joint", gr_joint_cmd},
   {"material", gr_material_cmd},
   {"texture", gr_texture_cmd},
+  {"bump", gr_bump_cmd},
   // New for assignment 4
   {"cube", gr_cube_cmd},
   {"nh_sphere", gr_nh_sphere_cmd},

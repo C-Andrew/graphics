@@ -480,6 +480,9 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
   Vector3D color;
 
   Material* mat = minIntersection.material;
+  if(mat->is_bumpy()){
+    minIntersection.normal = mat->bumpNormal(minIntersection);
+  }
   Colour material_diffuse = mat->get_diffuse(minIntersection);
   Colour finalColour = ambient * material_diffuse;
 
