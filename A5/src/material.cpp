@@ -58,9 +58,10 @@ TextureMap::TextureMap(const std::string& filename, const Colour& ks, double shi
 }
 
 Colour TextureMap::get_diffuse(Intersection i){
-	Point2D p = i.primitive->get_texture(i.point);
-	int x = p[0] * (double)m_textureMap.width();
-	int y = p[1] * (double)m_textureMap.height();
+	double x = i.u * (double)m_textureMap.width();
+	double y = i.v * (double)m_textureMap.height();
+
+	// std::cerr << "x: " << x << "   y: " << y << std::endl;
   return Colour(m_textureMap(x, y, 0),
                 m_textureMap(x, y, 1),
                 m_textureMap(x, y, 2));

@@ -537,6 +537,8 @@ public:
   bool hit;
   Material* material;
   Primitive* primitive;
+  double u;
+  double v;
 };
 
 #endif // CS488_ALGEBRA_HPP

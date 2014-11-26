@@ -114,7 +114,7 @@ Intersection NonhierSphere::intersect(Ray r){
   if ((t0 > DBL_MIN) )            { t = t0; } 
   if ((t1 > DBL_MIN) && (t1 < t)) { t = t1; }
   if(t > DBL_MIN){
-    Point3D temp = r.origin + dir * t;
+    Point3D temp = r.origin +  t * dir;
     // std::cerr << temp << std::endl;;
     intersection.point = temp;
     intersection.normal = temp - m_pos;
@@ -143,33 +143,15 @@ Intersection NonhierSphere::intersect(Ray r){
 	// 	intersection.t = t;
 	// 	intersection.hit = true;
 	// }
+
+  intersection.u = (atan2(intersection.point[2] - m_pos[2], intersection.point[0] - m_pos[0])) / 2 / M_PI;
+  intersection.v = acos((intersection.point[1] - m_pos[1]) / m_radius) / M_PI;;
 	return intersection;
 }
 
 Point2D NonhierSphere::get_texture(const Point3D& p) const{
-  // Using explanation from:
-  // http://ray-tracer-concept.blogspot.ca/2011/12/texture-mapping.html
-  // to assit with sphere texture mapping
-
-  static Vector3D north(0.0, 1.0, 0.0);
-  static Vector3D equator(0.0, 0.0, -1.0);
-
-  Vector3D normal = p - m_pos;
-  normal.normalize();
-
-  double phi = acos(north.dot(normal));
-  double v = phi / M_PI;
-
-  Vector3D proj(normal[0], 0.0, normal[2]);
-  proj.normalize();
-
-  double theta = acos(equator.dot(proj));
-  if (proj[0] < 0) {
-    theta = 2* M_PI - theta;
-  }
-  double u = theta / (2*M_PI);
-
-  return Point2D(u, v);  
+  
+  return Point2D(-1, -1);  
 }
 
 /*******************************************/
@@ -252,6 +234,39 @@ NonhierBox::~NonhierBox()
 
 Intersection NonhierBox::intersect(Ray r){
  Intersection intersection = m_mesh->intersect(r);
+       // std:: cerr << intersection.normal << std::endl;  
+ //Use special origin for texture map
+ // Point3D h = Point3D(m_size, m_size, m_size);
+ double h = m_size/(double)2;
+ double u, v;
+ u = 0;
+ v = 0;
+    if (intersection.normal[2] == 1) { // Front Face
+        u = (intersection.point[0] - h + m_size) / m_size;
+        v = ((m_size/(double)2 - intersection.point[1])) / m_size;
+    } else if (intersection.normal[2] == -1) { // Back Face
+        u = ((h - intersection.point[0])) / m_size;
+        v = ((h - intersection.point[1])) / m_size;
+    } else if (intersection.normal[0] == 1) { // Right Face
+        u = ( (h - intersection.point[2])) / m_size;
+        v = ((h - intersection.point[1])) / m_size;
+    } else if (intersection.normal[0] == -1) { // Left Face
+        u = (intersection.point[2] - h) / m_size;
+        v = ((h - intersection.point[1])) / m_size;
+    } else if (intersection.normal[1] == 1) { // Top Face
+        u = (intersection.point[0] - h - m_size) / m_size;
+        v = (h - intersection.point[2]) / m_size;
+    } else if (intersection.normal[1] == -1) { // Bottom Face
+        u = (intersection.point[0] - h) / m_size;
+        v = (h - intersection.point[2]) / m_size;
+    }
+
+
+
+  intersection.u = u;
+  intersection.v = v;
+
+
  Vector3D norm =  intersection.point - Point3D( m_pos[0],        m_pos[1],        m_pos[2]) ;
  intersection.normal = norm;
  return intersection;
@@ -291,7 +306,7 @@ Intersection Cylinder::intersect(Ray ray){
 
     // There is at least 1 intersection. Find minimum
     double Y_MAX = 1.0 + DBL_MIN;
-    double Y_MIN = -1.0 - DBL_MIN;
+    double Y_MIN = 0 - DBL_MIN;
 
     std::vector< std::pair<Point3D, double> > possiblePOI;
     double minRoot = DBL_MAX;
@@ -354,22 +369,61 @@ Intersection Cylinder::intersect(Ray ray){
     intersection.t = minRoot;
     if (intersection.point[2] <= Y_MIN ) {
         intersection.normal = Vector3D(0, 0, -1);
+        intersection.u = (1.0 - intersection.point[0]) / 2;
+        intersection.v = (1.0 - intersection.point[1]) / 2;
     } else if (intersection.point[2] >= Y_MAX) {
         intersection.normal = Vector3D(0, 0, 1);
+        intersection.u = (1.0 - intersection.point[0]) / 2;
+        intersection.v = (1.0 - intersection.point[1]) / 2;
     } else {
         Vector3D norm = intersection.point - Point3D(0,0,ray.origin[2]); 
         intersection.normal = norm;
-
+        Point2D uv = get_texture(intersection.point);
+        intersection.u = uv[0];
+        intersection.v = uv[1];
         // To turn off reflective surfaces, uncomment next line
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0);
     }
-
     return intersection;
 }
 
 
 Point2D Cylinder::get_texture(const Point3D& p) const{
-   return Point2D(-1, -1);
+  int region = 0;
+  double u, v;
+  if (p[2] > -DBL_MIN && p[2] < DBL_MIN)  {
+    region = 2;
+  } else if (p[2] > 1.0 - DBL_MIN && p[2] < 1.0 + DBL_MIN) {
+    region = 1;
+  } else {
+    region = 0;
+  }
+
+  if (region == 0) {
+    double theta = acos(p[0]);
+
+    if (p[1] > 0) {
+      theta = -theta;
+    }
+  
+    // Texture seemed stretched here so cut the range in half.
+    double x = (theta + M_PI) / M_PI;
+    if (x > 1) x = x -1;
+
+    return Point2D(x, p[2]);
+  } else if (region == 1) {
+        u = (1.0 - p[0]) / 2;
+        v = (1.0 - p[1]) / 2;
+        return Point2D(u,v);
+  } else if (region == 2) {
+        u = (1.0 - p[0]) / 2;
+        v = (1.0 - p[1]) / 2;
+        return Point2D(u,v);
+  } else {
+    std::cerr << "Unknown Region" << std::endl;
+  }
+
+  return Point2D(-1, -1);
 }
 
 /*********************************************/
@@ -464,8 +518,13 @@ Intersection Cone::intersect(Ray ray){
   
     if (intersection.point[2] >= Y_MAX - DBL_MIN && intersection.point[2]<= Y_MAX + DBL_MIN + DBL_MIN )  {
       intersection.normal = Vector3D(intersection.point[0], intersection.point[1], ray.origin[2]); 
+
+      intersection.u = (1.0 - intersection.point[0]) / 2;
+      intersection.v = (1.0 - intersection.point[1]) / 2;
         // intersection.normal = Vector3D(0, 0, 1);
     } else if (intersection.point[2] <= DBL_MIN && intersection.point[2] >= -DBL_MIN) {
+        intersection.u = 0.5;
+        intersection.v = 0;
         intersection.normal = Vector3D(intersection.point[0], intersection.point[1], 0); 
         // intersection.normal = Vector3D(0, 0, -1);
     } else {
@@ -479,6 +538,8 @@ Intersection Cone::intersect(Ray ray){
         coneTangent.normalize();
 
         intersection.normal = coneTangent.cross(topToBase);
+        intersection.u = (atan2(intersection.point[1], intersection.point[0]) + M_PI) / 2 / M_PI;
+        intersection.v = intersection.point[2];
         // intersection.normal.normalize();
 
         // To turn off reflective surfaces uncomment this line

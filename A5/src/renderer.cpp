@@ -112,8 +112,8 @@ Renderer::Renderer( SceneNode* root,
 
 
   // TODO: Default focal point to be something reasonable
-  focal_point = Point3D(0.0, 4.0, -16.0);
-  // focal_point = Point3D(0.0, 0.0, 0.0);
+  // focal_point = Point3D(0.0, 4.0, -16.0);
+  focal_point = Point3D(0.0, 0.0, 0.0);
 }
 
 // Thread Task
@@ -316,9 +316,6 @@ Colour Renderer::pixelColour(double x, double y){
 
       minIntersection = root->intersect(ray);
       if(minIntersection.hit){
-          if(x == 250 && y == 350){
-            std::cerr << "IP: " << minIntersection.point << std::endl;
-          }
          ray.origin = eye;
          ray.direction = (normalized_view + (x/(double)width * 2 - 1) * tangent * aspect * side_vector + 
                                    (y/(double)height * 2 - 1) * tangent * (-normalized_up) );
@@ -342,9 +339,6 @@ Colour Renderer::pixelColour(double x, double y){
     else {
       //TODO
       //Get intersected object's refractive index and pass in
-      if(x == 250 && y == 350){
-        std::cerr << "IP: " << minIntersection.point << std::endl;
-      }
       Colour finalColour = colourFromRay(ray, minIntersection, 0, 1.0);
       return finalColour;
     }// End else clause
@@ -486,7 +480,8 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
   Vector3D color;
 
   Material* mat = minIntersection.material;
-  Colour finalColour = ambient * mat->get_diffuse();
+  Colour material_diffuse = mat->get_diffuse(minIntersection);
+  Colour finalColour = ambient * material_diffuse;
 
   double reflectiveIndex = mat->get_reflect();
   double refract = mat->get_refract();
@@ -537,7 +532,7 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
     Vector3D r =  light_vector - (2.0f * (light_vector.dot(minIntersection.normal)) * minIntersection.normal);
     float rdotvp =  std::max( pow(r.dot(ray.direction), mat->get_shiny()) , 0.0);
 
-    Colour diffuse = ( (ndotl) * mat->get_diffuse() * attentuationFactor * light->colour);
+    Colour diffuse = ( (ndotl) * material_diffuse * attentuationFactor * light->colour);
     Colour specular = ( (rdotvp) * mat->get_specular() * attentuationFactor * light->colour);
 
     finalColour = finalColour + diffuse + specular;
