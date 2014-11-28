@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <assert.h> 
 #define NUM_THREADS 3
-#define REFLECTION_DEPTH 1
+#define REFLECTION_DEPTH 10
 #define GLOSSY_AMOUNT 10
 #define JITTER_AMOUNT 1
 
@@ -171,54 +171,55 @@ void Renderer::render()
     assert(0 == rc);
   }
 
-  // if(!enableSuperSample){
+  if(!enableSuperSample){
     img.savePng(filename);
-  // }
-  // else {
-  //   std::cerr << "Adaptive Anti-Aliasing" << std::endl;
-  //   Colour c9[25];
-  //   Image img2(width, height, 3);
-  //   for (int y = 1; y < height - 1; y++) {
-  //       for (int x = 1; x < width - 1; x++) {
-  //         c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
-  //         c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
-  //         c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
-  //         c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-  //         c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
-  //         c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
-  //         c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
-  //         c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
-  //         c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
+  }
+  else {
+    std::cerr << "Adaptive Anti-Aliasing" << std::endl;
+    Colour c9[25];
+    Image img2(width, height, 3);
+    for (int y = 1; y < height - 1; y++) {
+        for (int x = 1; x < width - 1; x++) {
+          c9[0] = Colour(img(x,y,0), img(x,y,1), img(x,y,2));
+          c9[1] = Colour(img(x-1,y-1,0), img(x-1,y-1,1), img(x-1,y-1,2));
+          c9[2] = Colour(img(x,y-1,0), img(x,y-1,1), img(x,y-1,2));
+          c9[3] = Colour(img(x+1,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+          c9[4] = Colour(img(x-1,y,0), img(x-1,y,1), img(x-1,y,2));
+          c9[5] = Colour(img(x+1,y,0), img(x+1,y,1), img(x+1,y,2));
+          c9[6] = Colour(img(x-1,y+1,0), img(x-1,y+1,1), img(x-1,y+1,2));
+          c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
+          c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
 
-  //         c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
-  //         c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
-  //         c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
+          c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
+          c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
+          c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
 
-  //         c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
-  //         c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
-  //         c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
-  //         c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
+          c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
+          c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
+          c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
 
-  //         c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-  //         c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
-  //         c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
-  //         c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
+          c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
+          c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
+          c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
 
-  //         c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
-  //         c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-  //         c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
-  //         c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-  //         c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
+          c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
+          c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+          c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
 
 
-  //         Colour adaptive = colourFromAdaptive(c9,x,y,1);
-  //         img2(x,y,0) = adaptive.R();
-  //         img2(x,y,1) = adaptive.G();
-  //         img2(x,y,2) = adaptive.B();
-  //       }
-  //     }
-  //     img2.savePng(filename);
-  // }
+          Colour adaptive = colourFromAdaptive(c9,x,y,REFLECTION_DEPTH-1);
+          img2(x,y,0) = adaptive.R();
+          img2(x,y,1) = adaptive.G();
+          img2(x,y,2) = adaptive.B();
+        }
+        std::cerr << "AAA: " << y << "/" << height << std::endl;
+      }
+      img2.savePng(filename);
+  }
   std::cerr << "DONE" << std::endl;
 }
 
@@ -357,7 +358,7 @@ Colour Renderer::backgroundColour(double x, double y){
       green = 0.0f;
       blue = 205.0f/255.0f;
     }
-    return Colour(red, green, blue);
+    return  Colour(0.0, 0.0, (double)y / height);
 }
 
 Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth){
@@ -394,7 +395,7 @@ Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y,
   // return returnColour;
 }
 
-Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
+Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex){
   if(recursionDepth < REFLECTION_DEPTH){
     Vector3D normal = intersection.normal;
     Vector3D reflection_direction = ray.direction - 2 * ( ray.direction.dot(normal) ) * normal;
@@ -409,7 +410,7 @@ Colour Renderer::colourFromReflection(Ray ray, Intersection intersection, int re
 }
 
 
-Colour Renderer::colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
+Colour Renderer::colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex){
   if(recursionDepth < REFLECTION_DEPTH){
     Colour glossyColour(0.0);
     Vector3D normal = intersection.normal;
@@ -442,40 +443,106 @@ Colour Renderer::colourFromGlossy(Ray ray, Intersection intersection, int recurs
     glossyColour =  (1/(double) GLOSSY_AMOUNT) * glossyColour;
     return glossyColour;
   }
-  return Colour(0.0);
-}
-
-Colour Renderer::colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex){
-
-  Material* mat = intersection.material;
-  double refractive_index =  mat->get_refract();
-
-  Vector3D normal = intersection.normal;
-
-  bool inside = (ray.direction.dot(normal) < 0);
-  double n = 1/refractive_index;
-  if (!inside) {
-    normal = -normal;
-  }
-
-  double cosI = normal.dot(ray.direction);
-  double sinT2 = n * n * (1 - cosI * cosI);
-
-  if (sinT2 > 1) {
-      return Colour(0.0, 0.0, 0.0);
-  } else {
-    Vector3D refraction_direction = n * ray.direction - (n + std::sqrt(1 - sinT2)) * normal;
-    Ray refraction_ray(intersection.point, refraction_direction);
-
-    Intersection refraction_intersection = root->intersect(refraction_ray);
-    if (refraction_intersection.hit) {
-      return colourFromRay(refraction_ray, refraction_intersection, recursionDepth + 1, refractiveIndex);
-    }
-  }
   return Colour(0.0, 0.0, 0.0);
 }
 
-Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, int refractiveIndex){
+Colour Renderer::colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex){
+
+  Vector3D vVec = intersection.point - eye;
+  vVec.normalize();
+  Vector3D normal = intersection.normal;
+
+  Vector3D transmisiveRay;
+  Point3D point;
+  Intersection refractionIntersection;
+  if(normal.dot(vVec) < 0){ // Going into sphere
+    double nr = 1/intersection.material->get_refract();  
+    double rootContent = std::sqrt(1 - nr * nr * (1 - (normal.dot(-vVec) *
+                       (normal.dot(-vVec))))); 
+    if(rootContent >= 0.0){
+      transmisiveRay = (nr*(normal.dot(-vVec))-rootContent)*normal-(nr*-vVec); 
+      point = intersection.point + 0.0009 * vVec;
+      Ray refractionRay(point, transmisiveRay);
+      refractionIntersection = root->intersect(refractionRay);
+      if(refractionIntersection.hit){
+        return colourFromRay(refractionRay, refractionIntersection, recursionDepth+1, refractiveIndex);
+      }
+    }
+  }
+  else{
+    float nr = intersection.material->get_refract();
+    float rootContent = std::sqrt(1 - nr * nr * (1-(-normal.dot(-ray.direction)* (-normal.dot(-ray.direction)))));
+    if(rootContent >= 0.0){
+      transmisiveRay = (nr * (-normal.dot(-ray.direction)) - rootContent) 
+                        * -normal - ( nr * -ray.direction );    
+      point = intersection.point + 0.0009 * ray.direction;
+      Ray refractionRay(point, transmisiveRay);
+      refractionIntersection = root->intersect(refractionRay);
+      if(refractionIntersection.hit){
+        return colourFromRay(refractionRay, refractionIntersection, recursionDepth+1, refractiveIndex);         
+      }
+    }
+  }
+
+  return Colour(0.0);
+  // Material* mat = intersection.material;
+  // double n1 = refractiveIndex;
+  // double n2 =  mat->get_refract();
+  // double refractRatio = 1/n1;
+  // Vector3D viewDirection = intersection.point - eye;
+  // Vector3D normal = intersection.normal;
+  // if((ray.direction.dot(normal) < 0)){
+  //   normal = -normal;
+  // }
+  // double cosInc = ray.direction.dot(intersection.normal);
+  // double sinT2 = refractRatio * refractRatio  * (1 - cosInc * cosInc);
+  // Vector3D transDirection = -refractRatio * ray.direction +
+  //                          (refractRatio * cosInc - sqrt(1.0 - sinT2)) * normal;
+
+  // Ray refractionRay(intersection.point, transDirection);
+  // Intersection refractionIntersection = root->intersect(refractionRay);
+
+  // if(recursionDepth < REFLECTION_DEPTH){
+  //   if(refractionIntersection.hit){
+  //     return colourFromRay(refractionRay, refractionIntersection, recursionDepth + 1, refractiveIndex);
+  //   }
+  //   else{
+  //     std::cerr << "DONT1" << std::endl;
+  //     return Colour(0);
+  //   }
+  // }
+  // return Colour(0);
+
+  // double n1 = refractiveIndex;
+  // double n2 =  intersection.material->get_refract();
+  // double n = n1/n2;
+  // Vector3D normal = intersection.normal;
+  // bool inside = (ray.direction.dot(normal) < 0);
+
+  // if (!inside) {
+  //   normal = -normal;
+  // }
+
+  // double cosI = normal.dot(ray.direction);
+  // double sinT2 = n * n * (1 - cosI * cosI);
+
+  // if (sinT2 > 1.0) {
+  //     std::cerr << "sinT2" << sinT2 << std::endl;
+  //     return colourFromRay(ray, intersection, REFLECTION_DEPTH, refractiveIndex);
+  // } else {
+  //   Vector3D refraction_direction = n * ray.direction - (n + std::sqrt(1 - sinT2)) * normal;
+  //   Ray refraction_ray(intersection.point, refraction_direction);
+
+  //   Intersection refraction_intersection = root->intersect(refraction_ray);
+  //   if (refraction_intersection.hit) {
+  //     return colourFromRay(refraction_ray, refraction_intersection, recursionDepth+1, n2);
+  //   }
+  // }
+  // // std::cerr << "green"  << std::endl;
+  // return Colour(1.0, 1.0, 0.0);
+}
+
+Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, double refractiveIndex){
   minIntersection.normal.normalize();
   Vector3D color;
 
@@ -496,6 +563,8 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
     reflectColour = colourFromReflection(ray, minIntersection, recursionDepth, refractiveIndex);
   if( glossy > 0.0)
     glossyColour = colourFromGlossy(ray, minIntersection, recursionDepth, refractiveIndex);
+  if( refract > 0.0)
+    refractColour = colourFromRefraction(ray, minIntersection, recursionDepth, refractiveIndex);
 
   for (std::list<Light*>::const_iterator it = lights.begin(); it != lights.end(); it++) {
     Light * light = *it;
@@ -540,7 +609,10 @@ Colour Renderer::colourFromRay(Ray ray, Intersection minIntersection, int recurs
 
     finalColour = finalColour + diffuse + specular;
   }
-  return (1.0 - reflectiveIndex - glossy) * finalColour + reflectiveIndex * reflectColour + glossy * glossyColour;
+  if(refract > 0){
+    return (1.0 - 0.4) * finalColour + 0.4 * refractColour;
+  }
+  return (1.0 - reflectiveIndex - glossy) * finalColour + reflectiveIndex * reflectColour + glossy * glossyColour + refractColour;
 }
 
 

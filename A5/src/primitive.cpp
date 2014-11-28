@@ -74,7 +74,6 @@ NonhierSphere::~NonhierSphere()
 
 Intersection NonhierSphere::intersect(Ray r){
 	Intersection intersection;	
-
 	Point3D origin = r.origin;
 	Vector3D dir = r.direction;
 	Vector3D normal;	
@@ -98,7 +97,6 @@ Intersection NonhierSphere::intersect(Ray r){
 //     intersection.hit = true;
 //   }
 // }
-
   double bsq = pow(r.direction.dot(r.origin - m_pos), 2);
   double ac = r.direction.length2() * ((r.origin - m_pos).length2() - pow(m_radius,2) ) ;
   double underRoot = bsq - ac;

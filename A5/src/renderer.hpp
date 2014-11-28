@@ -62,11 +62,11 @@ public:
 
      Colour backgroundColour(double x, double y);
      Colour pixelColour(double x, double y);
-     Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
-     Colour colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
-     Colour colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, int refractiveIndex);
+     Colour colourFromReflection(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex);
+     Colour colourFromRefraction(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex);
+     Colour colourFromGlossy(Ray ray, Intersection intersection, int recursionDepth, double refractiveIndex);
      Colour colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth);
-     Colour colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, int refractiveIndex);
+     Colour colourFromRay(Ray ray, Intersection minIntersection, int recursionDepth, double refractiveIndex);
      void renderRow(int rowNumber, int length);
 };
 
