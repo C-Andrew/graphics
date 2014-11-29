@@ -25,22 +25,28 @@ Yellow = gr.material({230/255.0, 230/255.0, 10/255.0}, {0.5, 0.4, 0.8}, 25, 0.0,
 -- Read in the regice model from a separate file.
 -- #############################################
 
-regice = gr.mesh('regice', readobj('regice.obj'))
-factor = 2.0/(2.76+3.637)
+require('regice_model')
+scene:add_child(regice_instance)
+regice_instance:add_child(regice)
+regice_instance:translate(1,1.3,14)
+regice_instance:rotate('Y', 0)
+regice_instance:scale(3, 3, 3)
+regice_instance:add_child(eye1)
+regice_instance:add_child(eye2)
+regice_instance:add_child(eye3)
+regice_instance:add_child(eye4)
+regice_instance:add_child(eye5)
+regice_instance:add_child(eye6)
+regice_instance:add_child(eye7)
 
-regice:set_material(Aqua)
 
-regice:translate(0.0, -1.0, 0.0)
-regice:scale(factor, factor, factor)
-regice:translate(0.0, 3.637, 0.0)
+-- crystal = gr.mesh('crystal', readobj('crystal.obj'))
+-- factor = 2.0/(2.76+3.637)
 
-crystal = gr.mesh('crystal', readobj('crystal.obj'))
-factor = 2.0/(2.76+3.637)
-
-crystal:set_material(Aqua)
-crystal:translate(0.0, -1.0, 0.0)
-crystal:rotate('y', -45)
-crystal:scale(1, 1, 1)
+-- crystal:set_material(Aqua)
+-- crystal:translate(0.0, -1.0, 0.0)
+-- crystal:rotate('y', -45)
+-- crystal:scale(1, 1, 1)
 
 
 
@@ -64,57 +70,12 @@ plane:scale(30, 30, 30)
 
 
 
-regice_instance = gr.node('regice')
-scene:add_child(regice_instance)
-regice_instance:add_child(regice)
-regice_instance:translate(1,1.3,14)
-regice_instance:rotate('Y', 0)
-regice_instance:scale(3, 3, 3)
 
--- Vertical
-eye1 = gr.sphere('eye1')
-regice_instance:add_child(eye1)
-eye1:set_material(Yellow)
-eye1:translate(0, 4, 1.2)
-eye1:scale(0.12,0.12,0.12)
 
-eye2 = gr.sphere('eye2')
-regice_instance:add_child(eye2)
-eye2:set_material(Yellow)
-eye2:translate(0, 4.5, 1.2)
-eye2:scale(0.12,0.12,0.12)
 
-eye3 = gr.sphere('eye3')
-regice_instance:add_child(eye3)
-eye3:set_material(Yellow)
-eye3:translate(0, 5, 1.1)
-eye3:scale(0.12,0.12,0.12)
-  
--- Horizontal Left
-eye4 = gr.sphere('eye4')
-regice_instance:add_child(eye4)
-eye4:set_material(Yellow)
-eye4:translate(-0.38, 4.5, 1.0)
-eye4:scale(0.12,0.12,0.12)
 
-eye5 = gr.sphere('eye5')
-regice_instance:add_child(eye5)
-eye5:set_material(Yellow)
-eye5:translate(-0.7, 4.5, 0.85)
-eye5:scale(0.12,0.12,0.12)
 
--- Horizontal Right
-eye6 = gr.sphere('eye6')
-regice_instance:add_child(eye6)
-eye6:set_material(Yellow)
-eye6:translate(0.4, 4.5, 1.0)
-eye6:scale(0.12,0.12,0.12)
 
-eye7 = gr.sphere('eye7')
-regice_instance:add_child(eye7)
-eye7:set_material(Yellow)
-eye7:translate(0.7, 4.5, 0.85)
-eye7:scale(0.12,0.12,0.12)
 
 -- crystal_node = gr.node('crystal')
 -- scene:add_child(crystal_node)

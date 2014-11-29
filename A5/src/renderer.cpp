@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 #include <pthread.h>
 #include <assert.h> 
-#define NUM_THREADS 3
+#define NUM_THREADS 16
 #define REFLECTION_DEPTH 10
 #define GLOSSY_AMOUNT 10
 #define JITTER_AMOUNT 1
@@ -139,10 +139,10 @@ void* startRenderRow(void* data){
 void Renderer::render()
 {
   // Fill in raytracing code here.
-  std::cerr << "Stub: render(" << root << ",\n     "
-            << filename << ", " << width << ", " << height << ",\n     "
-            << eye << ", " << view << ", " << up << ", " << fov << ",\n     "
-            << ambient << ",\n     {";
+  // std::cerr << "Stub: render(" << root << ",\n     "
+  //           << filename << ", " << width << ", " << height << ",\n     "
+  //           << eye << ", " << view << ", " << up << ", " << fov << ",\n     "
+  //           << ambient << ",\n     {";
 
   for (std::list<Light*>::const_iterator I = lights.begin(); I != lights.end(); ++I) {
     if (I != lights.begin()) std::cerr << ", ";  // Add light handling
@@ -175,7 +175,7 @@ void Renderer::render()
     img.savePng(filename);
   }
   else {
-    std::cerr << "Adaptive Anti-Aliasing" << std::endl;
+    // std::cerr << "Adaptive Anti-Aliasing" << std::endl;
     Colour c9[25];
     Image img2(width, height, 3);
     for (int y = 1; y < height - 1; y++) {
@@ -216,7 +216,7 @@ void Renderer::render()
           img2(x,y,1) = adaptive.G();
           img2(x,y,2) = adaptive.B();
         }
-        std::cerr << "AAA: " << y << "/" << height << std::endl;
+        // std::cerr << "AAA: " << y << "/" << height << std::endl;
       }
       img2.savePng(filename);
   }
@@ -228,7 +228,7 @@ void Renderer::render()
 // lenght = x
 void Renderer::renderRow(int rowStart, int rowEnd)
 {
-  std::cerr << "Initiate Render rows: " << rowStart << " to " << rowEnd << std::endl;
+  // std::cerr << "Initiate Render rows: " << rowStart << " to " << rowEnd << std::endl;
   for(int currentRow = rowStart; currentRow < rowEnd; currentRow++){
     for(int i = 0; i < width; i++){
       Colour pixelColour1 = pixelColour(i, currentRow);
@@ -237,7 +237,7 @@ void Renderer::renderRow(int rowStart, int rowEnd)
       // I will keep this here for time comparisons
 
       // BAD SUPER SAMPLING BAD!
-      if(enableSuperSample){
+      if(false){
         // Super Sampling X9
         // std::cerr << " BAD super sample" << std::endl;
         Colour pixelColour1 = pixelColour(i - 0.33, currentRow - 0.33);
@@ -263,7 +263,7 @@ void Renderer::renderRow(int rowStart, int rowEnd)
     // std::cerr << "Rendered rows: " << currentRow << std::endl;
 
   }
-  std::cerr << "Rendered rows: " << rowStart << " to " << rowEnd << std::endl;
+  // std::cerr << "Rendered rows: " << rowStart << " to " << rowEnd << std::endl;
 }
 
 // Returns a new camera/eye point that is slightly "jittered" from the original

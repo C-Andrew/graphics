@@ -341,7 +341,7 @@ Intersection Cylinder::intersect(Ray ray){
 
     // There is at least 1 intersection. Find minimum
     double Y_MAX = 1.0 + DBL_MIN;
-    double Y_MIN = 0 - DBL_MIN;
+    double Y_MIN =  DBL_MIN;
 
     std::vector< std::pair<Point3D, double> > possiblePOI;
     double minRoot = DBL_MAX;
@@ -402,12 +402,12 @@ Intersection Cylinder::intersect(Ray ray){
     intersection.point = closestPoint;
     intersection.hit = true;
     intersection.t = minRoot;
-    if (intersection.point[2] <= Y_MIN ) {
-        intersection.normal = Vector3D(0, 0, -1);
+    if (intersection.point[2] <= t3 ) {
+        intersection.normal = Vector3D(0, 0, 1);
         intersection.u = (1.0 - intersection.point[0]) / 2;
         intersection.v = (1.0 - intersection.point[1]) / 2;
-    } else if (intersection.point[2] >= Y_MAX) {
-        intersection.normal = Vector3D(0, 0, 1);
+    } else if (intersection.point[2] >= t4) {
+        intersection.normal = Vector3D(0, 0, -1);
         intersection.u = (1.0 - intersection.point[0]) / 2;
         intersection.v = (1.0 - intersection.point[1]) / 2;
     } else {
@@ -440,8 +440,6 @@ Point2D Cylinder::get_texture(const Point3D& p) const{
     if (p[1] > 0) {
       theta = -theta;
     }
-  
-    // Texture seemed stretched here so cut the range in half.
     double x = (theta + M_PI) / M_PI;
     if (x > 1) x = x -1;
 
@@ -454,8 +452,6 @@ Point2D Cylinder::get_texture(const Point3D& p) const{
         u = (1.0 - p[0]) / 2;
         v = (1.0 - p[1]) / 2;
         return Point2D(u,v);
-  } else {
-    std::cerr << "Unknown Region" << std::endl;
   }
 
   return Point2D(-1, -1);
