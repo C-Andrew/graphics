@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <assert.h> 
 #define NUM_THREADS 16
-#define REFLECTION_DEPTH 10
+#define REFLECTION_DEPTH 2
 #define GLOSSY_AMOUNT 10
 #define JITTER_AMOUNT 1
 
@@ -237,7 +237,7 @@ void Renderer::renderRow(int rowStart, int rowEnd)
       // I will keep this here for time comparisons
 
       // BAD SUPER SAMPLING BAD!
-      if(false){
+      if(enableSuperSample){
         // Super Sampling X9
         // std::cerr << " BAD super sample" << std::endl;
         Colour pixelColour1 = pixelColour(i - 0.33, currentRow - 0.33);
