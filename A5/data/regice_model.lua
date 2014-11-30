@@ -1,14 +1,26 @@
 require('readobj')
 
-regice = gr.mesh('regice', readobj('regice.obj'))
+regice_body = gr.mesh('regice_body', readobj('body.obj'))
+regice_right_arm = gr.mesh('regice_right_arm', readobj('right_arm.obj'))
+regice_left_arm = gr.mesh('regice_left_arm', readobj('left_arm.obj'))
+
+
+-- regice = gr.mesh('regice', readobj('regice.obj'))
 factor = 2.0/(2.76+3.637)
 
-regice:set_material(Aqua)
+regice_body:set_material(regice_mat)
+regice_body:translate(0.0, 0.16, 0.0)
+regice_body:scale(factor, factor, factor)
+-- regice_body:translate(0.0, 3.637, 0.0)
 
-regice:translate(0.0, -1.0, 0.0)
-regice:scale(factor, factor, factor)
-regice:translate(0.0, 3.637, 0.0)
+regice_right_arm:set_material(regice_mat)
+regice_right_arm:translate(1.1, 4.25, 0.0)
+regice_right_arm:scale(factor, factor, factor)
 
+regice_left_arm:set_material(regice_mat)
+regice_left_arm:translate(-1.1, 4.25, 0.0)
+regice_left_arm:rotate('x', 90)
+regice_left_arm:scale(factor, factor, factor)
 
 
 regice_instance = gr.node('regice')

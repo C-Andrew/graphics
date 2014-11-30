@@ -25,6 +25,8 @@ public:
   float sizeZ;
   std::vector<Point3D> box_vertices;
   std::vector< std::vector<Point3D> > box_faces;
+  NonhierSphere m_boundingSphere;
+  
   bool intersectBoundingBox(Ray r);
 
 private:

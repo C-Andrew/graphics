@@ -6,7 +6,8 @@
 Mesh::Mesh(const std::vector<Point3D>& verts,
            const std::vector< std::vector<int> >& faces)
   : m_verts(verts),
-    m_faces(faces)
+    m_faces(faces),
+     m_boundingSphere(Point3D(0.0, 0.0, 0.0), 0.0)
 {
   float maxX, maxY, maxZ;
   float minX, minY, minZ;
@@ -93,6 +94,28 @@ Mesh::Mesh(const std::vector<Point3D>& verts,
     box_faces.push_back(bottom_face);
     box_faces.push_back(left_face);
     box_faces.push_back(right_face); 
+
+  // bounding sphere
+
+  double maxDist = 0.0;
+  Point3D point1, point2;
+  std::vector<Point3D>::const_iterator p1;
+  std::vector<Point3D>::const_iterator p2;
+  for (p1 = m_verts.begin(); p1 != m_verts.end(); p1++) {
+    for (p2 = p1 + 1; p2 != m_verts.end(); p2++) {
+      double dist = (*p1 - *p2).length();
+      if (dist > maxDist) {
+        maxDist = dist;
+        point1 = *p1;
+        point2 = *p2;
+      }
+    }
+  }
+
+  double radius = maxDist / 2.0;
+  std::cerr << radius << std::endl;
+  Point3D center = (1.0/2.0) * (point1 + point2);
+  m_boundingSphere = NonhierSphere(center, radius);
 
 }
 
@@ -188,7 +211,8 @@ Intersection Mesh::intersect(Ray r){
   // Check if the ray intersects your magical box
   // If it does, do real intersection
   // Intersection boundingBoxIntersection = intersectBoundingBox(r);
-  if(!intersectBoundingBox(r)){
+  Intersection boundSphere = m_boundingSphere.intersect(r);
+  if(!boundSphere.hit){
     return intersection;
   }
 
