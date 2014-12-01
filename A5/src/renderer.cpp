@@ -176,7 +176,7 @@ void Renderer::render()
   }
   else {
     // std::cerr << "Adaptive Anti-Aliasing" << std::endl;
-    Colour c9[25];
+    Colour c9[9];
     Image img2(width, height, 3);
     for (int y = 1; y < height - 1; y++) {
         for (int x = 1; x < width - 1; x++) {
@@ -190,25 +190,25 @@ void Renderer::render()
           c9[7] = Colour(img(x,y+1,0), img(x,y+1,1), img(x,y+1,2));
           c9[8] = Colour(img(x+1,y+1,0), img(x+1,y+1,1), img(x+1,y+1,2));
 
-          c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
-          c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
-          c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
+          // c9[9] = Colour(img(x+2,y-1,0), img(x+2,y-1,1), img(x+2,y-1,2));
+          // c9[10] = Colour(img(x+2,y,0), img(x+2,y,1), img(x+2,y,2));
+          // c9[11] = Colour(img(x+2,y+1,0), img(x+2,y+1,1), img(x+2,y+1,2));
 
-          c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
-          c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
-          c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
-          c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          // c9[12] = Colour(img(x-1,y-2,0), img(x-1,y-2,1), img(x-1,y-2,2));
+          // c9[13] = Colour(img(x,y-2,0), img(x,y-2,1), img(x,y-2,2));
+          // c9[14] = Colour(img(x+1,y-2,0), img(x+1,y-2,1), img(x+1,y-2,2));
+          // c9[15] = Colour(img(x+2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
 
-          c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-          c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
-          c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
-          c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
+          // c9[16] = Colour(img(x-1,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          // c9[17] = Colour(img(x,y+2,0), img(x,y+2,1), img(x,y+2,2));
+          // c9[18] = Colour(img(x+1,y+2,0), img(x+1,y+2,1), img(x+1,y+2,2));
+          // c9[19] = Colour(img(x+2,y+2,0), img(x+2,y+2,1), img(x+2,y+2,2));
 
-          c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
-          c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
-          c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
-          c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
-          c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
+          // c9[20] = Colour(img(x-2,y-2,0), img(x+2,y-2,1), img(x+2,y-2,2));
+          // c9[21] = Colour(img(x-2,y+2,0), img(x-1,y+2,1), img(x-1,y+2,2));
+          // c9[22] = Colour(img(x-2,y+1,0), img(x,y+1,1), img(x,y+1,2));
+          // c9[23] = Colour(img(x-2,y-1,0), img(x+1,y-1,1), img(x+1,y-1,2));
+          // c9[24] = Colour(img(x-2,y,0), img(x+2,y,1), img(x+2,y,2));
 
 
           Colour adaptive = colourFromAdaptive(c9,x,y,REFLECTION_DEPTH-1);
@@ -361,10 +361,10 @@ Colour Renderer::backgroundColour(double x, double y){
     return  Colour(0.0, 0.0, (double)y / height);
 }
 
-Colour Renderer::colourFromAdaptive(Colour colourSample[25], double x, double y, int recursionDepth){
+Colour Renderer::colourFromAdaptive(Colour colourSample[9], double x, double y, int recursionDepth){
   double errorEpsilon = 0.1;
   bool colourChange = false;
-  for(int i = 0; i < 25; i++){
+  for(int i = 0; i < 9; i++){
     double error = absVal(colourSample[i].R()) - absVal(colourSample[0].R());
     error += absVal(colourSample[i].G()) - absVal(colourSample[0].G());
     error += absVal(colourSample[i].B()) - absVal(colourSample[0].B());
