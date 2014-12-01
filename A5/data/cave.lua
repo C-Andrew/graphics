@@ -22,19 +22,20 @@ White = gr.material({1.0, 1.0, 1.0}, {0.5, 0.4, 0.8}, 25, 0.0, 0.0)
 
 
 shadow = gr.material({64/255.0, 64/255.0, 64/255.0}, {0.0, 0.0, 0.0}, 25, 0.0, 0.0)
-brown = gr.material({90/255.0, 53/255.0, 15/255.0}, {0.0, 0.0, 0.0}, 25, 0.1, 0.0)
+brown = gr.material({90/255.0, 53/255.0, 15/255.0}, {0.0, 0.0, 0.0}, 25, 0.0, 0.0)
 dirt = gr.material({90/255.0, 53/255.0, 15/255.0}, {0.0, 0.0, 0.0}, 25, 0.0, 0.0)
 regice_mat = gr.material({20/255.0, 206/255.0, 235/255.0}, {0.5, 0.4, 0.8}, 25, 0.0, 1.0)
 icy = gr.material({115/255.0, 204/255.0, 255/255.0}, {0.5, 0.4, 0.8}, 25, 0.3, 0.0)
 icy2 = gr.material({108/255.0, 185/255.0, 229/255.0}, {0.5, 0.4, 0.8}, 25, 0.4, 0.0)
 icy3 = gr.material({44/255.0, 165/255.0, 235/255.0}, {0.5, 0.4, 0.8}, 25, 0.3, 0.0)
-frost = gr.texture('frost.png', {0.0, 0.0, 0.0}, 1.0)
+dull_eye = gr.material({137/255.0, 139/255.0, 66/255.0}, {0.5, 0.4, 0.8}, 25, 0.0, 1.0)
+dull_ice =  gr.material({59/255.0, 146/255.0, 146/255.0}, {0.5, 0.4, 0.8}, 25, 0.0, 1.0)
 
-gr.bump(dirt, 'bumpmap.png')
+-- gr.bump(dirt, 'bumpmap.png')
 
 scene = gr.node('scene')
 scene:translate(20, -50, -80)
--- scene:rotate('x',20)
+-- scene:rotate('x',90)
 
 
 
@@ -45,7 +46,7 @@ floor:translate(0,30 , 0);
 floor:scale(20,0.5,10)
 
 back = gr.nh_box('back', {0,0,0}, 10)
-scene:add_child(back)
+-- scene:add_child(back)
 back:set_material(dirt)
 back:translate(-2,28,20)
 back:rotate('y', -30)
@@ -65,8 +66,8 @@ regice_instance:add_child(regice_body)
 regice_instance:add_child(regice_right_arm)
 regice_instance:add_child(regice_left_arm)
 
-regice_right_arm:rotate('z', -30)
-regice_left_arm:rotate('y', 30)
+regice_right_arm:rotate('z', -60)
+regice_left_arm:rotate('y', 60)
 
 regice_instance:add_child(eye1)
 regice_instance:add_child(eye2)
@@ -204,7 +205,7 @@ rock5:rotate('y',12)
 rock5:scale(1.5,1.5,1.5)
 
 
--- Add Rocks for background
+-- -- Add Rocks for background
 
 
 rock100 = gr.node('rock100')
@@ -214,12 +215,48 @@ rock100:translate(90,35,-85)
 rock100:rotate('x',23)
 rock100:scale(14,14,14)
 
+-- rock101 = gr.node('rock101')
+-- rock101:add_child(rock_poly)
+-- scene:add_child(rock101)
+-- rock101:translate(70,68,-65)
+-- rock101:rotate('x',23)
+-- rock101:scale(14,14,14)
+
+-- rock107 = gr.node('rock107')
+-- rock107:add_child(rock_poly)
+-- scene:add_child(rock107)
+-- rock107:translate(0,35,-70)
+-- rock107:rotate('x',59)
+-- rock107:scale(14,14,14)
+
+-- rock113 = gr.node('rock113')
+-- rock113:add_child(rock_poly)
+-- scene:add_child(rock113)
+-- rock113:translate(-65,35,-70)
+-- rock113:rotate('x',9)
+-- rock113:scale(16,16,16)
+
 rock101 = gr.node('rock101')
 rock101:add_child(rock_poly)
 scene:add_child(rock101)
-rock101:translate(70,68,-65)
+rock101:translate(75,68,-85)
 rock101:rotate('x',23)
-rock101:scale(14,14,14)
+rock101:scale(16,16,16)
+
+
+rock107 = gr.node('rock107')
+rock107:add_child(rock_poly)
+scene:add_child(rock107)
+rock107:translate(0,35,-70)
+rock107:rotate('x',23)
+rock107:scale(16,16,16)
+
+rock113 = gr.node('rock113')
+rock113:add_child(rock_poly)
+scene:add_child(rock113)
+rock113:translate(-65,35,-70)
+rock113:rotate('x',59)
+rock113:scale(16,16,16)
 
 rock102 = gr.node('rock102')
 rock102:add_child(rock_poly)
@@ -257,12 +294,6 @@ rock106:translate(32,90,-75)
 rock106:rotate('x',45)
 rock106:scale(14,14,14)
 
-rock107 = gr.node('rock107')
-rock107:add_child(rock_poly)
-scene:add_child(rock107)
-rock107:translate(0,35,-70)
-rock107:rotate('x',59)
-rock107:scale(14,14,14)
 
 rock108 = gr.node('rock108')
 rock108:add_child(rock_poly)
@@ -299,12 +330,6 @@ rock112:translate(-30,85,-90)
 rock112:rotate('z',65)
 rock112:scale(14,14,14)
 
-rock113 = gr.node('rock113')
-rock113:add_child(rock_poly)
-scene:add_child(rock113)
-rock113:translate(-65,35,-70)
-rock113:rotate('x',9)
-rock113:scale(16,16,16)
 
 rock114 = gr.node('rock114')
 rock114:add_child(rock_poly)
@@ -321,7 +346,7 @@ rock115:rotate('x',65)
 rock115:scale(14,14,14)
 
 
-----------------------------
+-- ----------------------------
 ice = gr.node('ice')
 ice:add_child(ice_poly)
 scene:add_child(ice)
@@ -405,21 +430,35 @@ a1:scale(15,0.1,15)
 -- back:scale(10,10,1)
 
 -- The lights
-l1 = gr.light({0,26,114}, {0.8, 0.8, 0.8}, {1, 0, 0})
-l2 = gr.light({20, 35, -20}, {0.8, 0.8, 0.8}, {1.4, 0, 0})
+l1 = gr.light({-200,200,280}, {0.0, 0.8, 0.0}, {1, 0, 0})
+l2 = gr.light({-50, 35, -20}, {0.8, 0.8, 0.8}, {3, 0, 0})
 l3 = gr.light({0, 0, -114}, {0.0, 0.0, 0.8}, {1, 0, 0})
 
-
+-- -- First 30 Frames
 -- for i=0,30,1 do
---     s = 'cave' .. string.format("%.4d",i) .. '.png'
---     regice_right_arm:rotate('z', 1)
+--     s = './cave_frames/cave' .. string.format("%.4d",i) .. '.png'
+--     -- regice_right_arm:rotate('z', 1)
+--     -- l2 = gr.light({-50, 35, -20}, {0.8, 0.8, 0.8}, {3.0- 0.02222 * i, 0, 0})
 --     gr.render(scene, s, 500, 500, 
---           {0, 0, 0}, {0, 0, -1}, {0, 1, 0}, 50,
---           {0.4, 0.4, 0.4}, {l1, l2})  
+--       {0, 0, 0}, {0.20, -0.1, -1}, {0, 1, 0}, 50,
+--       {0.4, 0.4, 0.4}, { l2})  
 --     print('Rendered Frame' .. i)
 -- end
 
 
-gr.render(scene, 'cave.png', 500, 500, 
-      {0, 0, 0}, {0.20, 0.-0.1, -1}, {0, 1, 0}, 50,
-      {0.4, 0.4, 0.4}, { l2})
+-- Next 90 frames
+-- 70-79
+for i=51,59,1 do
+    s = './cave_frames/cave' .. string.format("%.4d",i+30) .. '.png'
+    -- regice_right_arm:rotate('z', 1)
+    l2 = gr.light({-50, 35, -20}, {0.8, 0.8, 0.8}, {3.0- 0.02222 * i, 0, 0})
+    gr.render(scene, s, 500, 500, 
+      {0, 0, 0}, {0.20, -0.1, -1}, {0, 1, 0}, 50,
+      {0.4, 0.4, 0.4}, { l2})  
+    print('Rendered Frame' .. 30+i)
+end
+
+
+-- gr.render(scene, 'cave.png', 500, 500, 
+--       {0, 0, 0}, {0.20, -0.1, -1}, {0, 1, 0}, 50,
+--       {0.4, 0.4, 0.4}, { l2})
